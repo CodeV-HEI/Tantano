@@ -1,4 +1,4 @@
-# Posu - Financial Event Recording Application
+# Tantano - Financial Event Recording Application
 
 <p align="center">
   <img src="https://img.shields.io/badge/Expo-54.0.31-blue.svg" alt="Expo">
