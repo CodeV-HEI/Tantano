@@ -11,6 +11,9 @@
 
 Tantano is a modern mobile financial tracking application designed for managing personal finances, transactions, wallets, and labels with an intuitive neon-styled user interface and real-time synchronization.
 
+
+The project consists of a mobile application that allows users to manage and track their daily, monthly, and annual expenses, as well as plan their future spending. It offers the ability to set financial goals and receive regular feedback on their progress. The application will also offer a premium feature for entrepreneurs, enabling them to track and manage their project budgets.
+
 ## 🚀 Features
 
 - **📊 Dashboard**: Real-time overview of total balance, recent transactions, and quick access to main features
