@@ -9,7 +9,7 @@
 
 ## 📱 Application Overview
 
-Posu is a modern mobile financial tracking application designed for managing personal finances, transactions, wallets, and labels with an intuitive neon-styled user interface and real-time synchronization.
+Tantano is a modern mobile financial tracking application designed for managing personal finances, transactions, wallets, and labels with an intuitive neon-styled user interface and real-time synchronization.
 
 ## 🚀 Features
 
