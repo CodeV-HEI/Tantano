@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: Posu API
+  description: |
+    Financial event recording api.
+  version: "0.0.1"
+paths:
+  /ping:
+    get:
+      operationId: ping
+      description: Just a dumb endpoint that return pong (for now ;])
+      tags:
+        - Health
+      responses:
+        "200":
+          description: "ping pong"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "pong"
+
+  /health/email:
+    get:
+      operationId: checkMailerHealth
+      description: send emails for testing
+      tags:
+        - Email
+      parameters:
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseOK"
+
+  /login:
+    post:
+      operationId: login
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserWithApiKey"
+
+  /register:
+    post:
+      operationId: register
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserWithApiKey"
+
+  /wallet:
+    post:
+      operationId: createWallet
+      description: Creates new wallets
+      tags:
+        - Wallet
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/WalletMinimalInfo"
+      responses:
+        "201":
+          description: "Wallet(s) created"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wallet"
+        "409":
+          description: "One or multiple given references already exists"
+    get:
+      operationId: getAllWallet
+      description: "Returns all existing wallet"
+      tags:
+        - Wallet
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: "All wallets"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wallet"
+
+  /transaction:
+    get:
+      operationId: getAllTransaction
+      description: "Gets All transaction"
+      tags:
+        - Transaction
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: "All transaction"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      operationId: recordTransactions
+      description: "Records a given list of transaction"
+      tags:
+        - Transaction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/TransactionMinimalInfo"
+      responses:
+        "201":
+          description: "Transactions created"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+
+  /label:
+    get:
+      operationId: getAllLabels
+      description: "Gets all labels"
+      tags:
+        - Label
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: "All labels"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Label"
+    post:
+      operationId: createLabels
+      description: "Creates new labels"
+      tags:
+        - Label
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/LabelMinimalInfo"
+      responses:
+        "201":
+          description: "Labels created"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Label"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+    Transaction:
+      allOf:
+        - $ref: "#/components/schemas/TransactionMinimalInfo"
+        - $ref: "#/components/schemas/WithId"
+        - $ref: "#/components/schemas/WithCreatedAt"
+        - $ref: "#/components/schemas/WithUpdatedAt"
+      properties:
+        labels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+
+    TransactionMinimalInfo:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        transactionType:
+          $ref: "#/components/schemas/TransactionType"
+        walletReference:
+          type: string
+          example: "BODV-0000"
+        amount:
+          type: number
+          example: 2000000
+        labels:
+          type: array
+          items:
+            type: string
+          example: ["FOOD", "RENT"]
+        description:
+          type: string
+          example: "end of 2025 income"
+
+    Label:
+      allOf:
+        - $ref: "#/components/schemas/LabelMinimalInfo"
+        - $ref: "#/components/schemas/WithId"
+        - $ref: "#/components/schemas/WithCreatedAt"
+        - $ref: "#/components/schemas/WithUpdatedAt"
+
+    LabelMinimalInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Food"
+        reference:
+          type: string
+          example: "FOOD"
+
+    TransactionType:
+      type: string
+      enum:
+        - IN
+        - OUT
+      default: OUT
+
+    Wallet:
+      allOf:
+        - $ref: "#/components/schemas/WalletMinimalInfo"
+        - $ref: "#/components/schemas/WithId"
+        - $ref: "#/components/schemas/WithCreatedAt"
+
+    WalletMinimalInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Bank Of Danniville Account"
+        reference:
+          type: string
+          example: "BODV-0000"
+        type:
+          $ref: "#/components/schemas/WalletType"
+
+    WalletType:
+      type: string
+      enum:
+        - CASH
+        - BANK_ACCOUNT
+        - MOBILE_MONEY
+        - CRYPTO
+      default: CASH
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+
+    UserWithApiKey:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            apiKey:
+              type: string
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    WithId:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "6c64d77c-8654-4495-80bd-2b154b0289a8"
+
+    WithUpdatedAt:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+          format: date-time
+
+    WithCreatedAt:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+
+    ResponseOK:
+      type: string
+      example: "OK"
