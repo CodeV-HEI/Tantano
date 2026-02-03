@@ -1,6 +1,6 @@
-import { Redirect } from 'expo-router';
-import { useAuth } from '@/context/AuthContext';
-import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from "@/context/AuthContext";
+import { Redirect } from "expo-router";
+import { ActivityIndicator, View } from "react-native";
 import "../style/global.css";
 
 export default function Index() {
@@ -18,5 +18,5 @@ export default function Index() {
     return <Redirect href="/login" />;
   }
 
-  return <Redirect href="/(tabs)" />;
+  return <Redirect href="/" />;
 }
