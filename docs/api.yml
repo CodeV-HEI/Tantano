@@ -1,363 +1,565 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
-  title: Posu API
-  description: |
-    Financial event recording api.
-  version: "0.0.1"
+  title: Api
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+security:
+  - BearerAuth: []
+
+tags:
+  - name: auth
+    description: For all authentications requests
 paths:
-  /ping:
-    get:
-      operationId: ping
-      description: Just a dumb endpoint that return pong (for now ;])
+  /auth/sign-up:
+    post:
       tags:
-        - Health
+        - auth
+      security: []
+      summary: Create new account with basic user role
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Credentials"
       responses:
         "200":
-          description: "ping pong"
+          description: OK
           content:
             application/json:
               schema:
-                type: string
-                example: "pong"
-
-  /health/email:
-    get:
-      operationId: checkMailerHealth
-      description: send emails for testing
+                allOf:
+                  - $ref: "#/components/schemas/SignUpResult"
+  /auth/sign-in:
+    post:
       tags:
-        - Email
+        - auth
+      security: []
+      summary: Login with and existing account
+      operationId: signIn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Credentials"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SignInResult"
+  /account/{accountId}/label:
+    get:
+      tags:
+        - label
       parameters:
-        - in: query
-          name: to
-          required: true
-          schema:
-            type: string
-            format: email
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ResponseOK"
-
-  /login:
-    post:
-      operationId: login
-      tags:
-        - User
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequest"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserWithApiKey"
-
-  /register:
-    post:
-      operationId: register
-      tags:
-        - User
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegisterRequest"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserWithApiKey"
-
-  /wallet:
-    post:
-      operationId: createWallet
-      description: Creates new wallets
-      tags:
-        - Wallet
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/WalletMinimalInfo"
-      responses:
-        "201":
-          description: "Wallet(s) created"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Wallet"
-        "409":
-          description: "One or multiple given references already exists"
-    get:
-      operationId: getAllWallet
-      description: "Returns all existing wallet"
-      tags:
-        - Wallet
-      security:
-        - ApiKeyAuth: []
-      responses:
-        "200":
-          description: "All wallets"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Wallet"
-
-  /transaction:
-    get:
-      operationId: getAllTransaction
-      description: "Gets All transaction"
-      tags:
-        - Transaction
-      security:
-        - ApiKeyAuth: []
-      responses:
-        "200":
-          description: "All transaction"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Transaction"
-    post:
-      operationId: recordTransactions
-      description: "Records a given list of transaction"
-      tags:
-        - Transaction
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/TransactionMinimalInfo"
-      responses:
-        "201":
-          description: "Transactions created"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Transaction"
-
-  /label:
-    get:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Name"
+      summary: Get all disponibles lables for the specified account
       operationId: getAllLabels
-      description: "Gets all labels"
-      tags:
-        - Label
-      security:
-        - ApiKeyAuth: []
       responses:
         "200":
-          description: "All labels"
+          description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Label"
+                type: object
+                properties:
+                  pagination:
+                    allOf:
+                      - $ref: "#/components/schemas/PaginationResult"
+                  values:
+                    items:
+                      $ref: "#/components/schemas/Label"
     post:
-      operationId: createLabels
-      description: "Creates new labels"
       tags:
-        - Label
-      security:
-        - ApiKeyAuth: []
+        - label
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Create new label for the specified account
+      operationId: createOneLabel
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/LabelMinimalInfo"
+              allOf:
+                - $ref: "#/components/schemas/CreationLabel"
       responses:
-        "201":
-          description: "Labels created"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Label"
+  /account/{accountId}/label/{labelId}:
+    get:
+      tags:
+        - label
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/LabelId"
+      summary: Get get one label by id for the specified account
+      operationId: getOneLabel
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Label"
+    put:
+      tags:
+        - label
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/LabelId"
+      summary: Update one label by id for the specified account
+      operationId: updateOneLabel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Label"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Label"
+  /account/{accountId}/wallet:
+    get:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/IsActive"
+        - $ref: "#/components/parameters/WalletType"
+      summary: Get all disponibles wallet for the specified account
+      operationId: getAllWallets
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    allOf:
+                      - $ref: "#/components/schemas/PaginationResult"
+                  values:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Wallet"
+
+    post:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Create new wallet for the specified account
+      operationId: createOneWallet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationWallet"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Wallet"
+  /account/{accountId}/wallet/{walletId}:
+    get:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Get get one wallet by id for the specified account
+      operationId: getOneWallet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Wallet"
+    put:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Update one wallet by id for the specified account
+      operationId: updateOneWallet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UpdateWallet"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Wallet"
+
+  /account/{accountId}/wallet/{walletId}/automaticIncome:
+    put:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Update one wallet automatic income by walletId and accountId
+      operationId: updateOneWalletAutomaticIncome
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/WalletAutomaticIncome"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Wallet"
+
+  /account/{accountId}/wallet/{walletId}/transaction:
+    get:
+      tags:
+        - transaction
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Get all disponibles transaction for the specified account
+      operationId: getAllTransactions
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Label"
-
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      tags:
+        - transaction
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Create new transaction for the specified account
+      operationId: createOneTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationTransaction"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Transaction"
+  /account/{accountId}/wallet/{walletId}/transaction/{transactionId}:
+    get:
+      tags:
+        - transaction
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Get get one transaction by id for the specified account
+      operationId: getOneTransaction
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Transaction"
+    put:
+      tags:
+        - transaction
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Update one transaction by id for the specified account
+      operationId: updateOneTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Transaction"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Transaction"
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
+  parameters:
+    Id:
+      name: id
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    AccountId:
+      name: accountId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    LabelId:
+      name: labelId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    TransactionId:
+      name: transactionId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    WalletId:
+      name: walletId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      required: false
+      in: query
+      schema:
+        type: number
+        default: 1
+    PageSize:
+      name: pageSize
+      required: false
+      in: query
+      schema:
+        type: number
+        default: 10
+    Name:
+      name: name
+      required: false
+      in: query
+      schema:
+        type: string
+    IsActive:
+      name: isActive
+      required: false
+      in: query
+      schema:
+        type: boolean
+    WalletType:
+      name: walletType
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+          - CASH
+          - MOBILE_MONEY
+          - BANK
+          - DEBT
+    Month:
+      name: month
+      required: false
+      in: query
+      schema:
+        type: number
+        minimum: 0
+        maximum: 11
+    Year:
+      name: year
+      required: false
+      in: query
+      schema:
+        type: number
 
   schemas:
-    Transaction:
-      allOf:
-        - $ref: "#/components/schemas/TransactionMinimalInfo"
-        - $ref: "#/components/schemas/WithId"
-        - $ref: "#/components/schemas/WithCreatedAt"
-        - $ref: "#/components/schemas/WithUpdatedAt"
-      properties:
-        labels:
-          type: array
-          items:
-            $ref: "#/components/schemas/Label"
-
-    TransactionMinimalInfo:
+    CreationTransaction:
       type: object
       properties:
         date:
           type: string
-          format: date-time
-        transactionType:
-          $ref: "#/components/schemas/TransactionType"
-        walletReference:
-          type: string
-          example: "BODV-0000"
-        amount:
-          type: number
-          example: 2000000
+          format: datetime
+          example: Personal
         labels:
           type: array
           items:
-            type: string
-          example: ["FOOD", "RENT"]
+            $ref: "#/components/schemas/Label"
+        type:
+          type: string
+          enum:
+            - IN
+            - OUT
         description:
           type: string
-          example: "end of 2025 income"
-
-    Label:
+        amount:
+          type: number
+          format: double
+        walletId:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+    Transaction:
       allOf:
-        - $ref: "#/components/schemas/LabelMinimalInfo"
-        - $ref: "#/components/schemas/WithId"
-        - $ref: "#/components/schemas/WithCreatedAt"
-        - $ref: "#/components/schemas/WithUpdatedAt"
-
-    LabelMinimalInfo:
+        - $ref: "#/components/schemas/CreationTransaction"
       type: object
       properties:
-        name:
+        id:
           type: string
-          example: "Food"
-        reference:
-          type: string
-          example: "FOOD"
-
-    TransactionType:
-      type: string
-      enum:
-        - IN
-        - OUT
-      default: OUT
-
-    Wallet:
-      allOf:
-        - $ref: "#/components/schemas/WalletMinimalInfo"
-        - $ref: "#/components/schemas/WithId"
-        - $ref: "#/components/schemas/WithCreatedAt"
-
-    WalletMinimalInfo:
+          format: uuid
+    WalletAutomaticIncome:
       type: object
       properties:
-        name:
-          type: string
-          example: "Bank Of Danniville Account"
-        reference:
-          type: string
-          example: "BODV-0000"
         type:
-          $ref: "#/components/schemas/WalletType"
+          type: string
+          enum:
+            - NOT_SPECIFIED
+            - MENSUAL
+        amount:
+          type: number
+        paymentDay:
+          type: number
+          description: |
+            one day in a month where the new payment will be add to the current wallet
+            only work if the type is MENSUAL
 
-    WalletType:
-      type: string
-      enum:
-        - CASH
-        - BANK_ACCOUNT
-        - MOBILE_MONEY
-        - CRYPTO
-      default: CASH
+    CreationWallet:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Personal
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - CASH
+            - MOBILE_MONEY
+            - BANK
+            - DEBT
 
-    User:
+    UpdateWallet:
       type: object
       properties:
         id:
           type: string
-        username:
+          format: uuid
+        accountId:
           type: string
-        email:
-          type: string
-
-    UserWithApiKey:
+          format: uuid
+        isActive:
+          type: boolean
       allOf:
-        - $ref: "#/components/schemas/User"
-        - type: object
-          properties:
-            apiKey:
-              type: string
+        - $ref: "#/components/schemas/CreationWallet"
+    Wallet:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/UpdateWallet"
+      properties:
+        amount:
+          type: number
+          format: double
+        walletAutomaticIncome:
+          allOf:
+            - $ref: "#/components/schemas/WalletAutomaticIncome"
+    CreationLabel:
+      type: object
+      properties:
+        name:
+          type: string
+          example: FOOD
+    Label:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CreationLabel"
+      properties:
+        id:
+          type: string
+          format: uuid
 
-    LoginRequest:
+    Credentials:
       type: object
       properties:
         username:
           type: string
         password:
           type: string
-
-    RegisterRequest:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-
-    WithId:
+    SignUpResult:
       type: object
       properties:
         id:
           type: string
-          example: "6c64d77c-8654-4495-80bd-2b154b0289a8"
-
-    WithUpdatedAt:
+          format: uuid
+        username:
+          type: string
+    SignInResult:
       type: object
       properties:
-        updatedAt:
+        account:
+          allOf:
+            - $ref: "#/components/schemas/SignUpResult"
+        token:
           type: string
-          format: date-time
-
-    WithCreatedAt:
+    PaginationResult:
       type: object
       properties:
-        createdAt:
-          type: string
-          format: date-time
-
-    ResponseOK:
-      type: string
-      example: "OK"
+        totalPage:
+          type: number
+          minimum: 1
+        page:
+          type: number
+          minimum: 1
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean

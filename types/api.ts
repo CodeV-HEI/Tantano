@@ -1,40 +1,79 @@
+export interface Credentials {
+    username: string;
+    password: string;
+}
+
 export interface User {
     id: string;
     username: string;
-    email: string;
 }
 
-export interface UserWithApiKey extends User {
-    apiKey: string;
+export interface UserWithToken {
+    account: User;
+    token: string;
 }
 
-export interface LoginRequest {
-    username: string;
-    password: string;
+export interface LoginRequest extends Credentials {}
+export interface RegisterRequest extends Credentials {}
+
+export interface PaginationResult {
+    totalPage: number;
+    page: number;
+    hasNext: boolean;
+    hasPrev: boolean;
 }
 
-export interface RegisterRequest {
-    username: string;
-    email: string;
-    password: string;
+export interface CreationLabel {
+    name: string;
+}
+
+export interface Label extends CreationLabel {
+    id: string;
+}
+
+export interface PaginatedLabels {
+    pagination: PaginationResult;
+    values: Label[];
 }
 
 export enum WalletType {
     CASH = "CASH",
-    BANK_ACCOUNT = "BANK_ACCOUNT",
     MOBILE_MONEY = "MOBILE_MONEY",
-    CRYPTO = "CRYPTO"
+    BANK = "BANK",
+    DEBT = "DEBT"
 }
 
-export interface WalletMinimalInfo {
+export enum AutomaticIncomeType {
+    NOT_SPECIFIED = "NOT_SPECIFIED",
+    MENSUAL = "MENSUAL"
+}
+
+export interface WalletAutomaticIncome {
+    type: AutomaticIncomeType;
+    amount?: number;
+    paymentDay?: number;
+}
+
+export interface CreationWallet {
     name: string;
-    reference: string;
+    description?: string;
     type: WalletType;
 }
 
-export interface Wallet extends WalletMinimalInfo {
+export interface UpdateWallet extends CreationWallet {
     id: string;
-    createdAt: string;
+    accountId: string;
+    isActive: boolean;
+}
+
+export interface Wallet extends UpdateWallet {
+    amount: number;
+    walletAutomaticIncome?: WalletAutomaticIncome;
+}
+
+export interface PaginatedWallets {
+    pagination: PaginationResult;
+    values: Wallet[];
 }
 
 export enum TransactionType {
@@ -42,55 +81,55 @@ export enum TransactionType {
     OUT = "OUT"
 }
 
-export interface TransactionMinimalInfo {
+export interface CreationTransaction {
     date: string;
-    transactionType: TransactionType;
-    walletReference: string;
+    labels: Label[];
+    type: TransactionType;
+    description?: string;
     amount: number;
-    labels: string[];
-    description: string;
+    walletId: string;
+    accountId: string;
 }
 
-export interface Transaction {
+export interface Transaction extends CreationTransaction {
     id: string;
+}
+
+export interface WalletMinimalInfo {
+    name: string;
+    description?: string;
+    type: WalletType;
+}
+
+export interface TransactionMinimalInfo {
     date: string;
-    transactionType: TransactionType;
-    walletReference: string;
+    type: TransactionType;
+    walletId: string;
     amount: number;
-    labels: Label[];
+    labels: Label[]; // Utilise le type Label complet comme dans l'OpenAPI
     description: string;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface LabelMinimalInfo {
     name: string;
-    reference: string;
 }
 
-export interface Label extends LabelMinimalInfo {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-// Types pour les mises à jour
 export interface WalletUpdateInfo {
     name?: string;
-    reference?: string;
+    description?: string;
     type?: WalletType;
+    isActive?: boolean;
 }
 
 export interface TransactionUpdateInfo {
     date?: string;
-    transactionType?: TransactionType;
-    walletReference?: string;
+    type?: TransactionType;
+    walletId?: string;
     amount?: number;
-    labels?: string[];
+    labels?: Label[];
     description?: string;
 }
 
 export interface LabelUpdateInfo {
     name?: string;
-    reference?: string;
 }

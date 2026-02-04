@@ -3,16 +3,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     LoginRequest,
     RegisterRequest,
-    UserWithApiKey,
+    UserWithToken,
     Wallet,
-    WalletMinimalInfo,
+    CreationWallet,
+    UpdateWallet,
     Transaction,
-    TransactionMinimalInfo,
+    CreationTransaction,
     Label,
-    LabelMinimalInfo
+    CreationLabel,
+    WalletAutomaticIncome,
+    PaginatedLabels,
+    PaginatedWallets,
+    WalletType,
+    User
 } from '@/types/api';
 
-const API_URL = 'https://tantano-api.onrender.com';
+const API_URL = process.env.API_BASE_URL || 'http://localhost:8080';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -21,12 +27,12 @@ const api = axios.create({
     },
 });
 
-// Intercepteur pour ajouter l'API key automatiquement
+// Intercepteur pour ajouter le token JWT automatiquement
 api.interceptors.request.use(
     async (config) => {
-        const apiKey = await AsyncStorage.getItem('apiKey');
-        if (apiKey) {
-            config.headers['x-api-key'] = apiKey;
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },
@@ -48,57 +54,74 @@ const handleApiError = (error: any) => {
 
 export const authAPI = {
     login: (data: LoginRequest) =>
-        api.post<UserWithApiKey>('/login', data),
+        api.post<UserWithToken>('/auth/sign-in', data),
 
     register: (data: RegisterRequest) =>
-        api.post<UserWithApiKey>('/register', data),
-
-    healthCheck: (to: string) =>
-        api.get(`/health/email?to=${encodeURIComponent(to)}`),
-
-    ping: () => api.get<string>('/ping'),
+        api.post<User>('/auth/sign-up', data),
 };
 
 export const walletAPI = {
-    getAll: () => api.get<Wallet[]>('/wallet'),
+    // GET /account/{accountId}/wallet
+    getAll: (accountId: string, params?: {
+        name?: string;
+        isActive?: boolean;
+        walletType?: WalletType;
+    }) => api.get<PaginatedWallets>(`/account/${accountId}/wallet`, { params }),
 
-    create: (wallets: WalletMinimalInfo[]) =>
-        api.post<Wallet[]>('/wallet', wallets),
+    // GET /account/{accountId}/wallet/{walletId}
+    getOne: (accountId: string, walletId: string) =>
+        api.get<Wallet>(`/account/${accountId}/wallet/${walletId}`),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, wallet: Partial<WalletMinimalInfo>) =>
-        api.put<Wallet>(`/wallet/${id}`, wallet).catch(handleApiError),
+    // POST /account/{accountId}/wallet
+    create: (accountId: string, data: CreationWallet) =>
+        api.post<Wallet>(`/account/${accountId}/wallet`, data),
 
-    delete: (id: string) =>
-        api.delete(`/wallet/${id}`).catch(handleApiError),
+    // PUT /account/{accountId}/wallet/{walletId}
+    update: (accountId: string, walletId: string, data: UpdateWallet) =>
+        api.put<Wallet>(`/account/${accountId}/wallet/${walletId}`, data),
+
+    // PUT /account/{accountId}/wallet/{walletId}/automaticIncome
+    updateAutomaticIncome: (accountId: string, walletId: string, data: WalletAutomaticIncome) =>
+        api.put<Wallet>(`/account/${accountId}/wallet/${walletId}/automaticIncome`, data),
 };
 
 export const transactionAPI = {
-    getAll: () => api.get<Transaction[]>('/transaction'),
+    // GET /account/{accountId}/wallet/{walletId}/transaction
+    getAll: (accountId: string, walletId: string) =>
+        api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`),
 
-    create: (transactions: TransactionMinimalInfo[]) =>
-        api.post<Transaction[]>('/transaction', transactions),
+    // GET /account/{accountId}/wallet/{walletId}/transaction/{transactionId}
+    getOne: (accountId: string, walletId: string, transactionId: string) =>
+        api.get<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, transaction: Partial<TransactionMinimalInfo>) =>
-        api.put<Transaction>(`/transaction/${id}`, transaction).catch(handleApiError),
+    // POST /account/{accountId}/wallet/{walletId}/transaction
+    create: (accountId: string, walletId: string, data: CreationTransaction) =>
+        api.post<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction`, data),
 
-    delete: (id: string) =>
-        api.delete(`/transaction/${id}`).catch(handleApiError),
+    // PUT /account/{accountId}/wallet/{walletId}/transaction/{transactionId}
+    update: (accountId: string, walletId: string, transactionId: string, data: Transaction) =>
+        api.put<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`, data),
 };
 
 export const labelAPI = {
-    getAll: () => api.get<Label[]>('/label'),
+    // GET /account/{accountId}/label
+    getAll: (accountId: string, params?: {
+        page?: number;
+        pageSize?: number;
+        name?: string;
+    }) => api.get<PaginatedLabels>(`/account/${accountId}/label`, { params }),
 
-    create: (labels: LabelMinimalInfo[]) =>
-        api.post<Label[]>('/label', labels),
+    // GET /account/{accountId}/label/{labelId}
+    getOne: (accountId: string, labelId: string) =>
+        api.get<Label>(`/account/${accountId}/label/${labelId}`),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, label: Partial<LabelMinimalInfo>) =>
-        api.put<Label>(`/label/${id}`, label).catch(handleApiError),
+    // POST /account/{accountId}/label
+    create: (accountId: string, data: CreationLabel) =>
+        api.post<Label>(`/account/${accountId}/label`, data),
 
-    delete: (id: string) =>
-        api.delete(`/label/${id}`).catch(handleApiError),
+    // PUT /account/{accountId}/label/{labelId}
+    update: (accountId: string, labelId: string, data: Label) =>
+        api.put<Label>(`/account/${accountId}/label/${labelId}`, data),
 };
 
 export default api;
