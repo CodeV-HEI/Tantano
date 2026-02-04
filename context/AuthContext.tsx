@@ -1,21 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserWithApiKey } from '@/types/api';
+import { User, UserWithToken } from '@/types/api';
 import { authAPI } from '@/services/api';
 
 interface AuthContextType {
-    user: UserWithApiKey | null;
+    user: User | null;
     isLoading: boolean;
     login: (username: string, password: string) => Promise<void>;
-    register: (username: string, email: string, password: string) => Promise<void>;
+    register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
-    updateApiKey: (apiKey: string) => Promise<void>;
+    updateToken: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<UserWithApiKey | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadUser = async () => {
         try {
             const storedUser = await AsyncStorage.getItem('user');
-            const storedApiKey = await AsyncStorage.getItem('apiKey');
+            const storedToken = await AsyncStorage.getItem('token');
 
-            if (storedUser && storedApiKey) {
-                setUser({ ...JSON.parse(storedUser), apiKey: storedApiKey });
+            if (storedUser && storedToken) {
+                setUser(JSON.parse(storedUser));
             }
         } catch (error) {
             console.error('Failed to load user:', error);
@@ -40,28 +40,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (username: string, password: string) => {
         try {
             const response = await authAPI.login({ username, password });
-            const userData = response.data;
+            const { account, token } = response.data;
 
-            await AsyncStorage.setItem('user', JSON.stringify(userData));
-            await AsyncStorage.setItem('apiKey', userData.apiKey);
+            await AsyncStorage.setItem('user', JSON.stringify(account));
+            await AsyncStorage.setItem('token', token);
 
-            setUser(userData);
-        } catch (error) {
+            setUser(account);
+        } catch (error: any) {
             console.error('Login failed:', error);
             throw error;
         }
     };
 
-    const register = async (username: string, email: string, password: string) => {
+    const register = async (username: string, password: string) => {
         try {
-            const response = await authAPI.register({ username, email, password });
-            const userData = response.data;
+            // Appel à l'API d'inscription
+            const registerResponse = await authAPI.register({ username, password });
+            const newUser = registerResponse.data;
 
-            await AsyncStorage.setItem('user', JSON.stringify(userData));
-            await AsyncStorage.setItem('apiKey', userData.apiKey);
+            // Connexion automatique après inscription
+            const loginResponse = await authAPI.login({ username, password });
+            const { account, token } = loginResponse.data;
 
-            setUser(userData);
-        } catch (error) {
+            await AsyncStorage.setItem('user', JSON.stringify(account));
+            await AsyncStorage.setItem('token', token);
+
+            setUser(account);
+        } catch (error: any) {
             console.error('Registration failed:', error);
             throw error;
         }
@@ -70,28 +75,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('user');
-            await AsyncStorage.removeItem('apiKey');
+            await AsyncStorage.removeItem('token');
             setUser(null);
         } catch (error) {
             console.error('Logout failed:', error);
         }
     };
 
-    const updateApiKey = async (apiKey: string) => {
+    const updateToken = async (token: string) => {
         try {
-            await AsyncStorage.setItem('apiKey', apiKey);
-            if (user) {
-                const updatedUser = { ...user, apiKey };
-                setUser(updatedUser);
-                await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
-            }
+            await AsyncStorage.setItem('token', token);
         } catch (error) {
-            console.error('Failed to update API key:', error);
+            console.error('Failed to update token:', error);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateApiKey }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateToken }}>
             {children}
         </AuthContext.Provider>
     );
