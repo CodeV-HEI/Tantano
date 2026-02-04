@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "Posu",
-    "slug": "posu",
+    "name": "tantano",
+    "slug": "tantano",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/posu.png",
-    "scheme": "Posu",
+    "icon": "./assets/images/tantano.png",
+    "scheme": "tantano",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rajharit77.posu"
+      "bundleIdentifier": "com.rajharit77.tantano"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,11 +21,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.rajharit77.posu"
+      "package": "com.rajharit77.tantano"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/posu.png",
+      "favicon": "./assets/images/tantano.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -33,7 +33,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/tantano.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
