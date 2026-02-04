@@ -3,102 +3,140 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     LoginRequest,
     RegisterRequest,
-    UserWithApiKey,
+    UserWithToken,
     Wallet,
-    WalletMinimalInfo,
+    CreationWallet,
+    UpdateWallet,
     Transaction,
-    TransactionMinimalInfo,
+    CreationTransaction,
     Label,
-    LabelMinimalInfo
+    CreationLabel,
+    WalletAutomaticIncome,
+    PaginatedLabels,
+    PaginatedWallets,
+    WalletType,
+    User
 } from '@/types/api';
 
-const API_URL = 'https://vendredi-soir-posu.onrender.com';
+const API_URL = 'https://tantano-api.onrender.com';
+
 
 const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 60000,
 });
 
-// Intercepteur pour ajouter l'API key automatiquement
+// Intercepteur pour ajouter le token JWT automatiquement
 api.interceptors.request.use(
     async (config) => {
-        const apiKey = await AsyncStorage.getItem('apiKey');
-        if (apiKey) {
-            config.headers['x-api-key'] = apiKey;
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
+        console.log(`API Request: ${config.method} ${config.url}`);
         return config;
     },
     (error) => {
+        console.error('API Request Error:', error);
         return Promise.reject(error);
     }
 );
 
-// Fonction pour gérer les erreurs
 const handleApiError = (error: any) => {
-    if (error.response) {
-        throw new Error(error.response.data?.message || 'Une erreur est survenue');
+    console.error('API Error:', error);
+
+    if (error.code === 'ECONNABORTED') {
+        throw new Error('Le serveur met trop de temps à répondre. Le service gratuit peut prendre jusqu\'à 30 secondes pour démarrer.');
+    } else if (error.response) {
+        throw new Error(error.response.data?.message || `Erreur serveur: ${error.response.status}`);
     } else if (error.request) {
-        throw new Error('Impossible de contacter le serveur');
+        throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion internet.');
     } else {
         throw new Error('Erreur de configuration de la requête');
     }
 };
 
+const apiWithRetry = async (axiosCall: any, retries = 2, delay = 3000) => {
+    for (let i = 0; i <= retries; i++) {
+        try {
+            return await axiosCall();
+        } catch (error: any) {
+            if (i === retries) throw error;
+
+            if (error.code === 'ECONNABORTED') {
+                console.log(`Tentative ${i + 1}/${retries + 1} échouée, nouvelle tentative dans ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+
+            throw error;
+        }
+    }
+};
+
 export const authAPI = {
     login: (data: LoginRequest) =>
-        api.post<UserWithApiKey>('/login', data),
+        apiWithRetry(() => api.post<UserWithToken>('/auth/sign-in', data)),
 
     register: (data: RegisterRequest) =>
-        api.post<UserWithApiKey>('/register', data),
+        apiWithRetry(() => api.post<User>('/auth/sign-up', data)),
 
-    healthCheck: (to: string) =>
-        api.get(`/health/email?to=${encodeURIComponent(to)}`),
-
-    ping: () => api.get<string>('/ping'),
+    healthCheck: () =>
+        api.get('/health'),
 };
 
 export const walletAPI = {
-    getAll: () => api.get<Wallet[]>('/wallet'),
+    getAll: (accountId: string, params?: {
+        name?: string;
+        isActive?: boolean;
+        walletType?: WalletType;
+    }) => apiWithRetry(() => api.get<PaginatedWallets>(`/account/${accountId}/wallet`, { params })),
 
-    create: (wallets: WalletMinimalInfo[]) =>
-        api.post<Wallet[]>('/wallet', wallets),
+    getOne: (accountId: string, walletId: string) =>
+        apiWithRetry(() => api.get<Wallet>(`/account/${accountId}/wallet/${walletId}`)),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, wallet: Partial<WalletMinimalInfo>) =>
-        api.put<Wallet>(`/wallet/${id}`, wallet).catch(handleApiError),
+    create: (accountId: string, data: CreationWallet) =>
+        apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet`, data)),
 
-    delete: (id: string) =>
-        api.delete(`/wallet/${id}`).catch(handleApiError),
+    update: (accountId: string, walletId: string, data: UpdateWallet) =>
+        apiWithRetry(() => api.put<Wallet>(`/account/${accountId}/wallet/${walletId}`, data)),
+
+    updateAutomaticIncome: (accountId: string, walletId: string, data: WalletAutomaticIncome) =>
+        apiWithRetry(() => api.put<Wallet>(`/account/${accountId}/wallet/${walletId}/automaticIncome`, data)),
 };
 
 export const transactionAPI = {
-    getAll: () => api.get<Transaction[]>('/transaction'),
+    getAll: (accountId: string, walletId: string) =>
+        apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`)),
 
-    create: (transactions: TransactionMinimalInfo[]) =>
-        api.post<Transaction[]>('/transaction', transactions),
+    getOne: (accountId: string, walletId: string, transactionId: string) =>
+        apiWithRetry(() => api.get<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`)),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, transaction: Partial<TransactionMinimalInfo>) =>
-        api.put<Transaction>(`/transaction/${id}`, transaction).catch(handleApiError),
+    create: (accountId: string, walletId: string, data: CreationTransaction) =>
+        apiWithRetry(() => api.post<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction`, data)),
 
-    delete: (id: string) =>
-        api.delete(`/transaction/${id}`).catch(handleApiError),
+    update: (accountId: string, walletId: string, transactionId: string, data: Transaction) =>
+        apiWithRetry(() => api.put<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`, data)),
 };
 
 export const labelAPI = {
-    getAll: () => api.get<Label[]>('/label'),
+    getAll: (accountId: string, params?: {
+        page?: number;
+        pageSize?: number;
+        name?: string;
+    }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/label`, { params })),
 
-    create: (labels: LabelMinimalInfo[]) =>
-        api.post<Label[]>('/label', labels),
+    getOne: (accountId: string, labelId: string) =>
+        apiWithRetry(() => api.get<Label>(`/account/${accountId}/label/${labelId}`)),
 
-    // Note: L'API n'a pas d'endpoint pour update/delete, mais nous les ajoutons pour la complétude
-    update: (id: string, label: Partial<LabelMinimalInfo>) =>
-        api.put<Label>(`/label/${id}`, label).catch(handleApiError),
+    create: (accountId: string, data: CreationLabel) =>
+        apiWithRetry(() => api.post<Label>(`/account/${accountId}/label`, data)),
 
-    delete: (id: string) =>
-        api.delete(`/label/${id}`).catch(handleApiError),
+    update: (accountId: string, labelId: string, data: Label) =>
+        apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
 };
 
 export default api;
