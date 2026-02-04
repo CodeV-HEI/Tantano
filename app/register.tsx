@@ -18,7 +18,6 @@ import { Eye, EyeOff } from 'lucide-react-native';
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +45,7 @@ export default function RegisterScreen() {
     }, []);
 
     const handleRegister = async () => {
-        if (!username || !email || !password) {
+        if (!username || !password) {
             Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
@@ -58,7 +57,7 @@ export default function RegisterScreen() {
 
         setIsLoading(true);
         try {
-            await register(username, email, password);
+            await register(username, password);
             router.replace('/(tabs)');
         } catch (error: any) {
             Alert.alert(
@@ -103,7 +102,7 @@ export default function RegisterScreen() {
                                 CRÉER UN COMPTE
                             </Text>
                             <Text className="text-cyan-300/80 text-center text-lg tracking-wide">
-                                Rejoignez nous et commencez à gérer vos finances dès aujourd'hui !
+                                Rejoignez-nous et commencez à gérer vos finances dès aujourd'hui !
                             </Text>
                         </Animated.View>
                     )}
@@ -117,21 +116,6 @@ export default function RegisterScreen() {
                                 placeholderTextColor="#06b6d470"
                                 value={username}
                                 onChangeText={setUsername}
-                                autoCapitalize="none"
-                                returnKeyType="next"
-                                blurOnSubmit={false}
-                            />
-                        </Animated.View>
-
-                        <Animated.View entering={FadeInUp.delay(300)} className="space-y-3 mt-3">
-                            <Text className="text-purple-300 font-medium tracking-wide text-base">EMAIL</Text>
-                            <TextInput
-                                className="bg-black/60 border-2 border-purple-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-purple-400"
-                                placeholder="votre@email.com"
-                                placeholderTextColor="#a855f770"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
                                 autoCapitalize="none"
                                 returnKeyType="next"
                                 blurOnSubmit={false}
