@@ -12,7 +12,7 @@ import {
     LabelMinimalInfo
 } from '@/types/api';
 
-const API_URL = 'https://vendredi-soir-posu.onrender.com';
+const API_URL = 'https://tantano-api.onrender.com';
 
 const api = axios.create({
     baseURL: API_URL,
