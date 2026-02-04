@@ -18,13 +18,15 @@ import {
     User
 } from '@/types/api';
 
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8080';
+const API_URL = 'https://tantano-api.onrender.com';
+
 
 const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 60000,
 });
 
 // Intercepteur pour ajouter le token JWT automatiquement
@@ -34,94 +36,107 @@ api.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+        console.log(`API Request: ${config.method} ${config.url}`);
         return config;
     },
     (error) => {
+        console.error('API Request Error:', error);
         return Promise.reject(error);
     }
 );
 
-// Fonction pour gérer les erreurs
 const handleApiError = (error: any) => {
-    if (error.response) {
-        throw new Error(error.response.data?.message || 'Une erreur est survenue');
+    console.error('API Error:', error);
+
+    if (error.code === 'ECONNABORTED') {
+        throw new Error('Le serveur met trop de temps à répondre. Le service gratuit peut prendre jusqu\'à 30 secondes pour démarrer.');
+    } else if (error.response) {
+        throw new Error(error.response.data?.message || `Erreur serveur: ${error.response.status}`);
     } else if (error.request) {
-        throw new Error('Impossible de contacter le serveur');
+        throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion internet.');
     } else {
         throw new Error('Erreur de configuration de la requête');
     }
 };
 
+const apiWithRetry = async (axiosCall: any, retries = 2, delay = 3000) => {
+    for (let i = 0; i <= retries; i++) {
+        try {
+            return await axiosCall();
+        } catch (error: any) {
+            if (i === retries) throw error;
+
+            if (error.code === 'ECONNABORTED') {
+                console.log(`Tentative ${i + 1}/${retries + 1} échouée, nouvelle tentative dans ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+
+            throw error;
+        }
+    }
+};
+
 export const authAPI = {
     login: (data: LoginRequest) =>
-        api.post<UserWithToken>('/auth/sign-in', data),
+        apiWithRetry(() => api.post<UserWithToken>('/auth/sign-in', data)),
 
     register: (data: RegisterRequest) =>
-        api.post<User>('/auth/sign-up', data),
+        apiWithRetry(() => api.post<User>('/auth/sign-up', data)),
+
+    healthCheck: () =>
+        api.get('/health'),
 };
 
 export const walletAPI = {
-    // GET /account/{accountId}/wallet
     getAll: (accountId: string, params?: {
         name?: string;
         isActive?: boolean;
         walletType?: WalletType;
-    }) => api.get<PaginatedWallets>(`/account/${accountId}/wallet`, { params }),
+    }) => apiWithRetry(() => api.get<PaginatedWallets>(`/account/${accountId}/wallet`, { params })),
 
-    // GET /account/{accountId}/wallet/{walletId}
     getOne: (accountId: string, walletId: string) =>
-        api.get<Wallet>(`/account/${accountId}/wallet/${walletId}`),
+        apiWithRetry(() => api.get<Wallet>(`/account/${accountId}/wallet/${walletId}`)),
 
-    // POST /account/{accountId}/wallet
     create: (accountId: string, data: CreationWallet) =>
-        api.post<Wallet>(`/account/${accountId}/wallet`, data),
+        apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet`, data)),
 
-    // PUT /account/{accountId}/wallet/{walletId}
     update: (accountId: string, walletId: string, data: UpdateWallet) =>
-        api.put<Wallet>(`/account/${accountId}/wallet/${walletId}`, data),
+        apiWithRetry(() => api.put<Wallet>(`/account/${accountId}/wallet/${walletId}`, data)),
 
-    // PUT /account/{accountId}/wallet/{walletId}/automaticIncome
     updateAutomaticIncome: (accountId: string, walletId: string, data: WalletAutomaticIncome) =>
-        api.put<Wallet>(`/account/${accountId}/wallet/${walletId}/automaticIncome`, data),
+        apiWithRetry(() => api.put<Wallet>(`/account/${accountId}/wallet/${walletId}/automaticIncome`, data)),
 };
 
 export const transactionAPI = {
-    // GET /account/{accountId}/wallet/{walletId}/transaction
     getAll: (accountId: string, walletId: string) =>
-        api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`),
+        apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`)),
 
-    // GET /account/{accountId}/wallet/{walletId}/transaction/{transactionId}
     getOne: (accountId: string, walletId: string, transactionId: string) =>
-        api.get<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`),
+        apiWithRetry(() => api.get<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`)),
 
-    // POST /account/{accountId}/wallet/{walletId}/transaction
     create: (accountId: string, walletId: string, data: CreationTransaction) =>
-        api.post<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction`, data),
+        apiWithRetry(() => api.post<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction`, data)),
 
-    // PUT /account/{accountId}/wallet/{walletId}/transaction/{transactionId}
     update: (accountId: string, walletId: string, transactionId: string, data: Transaction) =>
-        api.put<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`, data),
+        apiWithRetry(() => api.put<Transaction>(`/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`, data)),
 };
 
 export const labelAPI = {
-    // GET /account/{accountId}/label
     getAll: (accountId: string, params?: {
         page?: number;
         pageSize?: number;
         name?: string;
-    }) => api.get<PaginatedLabels>(`/account/${accountId}/label`, { params }),
+    }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/label`, { params })),
 
-    // GET /account/{accountId}/label/{labelId}
     getOne: (accountId: string, labelId: string) =>
-        api.get<Label>(`/account/${accountId}/label/${labelId}`),
+        apiWithRetry(() => api.get<Label>(`/account/${accountId}/label/${labelId}`)),
 
-    // POST /account/{accountId}/label
     create: (accountId: string, data: CreationLabel) =>
-        api.post<Label>(`/account/${accountId}/label`, data),
+        apiWithRetry(() => api.post<Label>(`/account/${accountId}/label`, data)),
 
-    // PUT /account/{accountId}/label/{labelId}
     update: (accountId: string, labelId: string, data: Label) =>
-        api.put<Label>(`/account/${accountId}/label/${labelId}`, data),
+        apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
 };
 
 export default api;

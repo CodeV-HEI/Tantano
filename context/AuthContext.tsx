@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (username: string, password: string) => {
         try {
+            console.log('Tentative de connexion...');
             const response = await authAPI.login({ username, password });
             const { account, token } = response.data;
 
@@ -46,19 +47,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await AsyncStorage.setItem('token', token);
 
             setUser(account);
+            console.log('Connexion réussie');
         } catch (error: any) {
             console.error('Login failed:', error);
-            throw error;
+
+            let errorMessage = 'Échec de connexion';
+            if (error.message && error.message.includes('Le serveur met trop de temps')) {
+                errorMessage = 'Le serveur met trop de temps à répondre. Réessayez dans quelques secondes (service gratuit en démarrage).';
+            } else if (error.response?.status === 401) {
+                errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect';
+            }
+
+            const enhancedError = new Error(errorMessage);
+            enhancedError.cause = error;
+            throw enhancedError;
         }
     };
 
     const register = async (username: string, password: string) => {
         try {
-            // Appel à l'API d'inscription
+            console.log('Tentative d\'inscription...');
+
             const registerResponse = await authAPI.register({ username, password });
             const newUser = registerResponse.data;
 
-            // Connexion automatique après inscription
+            console.log('Inscription réussie, connexion automatique...');
+
             const loginResponse = await authAPI.login({ username, password });
             const { account, token } = loginResponse.data;
 
@@ -66,9 +80,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await AsyncStorage.setItem('token', token);
 
             setUser(account);
+            console.log('Inscription et connexion réussies');
         } catch (error: any) {
             console.error('Registration failed:', error);
-            throw error;
+
+            let errorMessage = 'Échec de l\'inscription';
+            if (error.message && error.message.includes('Le serveur met trop de temps')) {
+                errorMessage = 'Le serveur met trop de temps à répondre. Le service gratuit peut prendre jusqu\'à 30 secondes pour démarrer. Réessayez dans quelques instants.';
+            } else if (error.response?.status === 409) {
+                errorMessage = 'Ce nom d\'utilisateur est déjà pris';
+            }
+
+            const enhancedError = new Error(errorMessage);
+            enhancedError.cause = error;
+            throw enhancedError;
         }
     };
 
