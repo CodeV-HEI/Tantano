@@ -213,9 +213,6 @@ export default function LoginScreen() {
             </Animated.View>
           )}
         </View>
-        <Link href="./transactions" className="absolute bottom-10 right-5">
-          <Text className="text-cyan-400 underline">Go to Transactions</Text>
-        </Link>
       </ScrollView>
     </KeyboardAvoidingView>
   );

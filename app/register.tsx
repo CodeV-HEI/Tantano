@@ -64,6 +64,8 @@ export default function RegisterScreen() {
                 'Échec de l\'inscription',
                 error.response?.data?.message || 'Une erreur est survenue'
             );
+            console.log(error);
+            
         } finally {
             setIsLoading(false);
         }
