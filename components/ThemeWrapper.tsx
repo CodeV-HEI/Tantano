@@ -10,7 +10,10 @@ export default function ThemeWrapper({ children }: { children: React.ReactNode }
     }, [theme]);
 
     return (
-        <View className={theme === 'dark' ? 'dark' : 'light'}>
+        <View
+            className={`flex-1 ${theme === 'dark' ? 'dark' : ''}`}
+            style={{ backgroundColor: theme === 'dark' ? '#000000' : '#ffffff' }}
+        >
             {children}
         </View>
     );
