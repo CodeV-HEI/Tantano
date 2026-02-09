@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, UserWithToken } from '@/types/api';
+import { User } from '@/types/api';
 import { authAPI } from '@/services/api';
 
 interface AuthContextType {
@@ -68,8 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             console.log('Tentative d\'inscription...');
 
-            const registerResponse = await authAPI.register({ username, password });
-            const newUser = registerResponse.data;
+            await authAPI.register({ username, password });
 
             console.log('Inscription réussie, connexion automatique...');
 
