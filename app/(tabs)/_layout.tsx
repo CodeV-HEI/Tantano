@@ -1,12 +1,13 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { useRouter, Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
-import { TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useTheme } from '@/context/ThemeContext';
+import { TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -17,35 +18,39 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: '#06b6d4',
-                tabBarInactiveTintColor: '#8b5cf6',
+                tabBarActiveTintColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                tabBarInactiveTintColor: theme === 'dark' ? '#8b5cf6' : '#7c3aed',
                 tabBarStyle: {
-                    backgroundColor: '#000000',
+                    backgroundColor: theme === 'dark' ? '#000000' : '#ffffff',
                     borderTopWidth: 1,
-                    borderTopColor: '#06b6d4',
+                    borderTopColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                 },
                 headerStyle: {
-                    backgroundColor: '#000000',
+                    backgroundColor: theme === 'dark' ? '#000000' : '#ffffff',
                 },
-                headerTintColor: '#ffffff',
+                headerTintColor: theme === 'dark' ? '#ffffff' : '#000000',
                 headerTitleStyle: {
-                    textShadowColor: '#06b6d4',
+                    textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                     textShadowOffset: { width: 0, height: 0 },
                     textShadowRadius: 10,
                 },
                 headerRight: () => (
-                    <TouchableOpacity onPress={handleLogout} className="mr-4">
-                        <MaterialIcons
-                            name="logout"
-                            size={24}
-                            color="#06b6d4"
-                            style={{
-                                textShadowColor: '#06b6d4',
-                                textShadowOffset: { width: 0, height: 0 },
-                                textShadowRadius: 10,
-                            }}
-                        />
-                    </TouchableOpacity>
+                    <View className="flex-row items-center mr-4">
+                        <TouchableOpacity onPress={toggleTheme} className="mr-4">
+                            <MaterialIcons
+                                name={theme === 'dark' ? 'light-mode' : 'dark-mode'}
+                                size={24}
+                                color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleLogout}>
+                            <MaterialIcons
+                                name="logout"
+                                size={24}
+                                color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                            />
+                        </TouchableOpacity>
+                    </View>
                 ),
             }}
         >
@@ -57,8 +62,8 @@ export default function TabLayout() {
                         <MaterialIcons name="dashboard" size={size} color={color} />
                     ),
                     headerTitleStyle: {
-                        color: '#06b6d4',
-                        textShadowColor: '#06b6d4',
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                         textShadowOffset: { width: 0, height: 0 },
                         textShadowRadius: 10,
                     },
@@ -72,8 +77,8 @@ export default function TabLayout() {
                         <MaterialIcons name="account-balance-wallet" size={size} color={color} />
                     ),
                     headerTitleStyle: {
-                        color: '#06b6d4',
-                        textShadowColor: '#06b6d4',
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                         textShadowOffset: { width: 0, height: 0 },
                         textShadowRadius: 10,
                     },
@@ -87,8 +92,8 @@ export default function TabLayout() {
                         <MaterialIcons name="receipt" size={size} color={color} />
                     ),
                     headerTitleStyle: {
-                        color: '#06b6d4',
-                        textShadowColor: '#06b6d4',
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                         textShadowOffset: { width: 0, height: 0 },
                         textShadowRadius: 10,
                     },
@@ -102,8 +107,8 @@ export default function TabLayout() {
                         <MaterialIcons name="label" size={size} color={color} />
                     ),
                     headerTitleStyle: {
-                        color: '#06b6d4',
-                        textShadowColor: '#06b6d4',
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                         textShadowOffset: { width: 0, height: 0 },
                         textShadowRadius: 10,
                     },
@@ -117,8 +122,8 @@ export default function TabLayout() {
                         <MaterialIcons name="person" size={size} color={color} />
                     ),
                     headerTitleStyle: {
-                        color: '#06b6d4',
-                        textShadowColor: '#06b6d4',
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
                         textShadowOffset: { width: 0, height: 0 },
                         textShadowRadius: 10,
                     },

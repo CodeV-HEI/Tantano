@@ -14,7 +14,9 @@ import {
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -27,6 +29,7 @@ export default function RegisterScreen() {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const router = useRouter();
     const { register } = useAuth();
+    const { theme, toggleTheme } = useTheme();
 
     React.useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
@@ -80,9 +83,22 @@ export default function RegisterScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-black"
+            className="flex-1 bg-white dark:bg-black"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
+            {/* Bouton de changement de thème */}
+            <TouchableOpacity
+                onPress={toggleTheme}
+                className="absolute top-12 right-6 z-50 p-3 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-sm border border-purple-500/20"
+                activeOpacity={0.7}
+            >
+                <MaterialIcons
+                    name={theme === 'dark' ? 'light-mode' : 'dark-mode'}
+                    size={24}
+                    color={theme === 'dark' ? '#a855f7' : '#9333ea'}
+                />
+            </TouchableOpacity>
+
             <ScrollView
                 className="flex-1"
                 contentContainerStyle={{
@@ -101,19 +117,19 @@ export default function RegisterScreen() {
                             <Text className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 neon-text mb-4">
                                 CRÉER UN COMPTE
                             </Text>
-                            <Text className="text-cyan-300/80 text-center text-lg tracking-wide">
-                                Rejoignez-nous et commencez à gérer vos finances dès aujourd'hui !
+                            <Text className="text-cyan-600 dark:text-cyan-300/80 text-center text-lg tracking-wide">
+                                Rejoignez-nous et commencez à gérer vos finances dès aujourd&apos;hui !
                             </Text>
                         </Animated.View>
                     )}
 
                     <View className="space-y-8">
                         <Animated.View entering={FadeInUp.delay(200)} className="space-y-3">
-                            <Text className="text-cyan-300 font-medium tracking-wide text-base">NOM D'UTILISATEUR</Text>
+                            <Text className="text-cyan-600 dark:text-cyan-300 font-medium tracking-wide text-base">NOM D&apos;UTILISATEUR</Text>
                             <TextInput
-                                className="bg-black/60 border-2 border-cyan-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-cyan-400"
+                                className="bg-white dark:bg-black/60 border-2 border-cyan-500/40 rounded-xl px-5 py-4 text-gray-900 dark:text-white text-lg focus:border-cyan-400"
                                 placeholder="Choisissez votre nom"
-                                placeholderTextColor="#06b6d470"
+                                placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b470'}
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
@@ -123,12 +139,12 @@ export default function RegisterScreen() {
                         </Animated.View>
 
                         <Animated.View entering={FadeInUp.delay(400)} className="space-y-3 mt-3">
-                            <Text className="text-cyan-300 font-medium tracking-wide text-base">MOT DE PASSE</Text>
+                            <Text className="text-cyan-600 dark:text-cyan-300 font-medium tracking-wide text-base">MOT DE PASSE</Text>
                             <View className="relative">
                                 <TextInput
-                                    className="bg-black/60 border-2 border-cyan-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-cyan-400 pr-12"
+                                    className="bg-white dark:bg-black/60 border-2 border-cyan-500/40 rounded-xl px-5 py-4 text-gray-900 dark:text-white text-lg focus:border-cyan-400 pr-12"
                                     placeholder="Minimum 6 caractères"
-                                    placeholderTextColor="#06b6d470"
+                                    placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b470'}
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
@@ -141,21 +157,21 @@ export default function RegisterScreen() {
                                     activeOpacity={0.7}
                                 >
                                     {showPassword ? (
-                                        <EyeOff size={24} color="#06b6d4" />
+                                        <EyeOff size={24} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
                                     ) : (
-                                        <Eye size={24} color="#06b6d4" />
+                                        <Eye size={24} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
                                     )}
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>
 
                         <Animated.View entering={FadeInUp.delay(500)} className="space-y-3 mt-3">
-                            <Text className="text-purple-300 font-medium tracking-wide text-base">CONFIRMER LE MOT DE PASSE</Text>
+                            <Text className="text-purple-600 dark:text-purple-300 font-medium tracking-wide text-base">CONFIRMER LE MOT DE PASSE</Text>
                             <View className="relative">
                                 <TextInput
-                                    className="bg-black/60 border-2 border-purple-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-purple-400 pr-12"
+                                    className="bg-white dark:bg-black/60 border-2 border-purple-500/40 rounded-xl px-5 py-4 text-gray-900 dark:text-white text-lg focus:border-purple-400 pr-12"
                                     placeholder="Retapez votre mot de passe"
-                                    placeholderTextColor="#a855f770"
+                                    placeholderTextColor={theme === 'dark' ? '#a855f770' : '#9333ea70'}
                                     value={confirmPassword}
                                     onChangeText={setConfirmPassword}
                                     secureTextEntry={!showConfirmPassword}
@@ -168,9 +184,9 @@ export default function RegisterScreen() {
                                     activeOpacity={0.7}
                                 >
                                     {showConfirmPassword ? (
-                                        <EyeOff size={24} color="#a855f7" />
+                                        <EyeOff size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
                                     ) : (
-                                        <Eye size={24} color="#a855f7" />
+                                        <Eye size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
                                     )}
                                 </TouchableOpacity>
                             </View>
@@ -178,7 +194,7 @@ export default function RegisterScreen() {
 
                         <Animated.View entering={FadeInUp.delay(600)} className="pt-12">
                             <TouchableOpacity
-                                className={`${isPressed ? 'bg-gray-900' : 'bg-black'} border-2 border-purple-500/60 rounded-xl py-5 ${isLoading ? 'opacity-80' : ''} shadow-2xl shadow-purple-500/30 active:scale-[0.98] flex-row justify-center items-center`}
+                                className={`${isPressed ? 'bg-gray-100 dark:bg-gray-900' : 'bg-white dark:bg-black'} border-2 border-purple-500/60 rounded-xl py-5 ${isLoading ? 'opacity-80' : ''} shadow-2xl shadow-purple-500/30 active:scale-[0.98] flex-row justify-center items-center`}
                                 onPress={handleRegister}
                                 onPressIn={() => setIsPressed(true)}
                                 onPressOut={() => setIsPressed(false)}
@@ -191,8 +207,8 @@ export default function RegisterScreen() {
                                     </View>
                                 ) : (
                                     <View className="flex-row justify-center items-center w-full">
-                                        <Text className="text-purple-400 text-center text-xl font-bold tracking-widest">
-                                            S'INSCRIRE
+                                        <Text className="text-purple-600 dark:text-purple-400 text-center text-xl font-bold tracking-widest">
+                                            S&apos;INSCRIRE
                                         </Text>
                                     </View>
                                 )}
@@ -205,7 +221,7 @@ export default function RegisterScreen() {
                                 className="py-3"
                             >
                                 <View className="flex-row justify-center items-center space-x-2">
-                                    <Text className="text-cyan-400 text-lg font-medium tracking-wide">
+                                    <Text className="text-cyan-600 dark:text-cyan-400 text-lg font-medium tracking-wide">
                                         ← Retour à la connexion
                                     </Text>
                                 </View>

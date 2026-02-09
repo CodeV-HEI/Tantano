@@ -38,6 +38,15 @@ module.exports = {
                     '0%, 100%': { transform: 'translateY(0)' },
                     '50%': { transform: 'translateY(-10px)' }
                 }
+            },
+            backdropBlur: {
+                xs: '2px',
+                sm: '4px',
+                md: '8px',
+                lg: '12px',
+                xl: '16px',
+                '2xl': '24px',
+                '3xl': '40px',
             }
         },
     },

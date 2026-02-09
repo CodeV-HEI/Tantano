@@ -8,6 +8,7 @@ import Animated, {
     Layout
 } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
 import { Wallet, Transaction, Label, WalletType } from '@/types/api';
 
@@ -18,6 +19,7 @@ export default function DashboardScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [totalBalance, setTotalBalance] = useState(0);
     const { user } = useAuth();
+    const { theme } = useTheme();
     const router = useRouter();
 
     useEffect(() => {
@@ -88,42 +90,42 @@ export default function DashboardScreen() {
             <View className={`w-16 h-16 rounded-2xl ${color} items-center justify-center mb-2 shadow-lg shadow-cyan-500/50`}>
                 <MaterialIcons name={icon} size={28} color="white" />
             </View>
-            <Text className="text-sm text-cyan-300 font-medium tracking-wide neon-text">{title}</Text>
+            <Text className="text-sm text-cyan-600 dark:text-cyan-300 font-medium tracking-wide neon-text">{title}</Text>
         </TouchableOpacity>
     );
 
     const getWalletTypeColor = (type: WalletType) => {
         switch (type) {
             case WalletType.CASH:
-                return { bg: 'bg-yellow-500/20 border border-yellow-500/30', text: 'text-yellow-400' };
+                return { bg: theme === 'dark' ? 'bg-yellow-500/20 border border-yellow-500/30' : 'bg-yellow-100 border border-yellow-300', text: 'text-yellow-600 dark:text-yellow-400' };
             case WalletType.MOBILE_MONEY:
-                return { bg: 'bg-green-500/20 border border-green-500/30', text: 'text-green-400' };
+                return { bg: theme === 'dark' ? 'bg-green-500/20 border border-green-500/30' : 'bg-green-100 border border-green-300', text: 'text-green-600 dark:text-green-400' };
             case WalletType.BANK:
-                return { bg: 'bg-blue-500/20 border border-blue-500/30', text: 'text-blue-400' };
+                return { bg: theme === 'dark' ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-blue-100 border border-blue-300', text: 'text-blue-600 dark:text-blue-400' };
             case WalletType.DEBT:
-                return { bg: 'bg-red-500/20 border border-red-500/30', text: 'text-red-400' };
+                return { bg: theme === 'dark' ? 'bg-red-500/20 border border-red-500/30' : 'bg-red-100 border border-red-300', text: 'text-red-600 dark:text-red-400' };
             default:
-                return { bg: 'bg-gray-500/20 border border-gray-500/30', text: 'text-gray-400' };
+                return { bg: theme === 'dark' ? 'bg-gray-500/20 border border-gray-500/30' : 'bg-gray-100 border border-gray-300', text: 'text-gray-600 dark:text-gray-400' };
         }
     };
 
     if (!user) {
         return (
-            <View className="flex-1 bg-black items-center justify-center">
-                <Text className="text-white text-lg">Chargement...</Text>
+            <View className="flex-1 bg-white dark:bg-black items-center justify-center">
+                <Text className="text-gray-900 dark:text-white text-lg">Chargement...</Text>
             </View>
         );
     }
 
     return (
         <ScrollView
-            className="flex-1 bg-black"
+            className="flex-1 bg-white dark:bg-black"
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}
                     onRefresh={onRefresh}
-                    tintColor="#06b6d4"
-                    colors={['#06b6d4']}
+                    tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                    colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
                 />
             }
         >
@@ -135,7 +137,7 @@ export default function DashboardScreen() {
                     <Text className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 neon-text">
                         Bonjour, {user?.username}
                     </Text>
-                    <Text className="text-cyan-300/70 mt-1 tracking-wide">
+                    <Text className="text-cyan-600/70 dark:text-cyan-300/70 mt-1 tracking-wide">
                         Gérez vos finances en toute simplicité
                     </Text>
                 </Animated.View>
@@ -145,11 +147,11 @@ export default function DashboardScreen() {
                     layout={Layout.springify()}
                     className="bg-gradient-to-r from-cyan-600/20 to-purple-600/20 rounded-2xl p-6 mt-6 border border-cyan-500/30 shadow-lg shadow-cyan-500/20"
                 >
-                    <Text className="text-cyan-300 text-lg font-medium tracking-wide neon-text">SOLDE TOTAL</Text>
-                    <Text className="text-white text-4xl font-bold mt-2 neon-text">
+                    <Text className="text-cyan-600 dark:text-cyan-300 text-lg font-medium tracking-wide neon-text">SOLDE TOTAL</Text>
+                    <Text className="text-gray-900 dark:text-white text-4xl font-bold mt-2 neon-text">
                         {totalBalance.toLocaleString('fr-FR')} Ar
                     </Text>
-                    <Text className="text-cyan-300/60 mt-2 tracking-wide">
+                    <Text className="text-cyan-600/60 dark:text-cyan-300/60 mt-2 tracking-wide">
                         {transactions.length} transactions • {wallets.length} portefeuilles
                     </Text>
                 </Animated.View>
@@ -186,17 +188,17 @@ export default function DashboardScreen() {
 
                 <Animated.View entering={FadeInUp.delay(400)} className="mt-10">
                     <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-xl font-bold text-cyan-300 tracking-wide neon-text">PORTEFEUILLES</Text>
+                        <Text className="text-xl font-bold text-cyan-600 dark:text-cyan-300 tracking-wide neon-text">PORTEFEUILLES</Text>
                         <TouchableOpacity onPress={() => router.push('/wallets')}>
-                            <Text className="text-cyan-400 font-medium tracking-wide neon-text">VOIR TOUT</Text>
+                            <Text className="text-cyan-600 dark:text-cyan-400 font-medium tracking-wide neon-text">VOIR TOUT</Text>
                         </TouchableOpacity>
                     </View>
 
                     {wallets.length === 0 ? (
-                        <View className="bg-black/50 rounded-xl p-6 border border-cyan-500/20 items-center">
-                            <MaterialIcons name="account-balance-wallet" size={40} color="#06b6d4" />
-                            <Text className="text-white text-lg mt-2">Aucun portefeuille</Text>
-                            <Text className="text-cyan-300/70 text-center mt-1">
+                        <View className="bg-gray-50 dark:bg-black/50 rounded-xl p-6 border border-cyan-500/20 items-center">
+                            <MaterialIcons name="account-balance-wallet" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                            <Text className="text-gray-900 dark:text-white text-lg mt-2">Aucun portefeuille</Text>
+                            <Text className="text-cyan-600/70 dark:text-cyan-300/70 text-center mt-1">
                                 Créez votre premier portefeuille pour commencer
                             </Text>
                         </View>
@@ -207,16 +209,16 @@ export default function DashboardScreen() {
                                 <Animated.View
                                     key={wallet.id}
                                     entering={FadeInUp.delay(500 + index * 100)}
-                                    className="bg-black/50 rounded-xl p-4 mb-3 border border-cyan-500/20 shadow-sm"
+                                    className="bg-gray-50 dark:bg-black/50 rounded-xl p-4 mb-3 border border-cyan-500/20 shadow-sm"
                                 >
                                     <TouchableOpacity onPress={() => router.push('/wallets')}>
                                         <View className="flex-row justify-between items-center">
                                             <View className="flex-1">
-                                                <Text className="font-semibold text-white text-lg">{wallet.name}</Text>
+                                                <Text className="font-semibold text-gray-900 dark:text-white text-lg">{wallet.name}</Text>
                                                 {wallet.description && (
-                                                    <Text className="text-cyan-300/70 text-sm mt-1">{wallet.description}</Text>
+                                                    <Text className="text-cyan-600/70 dark:text-cyan-300/70 text-sm mt-1">{wallet.description}</Text>
                                                 )}
-                                                <Text className="text-white text-lg font-bold mt-2">
+                                                <Text className="text-gray-900 dark:text-white text-lg font-bold mt-2">
                                                     {wallet.amount.toLocaleString('fr-FR')} Ar
                                                 </Text>
                                             </View>
@@ -235,17 +237,17 @@ export default function DashboardScreen() {
 
                 <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
                     <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-xl font-bold text-cyan-300 tracking-wide neon-text">TRANSACTIONS RÉCENTES</Text>
+                        <Text className="text-xl font-bold text-cyan-600 dark:text-cyan-300 tracking-wide neon-text">TRANSACTIONS RÉCENTES</Text>
                         <TouchableOpacity onPress={() => router.push('/transactions')}>
-                            <Text className="text-cyan-400 font-medium tracking-wide neon-text">VOIR TOUT</Text>
+                            <Text className="text-cyan-600 dark:text-cyan-400 font-medium tracking-wide neon-text">VOIR TOUT</Text>
                         </TouchableOpacity>
                     </View>
 
                     {transactions.length === 0 ? (
-                        <View className="bg-black/50 rounded-xl p-6 border border-cyan-500/20 items-center">
-                            <MaterialIcons name="receipt" size={40} color="#06b6d4" />
-                            <Text className="text-white text-lg mt-2">Aucune transaction</Text>
-                            <Text className="text-cyan-300/70 text-center mt-1">
+                        <View className="bg-gray-50 dark:bg-black/50 rounded-xl p-6 border border-cyan-500/20 items-center">
+                            <MaterialIcons name="receipt" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                            <Text className="text-gray-900 dark:text-white text-lg mt-2">Aucune transaction</Text>
+                            <Text className="text-cyan-600/70 dark:text-cyan-300/70 text-center mt-1">
                                 Créez votre première transaction
                             </Text>
                         </View>
@@ -254,28 +256,28 @@ export default function DashboardScreen() {
                             <Animated.View
                                 key={transaction.id}
                                 entering={FadeInUp.delay(700 + index * 100)}
-                                className="bg-black/50 rounded-xl p-4 mb-3 border border-cyan-500/20 shadow-sm"
+                                className="bg-gray-50 dark:bg-black/50 rounded-xl p-4 mb-3 border border-cyan-500/20 shadow-sm"
                             >
                                 <TouchableOpacity onPress={() => router.push('/transactions')}>
                                     <View className="flex-row justify-between items-start">
                                         <View className="flex-1">
-                                            <Text className="font-medium text-white">
+                                            <Text className="font-medium text-gray-900 dark:text-white">
                                                 {transaction.description || 'Transaction sans description'}
                                             </Text>
-                                            <Text className="text-cyan-300/70 text-sm mt-1">
+                                            <Text className="text-cyan-600/70 dark:text-cyan-300/70 text-sm mt-1">
                                                 {new Date(transaction.date).toLocaleDateString('fr-FR')}
                                             </Text>
                                             {transaction.labels && transaction.labels.length > 0 && (
                                                 <View className="flex-row flex-wrap mt-2">
                                                     {transaction.labels.slice(0, 3).map((label, i) => (
                                                         <View key={i} className="bg-cyan-500/10 px-2 py-1 rounded mr-2 mb-1 border border-cyan-500/20">
-                                                            <Text className="text-xs text-cyan-300">{label.name}</Text>
+                                                            <Text className="text-xs text-cyan-600 dark:text-cyan-300">{label.name}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
                                             )}
                                         </View>
-                                        <Text className={`text-lg font-bold ${transaction.type === 'IN' ? 'text-green-400' : 'text-red-400'
+                                        <Text className={`text-lg font-bold ${transaction.type === 'IN' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                             }`}>
                                             {transaction.type === 'IN' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} Ar
                                         </Text>
