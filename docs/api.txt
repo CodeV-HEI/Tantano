@@ -1,1 +1,1 @@
-https://tantano-api.onrender.com/
+https://tantano-api.onrender.com
