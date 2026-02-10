@@ -18,6 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Background3D from '@/components/Background';
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -88,9 +89,12 @@ export default function RegisterScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-white dark:bg-black"
+            className="flex-1"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
+            {/* Background 3D */}
+            <Background3D />
+
             {/* Bouton de changement de thème */}
             <TouchableOpacity
                 onPress={toggleTheme}
@@ -113,9 +117,6 @@ export default function RegisterScreen() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-                <View className={`absolute bottom-10 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-
                 <View className="px-6 pt-12 pb-10">
                     {!keyboardVisible && (
                         <Animated.View entering={FadeInUp.duration(800)} className="mb-10 items-center">

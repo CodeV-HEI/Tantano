@@ -18,7 +18,7 @@ import {
     User
 } from '@/types/api';
 
-const API_URL = 'https://tantano-api.onrender.com';
+const API_URL = process.env.API_BASE_URL || 'https://tantano-api.onrender.com';
 
 
 const api = axios.create({
@@ -44,20 +44,6 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
-const handleApiError = (error: any) => {
-    console.error('API Error:', error);
-
-    if (error.code === 'ECONNABORTED') {
-        throw new Error('Le serveur met trop de temps à répondre. Le service gratuit peut prendre jusqu\'à 30 secondes pour démarrer.');
-    } else if (error.response) {
-        throw new Error(error.response.data?.message || `Erreur serveur: ${error.response.status}`);
-    } else if (error.request) {
-        throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion internet.');
-    } else {
-        throw new Error('Erreur de configuration de la requête');
-    }
-};
 
 const apiWithRetry = async (axiosCall: any, retries = 2, delay = 3000) => {
     for (let i = 0; i <= retries; i++) {

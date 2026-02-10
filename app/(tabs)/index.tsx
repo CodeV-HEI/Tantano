@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
 import { Wallet, Transaction, Label, WalletType } from '@/types/api';
+import Background3D from '@/components/DashboardBackground';
 
 export default function DashboardScreen() {
     const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -137,175 +138,177 @@ export default function DashboardScreen() {
     }
 
     return (
-        <ScrollView
-            className="flex-1 bg-white dark:bg-black"
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-                    colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
-                />
-            }
-        >
-            <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-            <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+        <>
+            {/* Background 3D */}
+            <Background3D />
 
-            <View className="px-4 pt-8">
-                <Animated.View entering={FadeInUp.duration(600)}>
-                    <Text className={`text-2xl font-bold text-transparent bg-clip-text ${theme === 'dark' ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-gradient-to-r from-cyan-300 to-purple-300'} ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>
-                        Bonjour, {user?.username}
-                    </Text>
-                    <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} mt-1 tracking-wide`}>
-                        Gérez vos finances en toute simplicité
-                    </Text>
-                </Animated.View>
-
-                <Animated.View
-                    entering={FadeInUp.delay(200)}
-                    layout={Layout.springify()}
-                    className={`${theme === 'dark' ? 'bg-gradient-to-r from-cyan-600/20 to-purple-600/20 border-cyan-500/30 shadow-cyan-500/20' : 'bg-gradient-to-r from-cyan-400/10 to-purple-400/10 border-cyan-300/30 shadow-cyan-400/10'} rounded-2xl p-6 mt-6 border shadow-lg`}
-                >
-                    <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} text-lg font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>SOLDE TOTAL</Text>
-                    <Text className={`${theme === 'dark' ? 'text-white' : 'text-cyan-800'} text-4xl font-bold mt-2 ${theme === 'dark' ? 'neon-text' : ''}`}>
-                        {totalBalance.toLocaleString('fr-FR')} Ar
-                    </Text>
-                    <Text className={`${theme === 'dark' ? 'text-cyan-300/60' : 'text-cyan-600/60'} mt-2 tracking-wide`}>
-                        {transactions.length} transactions • {wallets.length} portefeuilles
-                    </Text>
-                </Animated.View>
-
-                <Animated.View
-                    entering={SlideInRight.delay(300)}
-                    className="flex-row justify-between mt-8"
-                >
-                    <QuickAction
-                        icon="add"
-                        title="TRANSACTION"
-                        color="bg-gradient-to-br from-cyan-500 to-cyan-700"
-                        onPress={() => router.push('/transactions')}
+            <ScrollView
+                className="flex-1"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                        colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
                     />
-                    <QuickAction
-                        icon="account-balance-wallet"
-                        title="PORTEFEUILLE"
-                        color="bg-gradient-to-br from-purple-500 to-purple-700"
-                        onPress={() => router.push('/wallets')}
-                    />
-                    <QuickAction
-                        icon="label"
-                        title="LABELS"
-                        color="bg-gradient-to-br from-pink-500 to-pink-700"
-                        onPress={() => router.push('/labels')}
-                    />
-                    <QuickAction
-                        icon="analytics"
-                        title="RAPPORT"
-                        color="bg-gradient-to-br from-indigo-500 to-indigo-700"
-                        onPress={() => Alert.alert('Rapports', 'Les rapports seront disponibles dans une prochaine mise à jour')}
-                    />
-                </Animated.View>
+                }
+            >
+                <View className="px-4 pt-8">
+                    <Animated.View entering={FadeInUp.duration(600)}>
+                        <Text className={`text-2xl font-bold text-transparent bg-clip-text ${theme === 'dark' ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-gradient-to-r from-cyan-300 to-purple-300'} ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>
+                            Bonjour, {user?.username}
+                        </Text>
+                        <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} mt-1 tracking-wide`}>
+                            Gérez vos finances en toute simplicité
+                        </Text>
+                    </Animated.View>
 
-                <Animated.View entering={FadeInUp.delay(400)} className="mt-10">
-                    <View className="flex-row justify-between items-center mb-4">
-                        <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>PORTEFEUILLES</Text>
-                        <TouchableOpacity onPress={() => router.push('/wallets')}>
-                            <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <Animated.View
+                        entering={FadeInUp.delay(200)}
+                        layout={Layout.springify()}
+                        className={`${theme === 'dark' ? 'bg-gradient-to-r from-cyan-600/20 to-purple-600/20 border-cyan-500/30 shadow-cyan-500/20' : 'bg-gradient-to-r from-cyan-400/10 to-purple-400/10 border-cyan-300/30 shadow-cyan-400/10'} rounded-2xl p-6 mt-6 border shadow-lg`}
+                    >
+                        <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} text-lg font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>SOLDE TOTAL</Text>
+                        <Text className={`${theme === 'dark' ? 'text-white' : 'text-cyan-800'} text-4xl font-bold mt-2 ${theme === 'dark' ? 'neon-text' : ''}`}>
+                            {totalBalance.toLocaleString('fr-FR')} Ar
+                        </Text>
+                        <Text className={`${theme === 'dark' ? 'text-cyan-300/60' : 'text-cyan-600/60'} mt-2 tracking-wide`}>
+                            {transactions.length} transactions • {wallets.length} portefeuilles
+                        </Text>
+                    </Animated.View>
 
-                    {wallets.length === 0 ? (
-                        <View className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-6 border items-center`}>
-                            <MaterialIcons name="account-balance-wallet" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-                            <Text className={`${theme === 'dark' ? 'text-white' : 'text-cyan-800'} text-lg mt-2`}>Aucun portefeuille</Text>
-                            <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-center mt-1`}>
-                                Créez votre premier portefeuille pour commencer
-                            </Text>
+                    <Animated.View
+                        entering={SlideInRight.delay(300)}
+                        className="flex-row justify-between mt-8"
+                    >
+                        <QuickAction
+                            icon="add"
+                            title="TRANSACTION"
+                            color="bg-gradient-to-br from-cyan-500 to-cyan-700"
+                            onPress={() => router.push('/transactions')}
+                        />
+                        <QuickAction
+                            icon="account-balance-wallet"
+                            title="PORTEFEUILLE"
+                            color="bg-gradient-to-br from-purple-500 to-purple-700"
+                            onPress={() => router.push('/wallets')}
+                        />
+                        <QuickAction
+                            icon="label"
+                            title="LABELS"
+                            color="bg-gradient-to-br from-pink-500 to-pink-700"
+                            onPress={() => router.push('/labels')}
+                        />
+                        <QuickAction
+                            icon="analytics"
+                            title="RAPPORT"
+                            color="bg-gradient-to-br from-indigo-500 to-indigo-700"
+                            onPress={() => Alert.alert('Rapports', 'Les rapports seront disponibles dans une prochaine mise à jour')}
+                        />
+                    </Animated.View>
+
+                    <Animated.View entering={FadeInUp.delay(400)} className="mt-10">
+                        <View className="flex-row justify-between items-center mb-4">
+                            <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>PORTEFEUILLES</Text>
+                            <TouchableOpacity onPress={() => router.push('/wallets')}>
+                                <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
+                            </TouchableOpacity>
                         </View>
-                    ) : (
-                        wallets.slice(0, 3).map((wallet, index) => {
-                            const colors = getWalletTypeColor(wallet.type);
-                            return (
+
+                        {wallets.length === 0 ? (
+                            <View className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-6 border items-center`}>
+                                <MaterialIcons name="account-balance-wallet" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                                <Text className={`${theme === 'dark' ? 'text-white' : 'text-cyan-800'} text-lg mt-2`}>Aucun portefeuille</Text>
+                                <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-center mt-1`}>
+                                    Créez votre premier portefeuille pour commencer
+                                </Text>
+                            </View>
+                        ) : (
+                            wallets.slice(0, 3).map((wallet, index) => {
+                                const colors = getWalletTypeColor(wallet.type);
+                                return (
+                                    <Animated.View
+                                        key={wallet.id}
+                                        entering={FadeInUp.delay(500 + index * 100)}
+                                        className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
+                                    >
+                                        <TouchableOpacity onPress={() => router.push('/wallets')}>
+                                            <View className="flex-row justify-between items-center">
+                                                <View className="flex-1">
+                                                    <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg`}>{wallet.name}</Text>
+                                                    {wallet.description && (
+                                                        <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-sm mt-1`}>{wallet.description}</Text>
+                                                    )}
+                                                    <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg font-bold mt-2`}>
+                                                        {wallet.amount.toLocaleString('fr-FR')} Ar
+                                                    </Text>
+                                                </View>
+                                                <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
+                                                    <Text className={`text-xs font-bold ${colors.text}`}>
+                                                        {wallet.type}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </Animated.View>
+                                );
+                            })
+                        )}
+                    </Animated.View>
+
+                    <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
+                        <View className="flex-row justify-between items-center mb-4">
+                            <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>TRANSACTIONS RÉCENTES</Text>
+                            <TouchableOpacity onPress={() => router.push('/transactions')}>
+                                <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {transactions.length === 0 ? (
+                            <View className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-6 border items-center`}>
+                                <MaterialIcons name="receipt" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                                <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg mt-2`}>Aucune transaction</Text>
+                                <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-center mt-1`}>
+                                    Créez votre première transaction
+                                </Text>
+                            </View>
+                        ) : (
+                            transactions.slice(0, 5).map((transaction, index) => (
                                 <Animated.View
-                                    key={wallet.id}
-                                    entering={FadeInUp.delay(500 + index * 100)}
+                                    key={transaction.id}
+                                    entering={FadeInUp.delay(700 + index * 100)}
                                     className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
                                 >
-                                    <TouchableOpacity onPress={() => router.push('/wallets')}>
-                                        <View className="flex-row justify-between items-center">
+                                    <TouchableOpacity onPress={() => router.push('/transactions')}>
+                                        <View className="flex-row justify-between items-start">
                                             <View className="flex-1">
-                                                <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg`}>{wallet.name}</Text>
-                                                {wallet.description && (
-                                                    <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-sm mt-1`}>{wallet.description}</Text>
+                                                <Text className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                                    {transaction.description || 'Transaction sans description'}
+                                                </Text>
+                                                <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-sm mt-1`}>
+                                                    {new Date(transaction.date).toLocaleDateString('fr-FR')}
+                                                </Text>
+                                                {transaction.labels && transaction.labels.length > 0 && (
+                                                    <View className="flex-row flex-wrap mt-2">
+                                                        {transaction.labels.slice(0, 3).map((label, i) => (
+                                                            <View key={i} className={`${theme === 'dark' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-cyan-400/10 border-cyan-400/20'} px-2 py-1 rounded mr-2 mb-1 border`}>
+                                                                <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'}`}>{label.name}</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
                                                 )}
-                                                <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg font-bold mt-2`}>
-                                                    {wallet.amount.toLocaleString('fr-FR')} Ar
-                                                </Text>
                                             </View>
-                                            <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
-                                                <Text className={`text-xs font-bold ${colors.text}`}>
-                                                    {wallet.type}
-                                                </Text>
-                                            </View>
+                                            <Text className={`text-lg font-bold ${transaction.type === 'IN' ? (theme === 'dark' ? 'text-green-400' : 'text-green-600') : (theme === 'dark' ? 'text-red-400' : 'text-red-600')}`}>
+                                                {transaction.type === 'IN' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} Ar
+                                            </Text>
                                         </View>
                                     </TouchableOpacity>
                                 </Animated.View>
-                            );
-                        })
-                    )}
-                </Animated.View>
-
-                <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
-                    <View className="flex-row justify-between items-center mb-4">
-                        <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>TRANSACTIONS RÉCENTES</Text>
-                        <TouchableOpacity onPress={() => router.push('/transactions')}>
-                            <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {transactions.length === 0 ? (
-                        <View className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-6 border items-center`}>
-                            <MaterialIcons name="receipt" size={40} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-                            <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg mt-2`}>Aucune transaction</Text>
-                            <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-center mt-1`}>
-                                Créez votre première transaction
-                            </Text>
-                        </View>
-                    ) : (
-                        transactions.slice(0, 5).map((transaction, index) => (
-                            <Animated.View
-                                key={transaction.id}
-                                entering={FadeInUp.delay(700 + index * 100)}
-                                className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
-                            >
-                                <TouchableOpacity onPress={() => router.push('/transactions')}>
-                                    <View className="flex-row justify-between items-start">
-                                        <View className="flex-1">
-                                            <Text className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                                {transaction.description || 'Transaction sans description'}
-                                            </Text>
-                                            <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-sm mt-1`}>
-                                                {new Date(transaction.date).toLocaleDateString('fr-FR')}
-                                            </Text>
-                                            {transaction.labels && transaction.labels.length > 0 && (
-                                                <View className="flex-row flex-wrap mt-2">
-                                                    {transaction.labels.slice(0, 3).map((label, i) => (
-                                                        <View key={i} className={`${theme === 'dark' ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-cyan-400/10 border-cyan-400/20'} px-2 py-1 rounded mr-2 mb-1 border`}>
-                                                            <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'}`}>{label.name}</Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
-                                            )}
-                                        </View>
-                                        <Text className={`text-lg font-bold ${transaction.type === 'IN' ? (theme === 'dark' ? 'text-green-400' : 'text-green-600') : (theme === 'dark' ? 'text-red-400' : 'text-red-600')}`}>
-                                            {transaction.type === 'IN' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} Ar
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </Animated.View>
-                        ))
-                    )}
-                </Animated.View>
-            </View>
-        </ScrollView>
+                            ))
+                        )}
+                    </Animated.View>
+                </View>
+            </ScrollView>
+        </>
     );
 }

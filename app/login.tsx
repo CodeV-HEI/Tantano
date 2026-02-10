@@ -22,6 +22,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Background3D from '@/components/Background';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -85,9 +86,12 @@ export default function LoginScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-white dark:bg-black"
+            className="flex-1"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
+            {/* Background 3D */}
+            <Background3D />
+
             {/* Bouton de changement de thème */}
             <TouchableOpacity
                 onPress={toggleTheme}
@@ -102,7 +106,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <ScrollView
-                contentContainerStyle={{ 
+                contentContainerStyle={{
                     flexGrow: 1,
                     paddingBottom: keyboardVisible ? 100 : 40
                 }}
@@ -110,11 +114,6 @@ export default function LoginScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 <View className="flex-1 px-6 pt-16 pb-8 justify-center">
-                    {/* Background elements avec opacité réduite en mode light */}
-                    <View className={`absolute top-20 -left-20 w-60 h-60 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-20' : 'opacity-10'} blur-3xl`} />
-                    <View className={`absolute bottom-20 -right-20 w-60 h-60 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-20' : 'opacity-10'} blur-3xl`} />
-                    <View className={`absolute top-1/3 right-1/4 w-40 h-40 ${theme === 'dark' ? 'bg-pink-500' : 'bg-pink-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-2xl`} />
-
                     {!keyboardVisible && (
                         <Animated.View
                             entering={FadeInDown.duration(1000).springify()}
