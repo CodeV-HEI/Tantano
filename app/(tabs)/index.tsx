@@ -6,18 +6,18 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInUp,
-    Layout,
-    SlideInRight,
+  FadeInUp,
+  Layout,
+  SlideInRight,
 } from "react-native-reanimated";
 
 export default function DashboardScreen() {

@@ -5,19 +5,6 @@ import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 
-const dataNiveau = [
-  { label: "Junior", value: "1" },
-  { label: "Intermédiaire", value: "2" },
-  { label: "Senior", value: "3" },
-];
-
-const dataCompetences = [
-  { label: "React Native", value: "rn" },
-  { label: "JavaScript", value: "js" },
-  { label: "Python", value: "py" },
-  { label: "Design UI", value: "ui" },
-];
-
 export default function FormTrasansction() {
   const { wallets } = useWalletStore();
   const [valueWallet, setValueWallet] = useState<WalletSimple | null>(null);
