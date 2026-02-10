@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
 import { Wallet, Transaction, Label, WalletType } from '@/types/api';
-import Background3D from '@/components/Background';
+import Background3D from '@/components/DashboardBackground';
 
 export default function DashboardScreen() {
     const [wallets, setWallets] = useState<Wallet[]>([]);
