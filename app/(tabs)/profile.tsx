@@ -69,7 +69,7 @@ export default function ProfileScreen() {
                             <MaterialIcons name="person" size={48} color="white" />
                         </View>
                         <Text className="text-2xl font-bold text-gray-900 dark:text-white">{user?.username}</Text>
-                        <Text className="text-cyan-600 dark:text-cyan-300 mt-1">Membre depuis 2024</Text>
+                        <Text className="text-cyan-600 dark:text-cyan-300 mt-1">Membre depuis {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : 'inconnue'}</Text>
                     </Animated.View>
 
                     <View className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6">
