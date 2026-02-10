@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter, Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, StatusBar } from 'react-native';
 
 export default function TabLayout() {
     const { logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const router = useRouter();
+
+    useEffect(() => {
+        StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
+    }, [theme]);
 
     const handleLogout = async () => {
         await logout();

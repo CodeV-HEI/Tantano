@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, StatusBar } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -10,6 +10,10 @@ export default function ProfileScreen() {
     const { user, logout } = useAuth();
     const { theme, mode, setMode, toggleTheme } = useTheme();
     const router = useRouter();
+
+    useEffect(() => {
+        StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
+    }, [theme]);
 
     const handleLogout = async () => {
         Alert.alert(
@@ -42,13 +46,13 @@ export default function ProfileScreen() {
     }) => (
         <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800">
             <View className="flex-row items-center flex-1">
-                <View className="w-10 h-10 rounded-lg bg-cyan-500/10 items-center justify-center mr-3">
+                <View className={`w-10 h-10 rounded-lg ${theme === 'dark' ? 'bg-cyan-500/10' : 'bg-cyan-400/10'} items-center justify-center mr-3`}>
                     <MaterialIcons name={icon} size={22} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
                 </View>
                 <View className="flex-1">
-                    <Text className="font-semibold text-gray-900 dark:text-white text-base">{title}</Text>
+                    <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>{title}</Text>
                     {description && (
-                        <Text className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{description}</Text>
+                        <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-0.5`}>{description}</Text>
                     )}
                 </View>
             </View>
@@ -58,22 +62,21 @@ export default function ProfileScreen() {
 
     return (
         <>
-            <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
             <ScrollView className="flex-1 bg-white dark:bg-black">
-                <View className="absolute top-10 -left-20 w-80 h-80 bg-purple-500 rounded-full opacity-10 blur-3xl" />
-                <View className="absolute bottom-40 -right-20 w-80 h-80 bg-cyan-500 rounded-full opacity-10 blur-3xl" />
+                <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+                <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
                 <View className="px-4 pt-8">
                     <Animated.View entering={FadeInUp.duration(600)} className="items-center mb-8">
                         <View className="w-24 h-24 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 items-center justify-center mb-4">
                             <MaterialIcons name="person" size={48} color="white" />
                         </View>
-                        <Text className="text-2xl font-bold text-gray-900 dark:text-white">{user?.username}</Text>
-                        <Text className="text-cyan-600 dark:text-cyan-300 mt-1">Membre depuis {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : 'inconnue'}</Text>
+                        <Text className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>{user?.username}</Text>
+                        <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} mt-1`}>Membre depuis {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '2026'}</Text>
                     </Animated.View>
 
-                    <View className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6">
-                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">PRÉFÉRENCES D&apos;AFFICHAGE</Text>
+                    <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
+                        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>PRÉFÉRENCES D&apos;AFFICHAGE</Text>
                         
                         <SettingItem
                             icon="palette"
@@ -86,7 +89,7 @@ export default function ProfileScreen() {
                                         size={24} 
                                         color={theme === 'dark' ? '#06b6d4' : '#0891b2'} 
                                     />
-                                    <Text className="ml-2 text-cyan-600 dark:text-cyan-400 font-medium">
+                                    <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
                                         {theme === 'dark' ? 'Sombre' : 'Clair'}
                                     </Text>
                                 </TouchableOpacity>
@@ -101,15 +104,15 @@ export default function ProfileScreen() {
                                 <Switch
                                     value={mode === 'system'}
                                     onValueChange={(value) => setMode(value ? 'system' : theme)}
-                                    trackColor={{ false: '#d1d5db', true: '#06b6d4' }}
+                                    trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />
                             }
                         />
                     </View>
 
-                    <View className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6">
-                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">COMPTE ET SÉCURITÉ</Text>
+                    <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
+                        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>COMPTE ET SÉCURITÉ</Text>
                         
                         <SettingItem
                             icon="security"
@@ -128,15 +131,15 @@ export default function ProfileScreen() {
                                 <Switch
                                     value={true}
                                     onValueChange={() => {}}
-                                    trackColor={{ false: '#d1d5db', true: '#06b6d4' }}
+                                    trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />
                             }
                         />
                     </View>
 
-                    <View className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6">
-                        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">AIDE ET SUPPORT</Text>
+                    <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
+                        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>AIDE ET SUPPORT</Text>
                         
                         <SettingItem
                             icon="help"
@@ -177,10 +180,10 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
 
                     <View className="items-center mb-8">
-                        <Text className="text-cyan-600/50 dark:text-cyan-400/50 text-center">
+                        <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
                             © {new Date().getFullYear()} Tantano - CodeV
                         </Text>
-                        <Text className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-1`}>
                             Version 1.0.0 • Build 1001
                         </Text>
                     </View>
