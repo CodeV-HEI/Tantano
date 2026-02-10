@@ -22,7 +22,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import Background3D from '@/components/Background';
+import Background3D from '@/components/BackgroundHome';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
