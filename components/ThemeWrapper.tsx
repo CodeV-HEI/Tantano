@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function ThemeWrapper({ children }: { children: React.ReactNode }) {
     const { theme } = useTheme();
 
     useEffect(() => {
-        console.log('Thème actuel:', theme);
+        StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
     }, [theme]);
 
     return (
