@@ -1,14 +1,15 @@
 import { Stack } from "expo-router";
-import { AuthProvider } from "@/context/AuthContext";
-import { useAuth } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { ActivityIndicator, View } from "react-native";
+import ThemeWrapper from "@/components/ThemeWrapper";
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-black">
+      <View className="flex-1 items-center justify-center bg-white dark:bg-black">
         <ActivityIndicator size="large" color="#ff00ff" />
       </View>
     );
@@ -37,8 +38,12 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ThemeWrapper>
+          <RootLayoutContent />
+        </ThemeWrapper>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

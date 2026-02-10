@@ -6,6 +6,7 @@ export interface Credentials {
 export interface User {
   id: string;
   username: string;
+  createdAt?: string;
 }
 
 export interface UserWithToken {
@@ -13,8 +14,8 @@ export interface UserWithToken {
   token: string;
 }
 
-export interface LoginRequest extends Credentials {}
-export interface RegisterRequest extends Credentials {}
+export type LoginRequest = Credentials;
+export type RegisterRequest = Credentials;
 
 export interface PaginationResult {
   totalPage: number;

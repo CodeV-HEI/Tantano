@@ -1,23 +1,26 @@
 import { useAuth } from "@/context/AuthContext";
-import { Link, useRouter } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInDown,
-    FadeInUp,
-    SlideInRight,
+  FadeInDown,
+  FadeInUp,
+  SlideInRight,
 } from "react-native-reanimated";
 
 export default function LoginScreen() {
@@ -29,6 +32,11 @@ export default function LoginScreen() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+
+  React.useEffect(() => {
+    StatusBar.setBarStyle(theme === "dark" ? "light-content" : "dark-content");
+  }, [theme]);
 
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -77,9 +85,22 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-black"
+      className="flex-1 bg-white dark:bg-black"
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
+      {/* Bouton de changement de thème */}
+      <TouchableOpacity
+        onPress={toggleTheme}
+        className={`absolute top-12 right-6 z-50 p-3 rounded-full ${theme === "dark" ? "bg-black/10 backdrop-blur-sm border border-cyan-500/20" : "bg-cyan-50/80 backdrop-blur-sm border border-cyan-200"}`}
+        activeOpacity={0.7}
+      >
+        <MaterialIcons
+          name={theme === "dark" ? "light-mode" : "dark-mode"}
+          size={24}
+          color={theme === "dark" ? "#06b6d4" : "#0891b2"}
+        />
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -89,19 +110,30 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="flex-1 px-6 pt-16 pb-8 justify-center">
-          <View className="absolute top-20 -left-20 w-60 h-60 bg-purple-500 rounded-full opacity-20 blur-3xl" />
-          <View className="absolute bottom-20 -right-20 w-60 h-60 bg-cyan-500 rounded-full opacity-20 blur-3xl" />
-          <View className="absolute top-1/3 right-1/4 w-40 h-40 bg-pink-500 rounded-full opacity-10 blur-2xl" />
+          {/* Background elements avec opacité réduite en mode light */}
+          <View
+            className={`absolute top-20 -left-20 w-60 h-60 ${theme === "dark" ? "bg-purple-500" : "bg-purple-300"} rounded-full ${theme === "dark" ? "opacity-20" : "opacity-10"} blur-3xl`}
+          />
+          <View
+            className={`absolute bottom-20 -right-20 w-60 h-60 ${theme === "dark" ? "bg-cyan-500" : "bg-cyan-300"} rounded-full ${theme === "dark" ? "opacity-20" : "opacity-10"} blur-3xl`}
+          />
+          <View
+            className={`absolute top-1/3 right-1/4 w-40 h-40 ${theme === "dark" ? "bg-pink-500" : "bg-pink-300"} rounded-full ${theme === "dark" ? "opacity-10" : "opacity-5"} blur-2xl`}
+          />
 
           {!keyboardVisible && (
             <Animated.View
               entering={FadeInDown.duration(1000).springify()}
               className="items-center mb-12"
             >
-              <Text className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 neon-text mb-3">
+              <Text
+                className={`text-7xl font-bold text-transparent bg-clip-text ${theme === "dark" ? "bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" : "bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300"} ${theme === "dark" ? "neon-text" : "neon-text-light"} mb-3`}
+              >
                 Tantano
               </Text>
-              <Text className="text-lg text-cyan-300/80 font-light tracking-widest">
+              <Text
+                className={`text-lg ${theme === "dark" ? "text-cyan-300/80" : "text-cyan-600/80"} font-light tracking-widest`}
+              >
                 Financial event recording
               </Text>
             </Animated.View>
@@ -112,13 +144,17 @@ export default function LoginScreen() {
             className="space-y-8"
           >
             <View className="space-y-3">
-              <Text className="text-cyan-300 font-medium tracking-wide text-base">
-                Nom d'utilisateur
+              <Text
+                className={`${theme === "dark" ? "text-cyan-300" : "text-cyan-600"} font-medium tracking-wide text-base`}
+              >
+                Nom d&apos;utilisateur
               </Text>
               <TextInput
-                className="bg-black/60 border-2 border-cyan-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30"
+                className={`${theme === "dark" ? "bg-black/60 border-cyan-500/40 text-white" : "bg-cyan-50/50 border-cyan-300 text-gray-900"} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30`}
                 placeholder="Entrez votre nom"
-                placeholderTextColor="#06b6d470"
+                placeholderTextColor={
+                  theme === "dark" ? "#06b6d470" : "#0891b270"
+                }
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -128,14 +164,18 @@ export default function LoginScreen() {
             </View>
 
             <View className="space-y-3 mt-4">
-              <Text className="text-cyan-300 font-medium tracking-wide text-base">
+              <Text
+                className={`${theme === "dark" ? "text-cyan-300" : "text-cyan-600"} font-medium tracking-wide text-base`}
+              >
                 Mot de passe
               </Text>
               <View className="relative">
                 <TextInput
-                  className="bg-black/60 border-2 border-purple-500/40 rounded-xl px-5 py-4 text-white text-lg focus:border-purple-400 focus:shadow-lg focus:shadow-purple-400/30 pr-12"
+                  className={`${theme === "dark" ? "bg-black/60 border-purple-500/40 text-white" : "bg-purple-50/50 border-purple-300 text-gray-900"} border-2 rounded-xl px-5 py-4 text-lg focus:border-purple-400 focus:shadow-lg focus:shadow-purple-400/30 pr-12`}
                   placeholder="••••••••"
-                  placeholderTextColor="#a855f770"
+                  placeholderTextColor={
+                    theme === "dark" ? "#a855f770" : "#9333ea70"
+                  }
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -148,9 +188,15 @@ export default function LoginScreen() {
                   activeOpacity={0.7}
                 >
                   {showPassword ? (
-                    <EyeOff size={24} color="#a855f7" />
+                    <EyeOff
+                      size={24}
+                      color={theme === "dark" ? "#a855f7" : "#9333ea"}
+                    />
                   ) : (
-                    <Eye size={24} color="#a855f7" />
+                    <Eye
+                      size={24}
+                      color={theme === "dark" ? "#a855f7" : "#9333ea"}
+                    />
                   )}
                 </TouchableOpacity>
               </View>
@@ -158,7 +204,7 @@ export default function LoginScreen() {
 
             <Animated.View entering={FadeInUp.delay(400)} className="pt-8">
               <TouchableOpacity
-                className={`${isPressed ? "bg-gray-900" : "bg-black"} border-2 border-cyan-500/60 rounded-xl py-5 ${isLoading ? "opacity-80" : ""} shadow-2xl shadow-cyan-500/30 active:scale-[0.98] flex-row justify-center items-center`}
+                className={`${isPressed ? (theme === "dark" ? "bg-gray-900" : "bg-gray-100") : theme === "dark" ? "bg-black" : "bg-white"} ${theme === "dark" ? "border-cyan-500/60 shadow-cyan-500/30" : "border-cyan-400/50 shadow-cyan-400/20"} border-2 rounded-xl py-5 ${isLoading ? "opacity-80" : ""} shadow-2xl active:scale-[0.98] flex-row justify-center items-center`}
                 onPress={handleLogin}
                 onPressIn={() => setIsPressed(true)}
                 onPressOut={() => setIsPressed(false)}
@@ -167,11 +213,16 @@ export default function LoginScreen() {
               >
                 {isLoading ? (
                   <View className="flex-row justify-center items-center">
-                    <ActivityIndicator size="large" color="#22d3ee" />
+                    <ActivityIndicator
+                      size="large"
+                      color={theme === "dark" ? "#22d3ee" : "#0891b2"}
+                    />
                   </View>
                 ) : (
                   <View className="flex-row justify-center items-center w-full">
-                    <Text className="text-cyan-400 text-center text-lg font-bold tracking-wide">
+                    <Text
+                      className={`${theme === "dark" ? "text-cyan-400" : "text-cyan-600"} text-center text-lg font-bold tracking-wide`}
+                    >
                       Connexion
                     </Text>
                   </View>
@@ -181,11 +232,15 @@ export default function LoginScreen() {
 
             <Animated.View entering={SlideInRight.delay(600)} className="pt-10">
               <View className="flex-row justify-center items-center space-x-2">
-                <Text className="text-cyan-300/70 text-base">
+                <Text
+                  className={`${theme === "dark" ? "text-cyan-300/70" : "text-cyan-600/70"} text-base`}
+                >
                   Nouveau ici ?{" "}
                 </Text>
                 <TouchableOpacity onPress={goToRegister}>
-                  <Text className="text-purple-400 font-bold text-base underline underline-offset-3">
+                  <Text
+                    className={`${theme === "dark" ? "text-purple-400" : "text-purple-600"} font-bold text-base underline underline-offset-3`}
+                  >
                     Créer un compte
                   </Text>
                 </TouchableOpacity>
@@ -198,14 +253,16 @@ export default function LoginScreen() {
               entering={FadeInUp.delay(800)}
               className="mt-16 items-center"
             >
-              <Text className="text-cyan-400/50 text-lg tracking-wider">
-                © {new Date().getFullYear()} Posu - RaJharit77
+              <Text
+                className={`${theme === "dark" ? "text-cyan-400/50" : "text-cyan-600/50"} text-lg tracking-wider`}
+              >
+                © {new Date().getFullYear()} Tantano - CodeV
               </Text>
               <View className="flex-row space-x-2 mt-3">
                 {[...Array(3)].map((_, i) => (
                   <View
                     key={i}
-                    className="w-3 h-3 bg-cyan-500 rounded-full animate-pulse"
+                    className={`w-3 h-3 ${theme === "dark" ? "bg-cyan-500" : "bg-cyan-400"} rounded-full animate-pulse`}
                     style={{ animationDelay: `${i * 0.3}s` }}
                   />
                 ))}
