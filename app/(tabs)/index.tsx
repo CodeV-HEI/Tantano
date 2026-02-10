@@ -79,7 +79,7 @@ export default function DashboardScreen() {
 
       // Calculer le solde total (somme des montants des portefeuilles)
       const balance = walletsData.reduce(
-        (acc, wallet) => acc + wallet.amount,
+        (acc: any, wallet: any) => acc + wallet.amount,
         0,
       );
       setTotalBalance(balance);
@@ -238,19 +238,19 @@ export default function DashboardScreen() {
             icon="add"
             title="TRANSACTION"
             color="bg-gradient-to-br from-cyan-500 to-cyan-700"
-            onPress={() => router.push("/transactions")}
+            onPress={() => router.push("./transactions")}
           />
           <QuickAction
             icon="account-balance-wallet"
             title="PORTEFEUILLE"
             color="bg-gradient-to-br from-purple-500 to-purple-700"
-            onPress={() => router.push("/wallets")}
+            onPress={() => router.push("./wallets")}
           />
           <QuickAction
             icon="label"
             title="LABELS"
             color="bg-gradient-to-br from-pink-500 to-pink-700"
-            onPress={() => router.push("/labels")}
+            onPress={() => router.push("./labels")}
           />
           <QuickAction
             icon="analytics"
@@ -272,7 +272,7 @@ export default function DashboardScreen() {
             >
               PORTEFEUILLES
             </Text>
-            <TouchableOpacity onPress={() => router.push("/wallets")}>
+            <TouchableOpacity onPress={() => router.push("./wallets")}>
               <Text
                 className={`${theme === "dark" ? "text-cyan-400" : "text-cyan-600"} font-medium tracking-wide ${theme === "dark" ? "neon-text" : ""}`}
               >
@@ -310,7 +310,7 @@ export default function DashboardScreen() {
                   entering={FadeInUp.delay(500 + index * 100)}
                   className={`${theme === "dark" ? "bg-black/50 border-cyan-500/20" : "bg-cyan-50/50 border-cyan-300/30"} rounded-xl p-4 mb-3 border shadow-sm`}
                 >
-                  <TouchableOpacity onPress={() => router.push("/wallets")}>
+                  <TouchableOpacity onPress={() => router.push("./wallets")}>
                     <View className="flex-row justify-between items-center">
                       <View className="flex-1">
                         <Text
@@ -351,7 +351,7 @@ export default function DashboardScreen() {
             >
               TRANSACTIONS RÉCENTES
             </Text>
-            <TouchableOpacity onPress={() => router.push("/transactions")}>
+            <TouchableOpacity onPress={() => router.push("./transactions")}>
               <Text
                 className={`${theme === "dark" ? "text-cyan-400" : "text-cyan-600"} font-medium tracking-wide ${theme === "dark" ? "neon-text" : ""}`}
               >
@@ -387,7 +387,7 @@ export default function DashboardScreen() {
                 entering={FadeInUp.delay(700 + index * 100)}
                 className={`${theme === "dark" ? "bg-black/50 border-cyan-500/20" : "bg-cyan-50/50 border-cyan-300/30"} rounded-xl p-4 mb-3 border shadow-sm`}
               >
-                <TouchableOpacity onPress={() => router.push("/transactions")}>
+                <TouchableOpacity onPress={() => router.push("./transactions")}>
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
                       <Text
