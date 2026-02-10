@@ -128,7 +128,7 @@ function LightOrbs({ theme }: { theme: 'dark' | 'light' }) {
     );
 }
 
-export default function DashboardBackground() {
+export default function Background() {
     const { theme } = useTheme();
 
     return (
