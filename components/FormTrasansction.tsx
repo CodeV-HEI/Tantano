@@ -2,7 +2,11 @@ import { useAuth } from "@/context/AuthContext";
 import { transactionAPI } from "@/services/api";
 import { useLabelStore } from "@/store/useLabelStore";
 import { useWalletStore } from "@/store/useWalletStore";
-import { CreationTransaction, TransactionType, WalletSimple } from "@/types";
+import {
+  CreationTransaction,
+  TransactionType,
+  Wallet
+} from "@/types";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -22,7 +26,7 @@ const TransactionTypeSelected = [
 
 export default function FormTrasansction() {
   const { wallets } = useWalletStore();
-  const [valueWallet, setValueWallet] = useState<WalletSimple | null>(null);
+  const [valueWallet, setValueWallet] = useState<Wallet | null>(null);
   const { labels } = useLabelStore();
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const { user } = useAuth();
@@ -97,7 +101,7 @@ export default function FormTrasansction() {
         valueField="id"
         placeholder="Portefeuille"
         value={valueWallet?.id}
-        onChange={(item: WalletSimple) => {
+        onChange={(item: Wallet) => {
           setValueWallet(item);
         }}
       />

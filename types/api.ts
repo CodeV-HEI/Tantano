@@ -61,6 +61,8 @@ export interface CreationWallet {
   name: string;
   description?: string;
   type: WalletType;
+  color: string;
+  iconRef: string;
 }
 
 export interface UpdateWallet extends CreationWallet {
@@ -135,8 +137,4 @@ export interface TransactionUpdateInfo {
 
 export interface LabelUpdateInfo {
   name?: string;
-}
-
-export interface WalletSimple extends CreationWallet {
-  id: string;
 }

@@ -31,7 +31,9 @@ export default function CardTransaction({
 
   return (
     <TouchableOpacity
-      onPress={() => router.push(`./transactions/${data.id}`)}
+      onPress={() =>
+        router.push(`./transactions/${data.walletId}/transaction/${data.id}`)
+      }
       className="w-full border p-4 relative"
     >
       <Text>{data.description}</Text>
