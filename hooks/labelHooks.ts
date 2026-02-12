@@ -3,15 +3,14 @@ import { labelAPI } from "@/services/api";
 import { useLabelStore } from "@/store/useLabelStore";
 import { useCallback } from "react";
 
-export const getALLLabels = () => {
+export const getLabels = () => {
   const { user } = useAuth();
   const { setLabels } = useLabelStore();
 
   const fetchLabels = useCallback(async () => {
     try {
-      if (!user?.id) return;
       const data = await labelAPI
-        .getAll(user.id)
+        .getAll(user?.id || "")
         .then((res) => res.data.values);
       setLabels(data);
     } catch (error) {

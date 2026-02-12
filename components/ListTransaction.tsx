@@ -14,7 +14,7 @@ export default function ListTransaction() {
     return (
       <View className="flex justify-center items-center p-4 w-full gap-4">
         <Text className="text-2xl">Aucune transaction trouvée.</Text>
-        <Link href="/transactions/createTransaction">
+        <Link href="/transactions/create">
           <Text className="text-blue-500 underline">
             Ajouter une transaction
           </Text>

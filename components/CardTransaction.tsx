@@ -2,7 +2,8 @@ import { transactionAPI } from "@/services/api";
 import { Transaction } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Alert, Pressable, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
 
 export default function CardTransaction({
   data,
@@ -29,7 +30,10 @@ export default function CardTransaction({
   };
 
   return (
-    <View className="w-full border p-4 relative">
+    <TouchableOpacity
+      onPress={() => router.push(`./transactions/${data.id}`)}
+      className="w-full border p-4 relative"
+    >
       <Text>{data.description}</Text>
       <Text>{data.amount}</Text>
       <View className="absolute top-0 right-0 flex flex-row justify-center items-center gap-2 p-2">
@@ -40,6 +44,6 @@ export default function CardTransaction({
           <MaterialIcons name="delete" size={24} color="red" />
         </Pressable>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }

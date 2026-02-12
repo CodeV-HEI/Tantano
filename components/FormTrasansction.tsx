@@ -3,6 +3,7 @@ import { transactionAPI } from "@/services/api";
 import { useLabelStore } from "@/store/useLabelStore";
 import { useWalletStore } from "@/store/useWalletStore";
 import { CreationTransaction, TransactionType, WalletSimple } from "@/types";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -82,6 +83,8 @@ export default function FormTrasansction() {
         "Erreur",
         "Une erreur est survenue lors de la création de la transaction.",
       );
+    } finally {
+      router.push("/transactions");
     }
   };
 
