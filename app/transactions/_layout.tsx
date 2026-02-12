@@ -1,7 +1,6 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { router, Tabs } from "expo-router";
+import { Pressable, Text, View } from "react-native";
 
 export default function Layout() {
   return (
@@ -17,11 +16,11 @@ export default function Layout() {
         headerTitle: () => (
           <View className="justify-center flex-row items-center w-56 gap-4">
             <FontAwesome6
-              name="money-bill-trend-up"
+              name="money-bill-transfer"
               size={24}
               color="#A74BCA"
             />
-            <Text className="font-bold text-root-purple text-4xl -bottom-1">
+            <Text className="font-bold text-root-purple text-4xl">
               Transactions
             </Text>
           </View>
@@ -30,11 +29,26 @@ export default function Layout() {
           borderBottomColor: "#00F2FF",
           borderBottomWidth: 2,
         },
+        headerRight(props) {
+          return (
+            <Pressable
+              onPress={() => {
+                router.push("/transactions/create");
+              }}
+            >
+              <MaterialIcons name="add-box" size={24} color="#A74BCA" />
+            </Pressable>
+          );
+        },
+        headerRightContainerStyle: {
+          paddingRight: 30,
+        },
       }}
     >
       <Tabs.Screen
-        name="listTransactions"
+        name="index"
         options={{
+          href: null,
           title: "Listes",
           tabBarIcon(props) {
             return <MaterialIcons name="list" size={24} color={props.color} />;
@@ -42,8 +56,9 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="createTransaction"
+        name="create"
         options={{
+          href: null,
           title: "Créer",
           tabBarIcon(props) {
             return (
@@ -53,17 +68,12 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="notification"
+        name="update"
         options={{
-          title: "Notifications",
+          href: null,
+          title: "Modifier",
           tabBarIcon(props) {
-            return (
-              <MaterialIcons
-                name="notifications"
-                size={24}
-                color={props.color}
-              />
-            );
+            return <MaterialIcons name="edit" size={24} color={props.color} />;
           },
         }}
       />

@@ -19,6 +19,7 @@ export const getWallet = () => {
 
   const fetchWallets = useCallback(async () => {
     try {
+      if (!user?.id) return;
       const data: UpdateWallet[] = await walletAPI
         .getAll(user?.id || "")
         .then((res) => res.data.values);

@@ -136,11 +136,9 @@ export const walletAPI = {
 };
 
 export const transactionAPI = {
-  getAll: (accountId: string, walletId: string) =>
+  getAll: (accountId: string) =>
     apiWithRetry(() =>
-      api.get<Transaction[]>(
-        `/account/${accountId}/wallet/${walletId}/transaction`,
-      ),
+      api.get<Transaction[]>(`/account/${accountId}/transaction`),
     ),
 
   getOne: (accountId: string, walletId: string, transactionId: string) =>
@@ -168,6 +166,13 @@ export const transactionAPI = {
       api.put<Transaction>(
         `/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`,
         data,
+      ),
+    ),
+
+  delete: (accountId: string, walletId: string, transactionId: string) =>
+    apiWithRetry(() =>
+      api.delete(
+        `/account/${accountId}/wallet/${walletId}/transaction/${transactionId}`,
       ),
     ),
 };
