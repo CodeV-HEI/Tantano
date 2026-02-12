@@ -26,6 +26,8 @@ export interface PaginationResult {
 
 export interface CreationLabel {
   name: string;
+  color: string;
+  iconRef: string;
 }
 
 export interface Label extends CreationLabel {
