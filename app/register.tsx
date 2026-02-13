@@ -19,6 +19,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';
+import Toast from 'react-native-toast-message';
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -67,12 +68,23 @@ export default function RegisterScreen() {
         setIsLoading(true);
         try {
             await register(username, password);
+            Toast.show({
+                type: 'success',
+                text1: 'Inscription réussie',
+                text2: 'Vous êtes maintenant connecté',
+                position: 'top',
+                visibilityTime: 2000,
+            });
             router.replace('/(tabs)');
         } catch (error: any) {
-            Alert.alert(
-                'Échec de l\'inscription',
-                error.response?.data?.message || 'Une erreur est survenue'
-            );
+            const message = error.response?.data?.message || 'Une erreur est survenue';
+            Toast.show({
+                type: 'error',
+                text1: 'Échec de l\'inscription',
+                text2: message,
+                position: 'top',
+                visibilityTime: 3000,
+            });
         } finally {
             setIsLoading(false);
         }

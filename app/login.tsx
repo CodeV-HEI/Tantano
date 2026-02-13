@@ -23,6 +23,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';
+import Toast from 'react-native-toast-message';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -64,12 +65,23 @@ export default function LoginScreen() {
         setIsLoading(true);
         try {
             await login(username, password);
+            Toast.show({
+                type: 'success',
+                text1: 'Connexion réussie',
+                text2: 'Bienvenue !',
+                position: 'top',
+                visibilityTime: 2000,
+            });
             router.replace('/(tabs)');
         } catch (error: any) {
-            Alert.alert(
-                'Échec de connexion',
-                error.response?.data?.message || 'Vérifiez vos identifiants'
-            );
+            const message = error.response?.data?.message || 'Vérifiez vos identifiants';
+            Toast.show({
+                type: 'error',
+                text1: 'Échec de connexion',
+                text2: message,
+                position: 'top',
+                visibilityTime: 3000,
+            });
         } finally {
             setIsLoading(false);
         }

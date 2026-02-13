@@ -12,6 +12,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
 import { Wallet, Transaction, Label, WalletType } from '@/types/api';
 import Background3D from '@/components/DashboardBackground';
+import Toast from 'react-native-toast-message';
 
 export default function DashboardScreen() {
     const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -67,7 +68,13 @@ export default function DashboardScreen() {
             setTotalBalance(balance);
         } catch (error) {
             console.error('Failed to fetch data:', error);
-            Alert.alert('Erreur', 'Impossible de charger les données');
+            Toast.show({
+                type: 'error',
+                text1: 'Erreur de chargement',
+                text2: 'Impossible de charger les données',
+                position: 'top',
+                visibilityTime: 3000,
+            });
         }
     };
 
