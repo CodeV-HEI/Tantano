@@ -2,7 +2,13 @@ import { useAuth } from "@/context/AuthContext";
 import { transactionAPI } from "@/services/api";
 import { useLabelStore } from "@/store/useLabelStore";
 import { useWalletStore } from "@/store/useWalletStore";
-import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
+import {
+  CreationTransaction,
+  Label,
+  Transaction,
+  TransactionType,
+  Wallet,
+} from "@/types";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -16,19 +22,27 @@ import {
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 
 const transactionTypeSelected = [
-  { id: TransactionType.IN, name: "Ajouter" },
-  { id: TransactionType.OUT, name: "Retirer" },
+  { id: "IN", name: "Ajouter" },
+  { id: "OUT", name: "Retirer" },
 ];
 
-export default function FormTrasansction() {
+export default function UpdateTransaction({ data }: { data: Transaction }) {
   const { wallets } = useWalletStore();
-  const [valueWallet, setValueWallet] = useState<Wallet | null>(null);
   const { labels } = useLabelStore();
-  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const { user } = useAuth();
-  const [type, setType] = useState<TransactionType>(TransactionType.IN);
-  const [description, setDescription] = useState<string>("");
-  const [amount, setAmount] = useState<number>(0);
+  const [type, setType] = useState<TransactionType>(data.type);
+  const [description, setDescription] = useState<string | undefined>(
+    data.description,
+  );
+  const [amount, setAmount] = useState<number>(data.amount);
+
+  const labelIds = data.labels?.map((label) => label.id) || [];
+  const [selectedLabels, setSelectedLabels] = useState<string[]>(labelIds);
+
+  const walletForThis = wallets.find((wallet) => wallet.id === data.walletId);
+  const [valueWallet, setValueWallet] = useState<Wallet | undefined>(
+    walletForThis,
+  );
 
   const handleChangeNumber = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
@@ -39,7 +53,8 @@ export default function FormTrasansction() {
     if (
       !valueWallet ||
       selectedLabels === null ||
-      selectedLabels.length === 0
+      selectedLabels.length === 0 ||
+      type === undefined
     ) {
       Alert.alert("Erreur", "Veuillez remplir tous les champs !");
       return;
@@ -56,7 +71,8 @@ export default function FormTrasansction() {
       })
       .filter((l) => l !== null);
 
-    const dateToday = new Date().toISOString();
+    const dateToday = new Date(data.date).toISOString();
+    // const dateToday = new Date().toISOString();
     const acountId = user?.id || "";
 
     const dataSend: CreationTransaction = {
@@ -70,23 +86,26 @@ export default function FormTrasansction() {
     };
 
     try {
-      const response = await transactionAPI.create(
+      const response = await transactionAPI.update(
         acountId,
         valueWallet.id,
+        data.id,
         dataSend,
       );
       console.log("Réponse de l'API :", response);
-      Alert.alert("Succès", "Transaction créée avec succès !");
+      Alert.alert("Succès", "Mise à jour du transaction avec succès !");
     } catch (error) {
       console.error("Erreur lors de la création de la transaction :", error);
       Alert.alert(
         "Erreur",
-        "Une erreur est survenue lors de la création de la transaction.",
+        "Une erreur est survenue lors de la mise à jour de la transaction.",
       );
     } finally {
       router.push("/transactions");
     }
   };
+
+  console.log(type);
 
   return (
     <View className="p-5 justify-center">
@@ -145,7 +164,7 @@ export default function FormTrasansction() {
         className="bg-root-purple p-4 rounded-lg mt-5"
       >
         <Text className="text-white text-center font-semibold">
-          Créer la transaction
+          Mettre à jour
         </Text>
       </Pressable>
     </View>

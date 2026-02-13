@@ -32,7 +32,7 @@ export default function Index() {
 
     const intervalId = setInterval(() => {
       fetchedTransactions();
-    }, 10000);
+    }, 60000);
 
     return () => {
       clearInterval(intervalId);

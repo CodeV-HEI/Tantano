@@ -160,7 +160,7 @@ export const transactionAPI = {
     accountId: string,
     walletId: string,
     transactionId: string,
-    data: Transaction,
+    data: CreationTransaction,
   ) =>
     apiWithRetry(() =>
       api.put<Transaction>(
