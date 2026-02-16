@@ -156,19 +156,23 @@ The project consists of a mobile application that allows users to manage and tra
 
 ```
 app/
-├── (tabs)/                    # Tab navigation screens
+├── (tabs)/                   # Tab navigation screens
+|   ├── _layout.tsx           # Tab layout configuration
 │   ├── index.tsx             # Dashboard screen
-│   ├── wallets.tsx           # Wallet management
-│   ├── transactions.tsx      # Transaction tracking
+|   ├── profile.tsx           # Profile screen
 │   ├── labels.tsx            # Label management
-│   └── _layout.tsx           # Tab layout configuration
+│   ├── transactions.tsx      # Transaction tracking
+│   └── wallets.tsx           # Wallet management
 ├── login.tsx                 # Authentication screen
 ├── register.tsx              # Registration screen
-├── _layout.tsx              # Root layout configuration
-├── index.tsx                # Entry point
+├── _layout.tsx               # Root layout configuration
+├── index.tsx                 # Entry point
+
+components/                   # All components
 
 context/
 └── AuthContext.tsx         # Authentication context
+├── ThemeContext.tsxa       # Theme context
 
 docs/                       # API docs
 └── api.yml                   
