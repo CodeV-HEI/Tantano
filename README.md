@@ -181,12 +181,11 @@ types/
 assets/                     # Images and icons
 └── images/
 
-config/                     # Configuration files
-├── app.json
-├── babel.config.js
-├── tailwind.config.js
-├── metro.config.js
-└── tsconfig.json
+app.json
+babel.config.js
+tailwind.config.js
+metro.config.js
+tsconfig.json
 ```
 
 ## ⚙️ Configuration Files
