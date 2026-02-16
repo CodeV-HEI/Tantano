@@ -166,11 +166,6 @@ app/
 ├── register.tsx              # Registration screen
 ├── _layout.tsx              # Root layout configuration
 ├── index.tsx                # Entry point
-└── style/                   # Global styles
-    └── global.css           # Tailwind CSS styles
-
-services/
-└── api.ts                   # API service layer
 
 context/
 └── AuthContext.tsx         # Authentication context
@@ -178,6 +173,12 @@ context/
 docs/                       # API docs
 └── api.yml                   
 ├── openapi.json
+
+services/
+└── api.ts                   # API service layer
+
+style/                   # Global styles
+    └── global.css       # Tailwind CSS styles
 
 types/
 └── api.ts                  # TypeScript type definitions
