@@ -175,17 +175,21 @@ services/
 context/
 └── AuthContext.tsx         # Authentication context
 
+docs/                       # API docs
+└── api.yml                   
+├── openapi.json
+
 types/
 └── api.ts                  # TypeScript type definitions
 
 assets/                     # Images and icons
 └── images/
 
-app.json
-babel.config.js
-tailwind.config.js
-metro.config.js
-tsconfig.json
+├── app.json
+├── babel.config.js
+├── tailwind.config.js
+├── metro.config.js
+└── tsconfig.json
 ```
 
 ## ⚙️ Configuration Files
@@ -265,7 +269,7 @@ npx expo start --web    # Web
 
 ## 📡 API Integration
 
-The application integrates with a RESTful API at `https://vendredi-soir-posu.onrender.com/`:
+The application integrates with a RESTful API at `https://vendredi-soir-posu.onrender.com`:
 
 ### Endpoints
 - **`POST /login`**: User authentication
