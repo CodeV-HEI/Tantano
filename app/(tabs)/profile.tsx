@@ -5,6 +5,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 export default function ProfileScreen() {
     const { user, logout } = useAuth();
@@ -25,19 +26,37 @@ export default function ProfileScreen() {
                     text: 'Déconnexion',
                     style: 'destructive',
                     onPress: async () => {
-                        await logout();
-                        router.replace('/login');
+                        try {
+                            await logout();
+                            Toast.show({
+                                type: 'success',
+                                text1: 'Déconnexion réussie',
+                                text2: 'À bientôt !',
+                                position: 'top',
+                                visibilityTime: 2000,
+                            });
+                            router.replace('/login');
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Erreur',
+                                text2: 'Impossible de se déconnecter',
+                                position: 'top',
+                                visibilityTime: 3000,
+                            });
+                        }
                     }
                 }
             ]
         );
     };
 
-    const SettingItem = ({ 
-        icon, 
-        title, 
-        description, 
-        rightComponent 
+    const SettingItem = ({
+        icon,
+        title,
+        description,
+        rightComponent
     }: {
         icon: keyof typeof MaterialIcons.glyphMap;
         title: string;
@@ -77,17 +96,17 @@ export default function ProfileScreen() {
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>PRÉFÉRENCES D&apos;AFFICHAGE</Text>
-                        
+
                         <SettingItem
                             icon="palette"
                             title="Thème"
                             description="Personnalisez l'apparence de l'application"
                             rightComponent={
                                 <TouchableOpacity onPress={toggleTheme} className="flex-row items-center">
-                                    <MaterialIcons 
-                                        name={theme === 'dark' ? 'dark-mode' : 'light-mode'} 
-                                        size={24} 
-                                        color={theme === 'dark' ? '#06b6d4' : '#0891b2'} 
+                                    <MaterialIcons
+                                        name={theme === 'dark' ? 'dark-mode' : 'light-mode'}
+                                        size={24}
+                                        color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
                                     />
                                     <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
                                         {theme === 'dark' ? 'Sombre' : 'Clair'}
@@ -113,7 +132,7 @@ export default function ProfileScreen() {
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>COMPTE ET SÉCURITÉ</Text>
-                        
+
                         <SettingItem
                             icon="security"
                             title="Sécurité"
@@ -130,7 +149,7 @@ export default function ProfileScreen() {
                             rightComponent={
                                 <Switch
                                     value={true}
-                                    onValueChange={() => {}}
+                                    onValueChange={() => { }}
                                     trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />
@@ -140,7 +159,7 @@ export default function ProfileScreen() {
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>AIDE ET SUPPORT</Text>
-                        
+
                         <SettingItem
                             icon="help"
                             title="Centre d'aide"

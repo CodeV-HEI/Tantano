@@ -156,24 +156,33 @@ The project consists of a mobile application that allows users to manage and tra
 
 ```
 app/
-├── (tabs)/                    # Tab navigation screens
+├── (tabs)/                   # Tab navigation screens
+|   ├── _layout.tsx           # Tab layout configuration
 │   ├── index.tsx             # Dashboard screen
-│   ├── wallets.tsx           # Wallet management
-│   ├── transactions.tsx      # Transaction tracking
+|   ├── profile.tsx           # Profile screen
 │   ├── labels.tsx            # Label management
-│   └── _layout.tsx           # Tab layout configuration
+│   ├── transactions.tsx      # Transaction tracking
+│   └── wallets.tsx           # Wallet management
 ├── login.tsx                 # Authentication screen
 ├── register.tsx              # Registration screen
-├── _layout.tsx              # Root layout configuration
-├── index.tsx                # Entry point
-└── style/                   # Global styles
-    └── global.css           # Tailwind CSS styles
+├── _layout.tsx               # Root layout configuration
+├── index.tsx                 # Entry point
+
+components/                   # All components
+
+context/
+└── AuthContext.tsx         # Authentication context
+├── ThemeContext.tsxa       # Theme context
+
+docs/                       # API docs
+└── api.yml                   
+├── openapi.json
 
 services/
 └── api.ts                   # API service layer
 
-context/
-└── AuthContext.tsx         # Authentication context
+style/                   # Global styles
+    └── global.css       # Tailwind CSS styles
 
 types/
 └── api.ts                  # TypeScript type definitions
@@ -181,7 +190,6 @@ types/
 assets/                     # Images and icons
 └── images/
 
-config/                     # Configuration files
 ├── app.json
 ├── babel.config.js
 ├── tailwind.config.js
@@ -266,7 +274,7 @@ npx expo start --web    # Web
 
 ## 📡 API Integration
 
-The application integrates with a RESTful API at `https://vendredi-soir-posu.onrender.com/`:
+The application integrates with a RESTful API at `https://vendredi-soir-posu.onrender.com`:
 
 ### Endpoints
 - **`POST /login`**: User authentication
