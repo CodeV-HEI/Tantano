@@ -18,6 +18,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Background3D from '@/components/Background';
+import Toast from 'react-native-toast-message';
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -66,12 +68,23 @@ export default function RegisterScreen() {
         setIsLoading(true);
         try {
             await register(username, password);
+            Toast.show({
+                type: 'success',
+                text1: 'Inscription réussie',
+                text2: 'Vous êtes maintenant connecté',
+                position: 'top',
+                visibilityTime: 2000,
+            });
             router.replace('/(tabs)');
         } catch (error: any) {
-            Alert.alert(
-                'Échec de l\'inscription',
-                error.response?.data?.message || 'Une erreur est survenue'
-            );
+            const message = error.response?.data?.message || 'Une erreur est survenue';
+            Toast.show({
+                type: 'error',
+                text1: 'Échec de l\'inscription',
+                text2: message,
+                position: 'top',
+                visibilityTime: 3000,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -88,9 +101,12 @@ export default function RegisterScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-white dark:bg-black"
+            className="flex-1"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
+            {/* Background 3D */}
+            <Background3D />
+
             {/* Bouton de changement de thème */}
             <TouchableOpacity
                 onPress={toggleTheme}
@@ -113,9 +129,6 @@ export default function RegisterScreen() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-                <View className={`absolute bottom-10 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-
                 <View className="px-6 pt-12 pb-10">
                     {!keyboardVisible && (
                         <Animated.View entering={FadeInUp.duration(800)} className="mb-10 items-center">

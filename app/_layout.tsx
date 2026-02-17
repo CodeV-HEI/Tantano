@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ActivityIndicator, View } from "react-native";
 import ThemeWrapper from "@/components/ThemeWrapper";
+import Toast from 'react-native-toast-message';
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
@@ -42,6 +43,7 @@ export default function RootLayout() {
       <AuthProvider>
         <ThemeWrapper>
           <RootLayoutContent />
+          <Toast />
         </ThemeWrapper>
       </AuthProvider>
     </ThemeProvider>
