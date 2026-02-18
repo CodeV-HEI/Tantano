@@ -7,18 +7,18 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInUp,
-    Layout,
-    SlideInRight,
+  FadeInUp,
+  Layout,
+  SlideInRight,
 } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
@@ -60,10 +60,7 @@ export default function DashboardScreen() {
       let allTransactions: Transaction[] = [];
       for (const wallet of walletsData) {
         try {
-          const transactionsRes = await transactionAPI.getAll(
-            user.id,
-            wallet.id,
-          );
+          const transactionsRes = await transactionAPI.getAll(user.id);
           allTransactions = [...allTransactions, ...transactionsRes.data];
         } catch (error) {
           console.error(
@@ -81,7 +78,7 @@ export default function DashboardScreen() {
 
       // Calculer le solde total (somme des montants des portefeuilles)
       const balance = walletsData.reduce(
-        (acc, wallet) => acc + wallet.amount,
+        (acc: any, wallet: Wallet) => acc + wallet.amount,
         0,
       );
       setTotalBalance(balance);
@@ -448,3 +445,10 @@ export default function DashboardScreen() {
     </>
   );
 }
+
+// import { Redirect } from "expo-router";
+// import React from "react";
+
+// export default function index() {
+//   return <Redirect href="/transactions" />;
+// }

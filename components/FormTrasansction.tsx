@@ -8,6 +8,7 @@ import { useState } from "react";
 import {
   Alert,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -89,66 +90,94 @@ export default function FormTrasansction() {
   };
 
   return (
-    <View className="p-5 justify-center">
-      <Dropdown
-        style={styles.dropdown}
-        data={wallets}
-        labelField="name"
-        valueField="id"
-        placeholder="Portefeuille"
-        value={valueWallet?.id}
-        onChange={(item: Wallet) => {
-          setValueWallet(item);
-        }}
-      />
+    <ScrollView
+      contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false}
+      className="bg-gray-50 p-6"
+    >
+      {/* ===== HEADER ===== */}
+      <View className="mb-6">
+        <Text className="text-2xl font-bold text-gray-900">
+          Nouvelle Transaction
+        </Text>
+        <Text className="text-gray-400 mt-1">
+          Ajoute une entrée ou une sortie d'argent
+        </Text>
+      </View>
 
-      <MultiSelect
-        style={styles.dropdown}
-        data={labels}
-        labelField="name"
-        valueField="id"
-        placeholder="Choisir les catégories"
-        value={selectedLabels}
-        onChange={(item: any) => setSelectedLabels(item)}
-        selectedStyle={styles.selectedStyle}
-      />
+      {/* ===== FORM CARD ===== */}
+      <View className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+        {/* Wallet */}
+        <Text className="text-xs text-gray-400 mb-2">Wallet</Text>
+        <Dropdown
+          style={styles.dropdown}
+          data={wallets}
+          labelField="name"
+          valueField="id"
+          placeholder="Choisir un portefeuille"
+          value={valueWallet?.id}
+          onChange={(item: Wallet) => setValueWallet(item)}
+        />
 
-      <Dropdown
-        style={styles.dropdown}
-        data={transactionTypeSelected}
-        labelField="name"
-        valueField="id"
-        placeholder="Type de transaction"
-        value={type}
-        onChange={(item: any) => {
-          setType(item.id);
-        }}
-      />
+        {/* Labels */}
+        <Text className="text-xs text-gray-400 mb-2">Catégories</Text>
+        <MultiSelect
+          style={styles.dropdown}
+          data={labels}
+          labelField="name"
+          valueField="id"
+          placeholder="Choisir les catégories"
+          value={selectedLabels}
+          onChange={(item: any) => setSelectedLabels(item)}
+          selectedStyle={styles.selectedStyle}
+        />
 
-      <TextInput
-        className="h-[55px] bg-white border-[#E0E0E0] border rounded-[12px] px-[15px] mb-[25px] shadow-sm"
-        placeholder="Description"
-        value={description}
-        onChangeText={setDescription}
-      />
+        {/* Type */}
+        <Text className="text-xs text-gray-400 mb-2">Type</Text>
+        <Dropdown
+          style={styles.dropdown}
+          data={transactionTypeSelected}
+          labelField="name"
+          valueField="id"
+          placeholder="Type de transaction"
+          value={type}
+          onChange={(item: any) => setType(item.id)}
+        />
 
-      <TextInput
-        className="h-[55px] bg-white border-[#E0E0E0] border rounded-[12px] px-[15px] mb-[25px] shadow-sm"
-        keyboardType="numeric"
-        onChangeText={handleChangeNumber}
-        value={amount.toString()}
-        placeholder="Entrez un nombre"
-      />
+        {/* Description */}
+        <Text className="text-xs text-gray-400 mb-2">Description</Text>
+        <TextInput
+          className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-5"
+          placeholder="Ex: Achat nourriture"
+          value={description}
+          onChangeText={setDescription}
+        />
 
+        {/* Amount */}
+        <Text className="text-xs text-gray-400 mb-2">Montant</Text>
+        <TextInput
+          className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-2 text-lg font-semibold"
+          keyboardType="numeric"
+          onChangeText={handleChangeNumber}
+          value={amount.toString()}
+          placeholder="0"
+        />
+
+        <Text className="text-right text-xs text-gray-400 mb-4">
+          Ariary (Ar)
+        </Text>
+      </View>
+
+      {/* ===== CTA BUTTON ===== */}
       <Pressable
         onPress={handleSubmit}
-        className="bg-root-purple p-4 rounded-lg mt-5"
+        className="bg-root-purple p-5 rounded-2xl mt-6 shadow-sm active:scale-[0.98]"
       >
-        <Text className="text-white text-center font-semibold">
+        <Text className="text-white text-center font-bold text-lg">
           Créer la transaction
         </Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 

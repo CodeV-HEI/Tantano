@@ -17,7 +17,10 @@ export default function Index() {
         .getAll(accountId!)
         .then((res) => res.data);
       console.log("Fetched transactions:", response);
-      setTransactions(response);
+      const uniqueTransactions = Array.from(
+        new Map(response.map((item) => [item.id, item])).values(),
+      );
+      setTransactions(uniqueTransactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
       Alert.alert(
