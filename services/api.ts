@@ -8,6 +8,7 @@ import {
   PaginatedWallets,
   RegisterRequest,
   Transaction,
+  TransactionType,
   UpdateWallet,
   User,
   UserWithToken,
@@ -116,9 +117,21 @@ export const walletAPI = {
 };
 
 export const transactionAPI = {
-  getAll: (accountId: string) =>
+  getAll: (
+    accountId: string,
+    params?: {
+      startingDate?: string;
+      endingDate?: string;
+      type?: TransactionType;
+      label?: string;
+      minAmount?: number;
+      maxAmount?: number;
+      sortBy?: "date" | "amount";
+      sortOrder?: "asc" | "desc";
+    },
+  ) =>
     apiWithRetry(() =>
-      api.get<Transaction[]>(`/account/${accountId}/transaction`),
+      api.get<Transaction[]>(`/account/${accountId}/transaction`, { params }),
     ),
 
   getOne: (accountId: string, walletId: string, transactionId: string) =>
