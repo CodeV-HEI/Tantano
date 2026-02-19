@@ -9,10 +9,12 @@ import {
   TransactionType,
   Wallet,
 } from "@/types";
+import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -115,7 +117,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
     >
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
+        contentContainerStyle={{ padding: 10, paddingBottom: 50 }}
         showsVerticalScrollIndicator={false}
       >
         {/* ===== HEADER ===== */}
@@ -140,6 +142,23 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             placeholder="Choisir un portefeuille"
             value={valueWallet?.id}
             onChange={(item: Wallet) => setValueWallet(item)}
+            renderItem={(item) => (
+              <View style={styles.itemStyle}>
+                {item.iconRef ? (
+                  <Image
+                    source={{ uri: item.iconRef }}
+                    style={{ width: 20, height: 20, marginRight: 10 }}
+                  />
+                ) : (
+                  <MaterialIcons name="wallet" size={20} color="#A74BCA" />
+                )}
+
+                <Text style={styles.itemTextStyle}>{item.name}</Text>
+                {selectedLabels.includes(item.id) && (
+                  <MaterialIcons name="check" size={20} color="#6200EE" />
+                )}
+              </View>
+            )}
           />
 
           {/* Labels */}
@@ -153,6 +172,24 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             value={selectedLabels}
             onChange={(item: any) => setSelectedLabels(item)}
             selectedStyle={styles.selectedStyle}
+            renderItem={(item) => (
+              <View style={styles.itemStyle}>
+                {item.iconRef ? (
+                  <Image
+                    source={{ uri: item.iconRef }}
+                    style={{ width: 20, height: 20, marginRight: 10 }}
+                  />
+                ) : (
+                  <MaterialIcons name="label" size={20} color="#A74BCA" />
+                )}
+
+                <Text style={styles.itemTextStyle}>{item.name}</Text>
+                {/* Check si sélectionné */}
+                {selectedLabels.includes(item.id) && (
+                  <MaterialIcons name="check" size={20} color="#6200EE" />
+                )}
+              </View>
+            )}
           />
 
           {/* Type */}
@@ -165,6 +202,25 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             placeholder="Type de transaction"
             value={type}
             onChange={(item: any) => setType(item.id)}
+            renderItem={(item) => (
+              <View style={styles.itemStyle}>
+                {/* Icône à gauche */}
+                <MaterialIcons
+                  name={
+                    item.id === TransactionType.IN
+                      ? "arrow-upward"
+                      : "arrow-downward"
+                  }
+                  size={20}
+                  color={item.id === TransactionType.IN ? "green" : "red"}
+                />
+                <Text style={styles.itemTextStyle}>{item.name}</Text>
+                {/* Check si sélectionné */}
+                {item.id === type && (
+                  <MaterialIcons name="check" size={20} color="#6200EE" />
+                )}
+              </View>
+            )}
           />
 
           {/* Description */}
@@ -204,16 +260,31 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 16, marginBottom: 8, fontWeight: "600", color: "#333" },
   dropdown: {
     height: 55,
-    backgroundColor: "white",
+    backgroundColor: "#FFF",
     borderColor: "#E0E0E0",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 15,
     paddingHorizontal: 15,
     marginBottom: 25,
-    elevation: 2,
+    elevation: 3,
   },
-  selectedStyle: { borderRadius: 10, backgroundColor: "#E3F2FD" },
+  itemStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+  },
+  itemTextStyle: {
+    fontSize: 16,
+    color: "#333",
+    flex: 1,
+    marginLeft: 10, // espace entre icône et texte
+  },
+  selectedStyle: {
+    borderRadius: 10,
+    backgroundColor: "#E3F2FD",
+  },
 });
