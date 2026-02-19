@@ -217,7 +217,7 @@ assets/                     # Images and icons
 ```bash
 # Clone repository
 git clone <repository-url>
-cd posu
+cd Tantano
 
 # Install dependencies
 npm install
