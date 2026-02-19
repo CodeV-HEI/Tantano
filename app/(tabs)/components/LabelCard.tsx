@@ -6,6 +6,8 @@ import { useTheme } from '@/context/ThemeContext';
 interface Label {
     id: string;
     name: string;
+    color: string;
+    _isArchiving?: boolean;
     _isDeleting?: boolean;
 }
 
@@ -17,28 +19,49 @@ interface Props {
     onDelete: () => void;
 }
 
-export const LabelCard = ({ label, isDefault, isUpdating, onEdit, onDelete }: Props) => {
+export const LabelCard = ({
+    label,
+    isDefault,
+    isUpdating,
+    onEdit,
+    onDelete
+}: Props) => {
     const { theme } = useTheme();
+
+
+    if (label._isArchiving) {
+        return (
+            <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800 opacity-50">
+            <View className="flex-row items-center flex-1">
+            <View className="w-8 h-8 rounded-lg mr-3" style={{ backgroundColor: label.color }} />
+            <View>
+            <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>
+            {label.name}
+            </Text>
+            {isDefault && (
+                <Text className={`text-xs ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>
+                Par défaut
+                </Text>
+            )}
+            </View>
+            </View>
+            <View className="flex-row items-center">
+            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+            <Text className="ml-2 text-xs text-gray-500">Archivage...</Text>
+            </View>
+            </View>
+        );
+    }
+
 
     if (label._isDeleting) {
         return (
             <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800 opacity-50">
             <View className="flex-row items-center flex-1">
-            <View className={`w-8 h-8 rounded-lg ${isDefault ? 'bg-purple-500/20' : 'bg-cyan-500/20'} items-center justify-center mr-3`}>
-            <MaterialIcons
-            name={isDefault ? 'star' : 'label'}
-            size={16}
-            color={isDefault
-                ? (theme === 'dark' ? '#c084fc' : '#9333ea')
-                : (theme === 'dark' ? '#06b6d4' : '#0891b2')
-            }
-            />
-            </View>
-            <View>
+            <View className="w-8 h-8 rounded-lg mr-3" style={{ backgroundColor: label.color }} />
             <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>
             {label.name}
             </Text>
-            </View>
             </View>
             <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
             </View>
@@ -48,16 +71,7 @@ export const LabelCard = ({ label, isDefault, isUpdating, onEdit, onDelete }: Pr
     return (
         <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800">
         <View className="flex-row items-center flex-1">
-        <View className={`w-8 h-8 rounded-lg ${isDefault ? 'bg-purple-500/20' : 'bg-cyan-500/20'} items-center justify-center mr-3`}>
-        <MaterialIcons
-        name={isDefault ? 'star' : 'label'}
-        size={16}
-        color={isDefault
-            ? (theme === 'dark' ? '#c084fc' : '#9333ea')
-            : (theme === 'dark' ? '#06b6d4' : '#0891b2')
-        }
-        />
-        </View>
+        <View className="w-8 h-8 rounded-lg mr-3" style={{ backgroundColor: label.color }} />
         <View>
         <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>
         {label.name}
@@ -80,9 +94,13 @@ export const LabelCard = ({ label, isDefault, isUpdating, onEdit, onDelete }: Pr
         </TouchableOpacity>
 
         {!isDefault && (
-            <TouchableOpacity onPress={onDelete} className="p-2" disabled={isUpdating}>
+            <TouchableOpacity
+            onPress={onDelete}
+            className="p-2"
+            disabled={isUpdating}
+            >
             <MaterialIcons
-            name="delete"
+            name="archive"
             size={20}
             color={theme === 'dark' ? '#f87171' : '#dc2626'}
             />
