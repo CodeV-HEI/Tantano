@@ -1,12 +1,17 @@
-import { Stack } from "expo-router";
+import ThemeWrapper from "@/components/ThemeWrapper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
-import ThemeWrapper from "@/components/ThemeWrapper";
 import Toast from 'react-native-toast-message';
+
+
+  const queryClient = new QueryClient();
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
+  
 
   if (isLoading) {
     return (
@@ -41,10 +46,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <QueryClientProvider client={queryClient}>
         <ThemeWrapper>
           <RootLayoutContent />
           <Toast />
         </ThemeWrapper>
+        </QueryClientProvider>
       </AuthProvider>
     </ThemeProvider>
   );

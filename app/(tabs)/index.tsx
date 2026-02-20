@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
-import Animated, {
-    FadeInUp,
-    SlideInRight,
-    Layout
-} from 'react-native-reanimated';
+import Background3D from '@/components/DashboardBackground';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
-import { Wallet, Transaction, Label, WalletType } from '@/types/api';
-import Background3D from '@/components/DashboardBackground';
+import { labelAPI, transactionAPI, walletAPI } from '@/services/api';
+import { Label, Transaction, Wallet, WalletType } from '@/types/api';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, RefreshControl, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import Animated, {
+    FadeInUp,
+    Layout,
+    SlideInRight
+} from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 
 export default function DashboardScreen() {
@@ -211,6 +211,12 @@ export default function DashboardScreen() {
                             title="RAPPORT"
                             color="bg-gradient-to-br from-indigo-500 to-indigo-700"
                             onPress={() => Alert.alert('Rapports', 'Les rapports seront disponibles dans une prochaine mise à jour')}
+                        />
+            <QuickAction
+                            icon="analytics"
+                            title="OBJECTIFS"
+                            color="bg-gradient-to-br from-indigo-500 to-indigo-700"
+                            onPress={() => router.push('/goals')}
                         />
                     </Animated.View>
 
