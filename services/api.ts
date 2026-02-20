@@ -120,14 +120,15 @@ export const transactionAPI = {
   getAll: (
     accountId: string,
     params?: {
+      walletId?: string;
       startingDate?: string;
       endingDate?: string;
       type?: TransactionType;
-      label?: string;
+      label?: string[];
       minAmount?: number;
       maxAmount?: number;
       sortBy?: "date" | "amount";
-      sortOrder?: "asc" | "desc";
+      sort?: "asc" | "desc";
     },
   ) =>
     apiWithRetry(() =>

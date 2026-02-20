@@ -138,3 +138,15 @@ export interface TransactionUpdateInfo {
 export interface LabelUpdateInfo {
   name?: string;
 }
+
+export interface TransactionFilter {
+  walletId: string | undefined;
+  startingDate: string | undefined;
+  endingDate: string | undefined;
+  type: TransactionType | undefined;
+  label: string[];
+  minAmount: number | undefined;
+  maxAmount: number | undefined;
+  sortBy: "date" | "amount";
+  sort: "asc" | "desc";
+}
