@@ -8,13 +8,23 @@ import { Alert, View } from "react-native";
 
 export default function Index() {
   const { user } = useAuth();
-  const { setTransactions } = useTransactionStore();
+  const { setTransactions, filter } = useTransactionStore();
   const accountId = user?.id;
 
   const fetchedTransactions = async () => {
     try {
       const response: Transaction[] = await transactionAPI
-        .getAll(accountId!)
+        .getAll(accountId!, {
+          endingDate: filter.endingDate,
+          label: filter.label,
+          maxAmount: filter.maxAmount,
+          minAmount: filter.minAmount,
+          sort: filter.sort,
+          sortBy: filter.sortBy,
+          startingDate: filter.startingDate,
+          type: filter.type,
+          walletId: filter.walletId,
+        })
         .then((res) => res.data);
       console.log("Fetched transactions:", response);
       const uniqueTransactions = Array.from(
@@ -30,6 +40,8 @@ export default function Index() {
     }
   };
 
+  console.log(filter);
+
   useEffect(() => {
     fetchedTransactions();
 
@@ -41,7 +53,7 @@ export default function Index() {
       clearInterval(intervalId);
       console.log("Polling arrêté");
     };
-  }, [accountId]);
+  }, [accountId, filter]);
 
   return (
     <View>

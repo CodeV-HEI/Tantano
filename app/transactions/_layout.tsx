@@ -22,7 +22,6 @@ export default function Layout() {
     }).start();
   };
 
-  // Fermer le bottom sheet
   const closeFilter = () => {
     Animated.timing(translateY, {
       toValue: height,
@@ -105,11 +104,11 @@ export default function Layout() {
             left: 0,
             right: 0,
             bottom: 0,
-            height: height / 2,
+            height: height * 0.4,
             backgroundColor: "white",
             borderTopLeftRadius: 25,
             borderTopRightRadius: 25,
-            transform: [{ translateY }],
+            zIndex: 1000,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: -3 },
             shadowOpacity: 0.1,

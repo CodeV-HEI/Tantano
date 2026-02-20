@@ -47,17 +47,17 @@ export default function TransactionDetails() {
       <View className="flex w-full items-end mb-4">
         {edited ? (
           <Pressable
-            className="bg-gray-200 p-2 rounded-full"
+            className="bg-red-50 p-2 rounded-full"
             onPress={() => setEdited(false)}
           >
-            <AntDesign name="close" size={22} color="black" />
+            <AntDesign name="close" size={20} color="#ef4444" />
           </Pressable>
         ) : (
           <Pressable
-            className="bg-blue-500 rounded-full py-2 pl-3 pr-2"
+            className="bg-blue-50 rounded-full py-2 pl-3 pr-2"
             onPress={() => setEdited(true)}
           >
-            <FontAwesome name="edit" size={20} color="white" />
+            <FontAwesome name="edit" size={20} color="#2563eb" />
           </Pressable>
         )}
       </View>
