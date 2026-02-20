@@ -15,15 +15,15 @@ export default function Index() {
     try {
       const response: Transaction[] = await transactionAPI
         .getAll(accountId!, {
-          endingDate: filter.endingDate,
-          label: filter.label,
-          maxAmount: filter.maxAmount,
-          minAmount: filter.minAmount,
-          sort: filter.sort,
-          sortBy: filter.sortBy,
-          startingDate: filter.startingDate,
-          type: filter.type,
           walletId: filter.walletId,
+          startingDate: filter.startingDate,
+          endingDate: filter.endingDate,
+          type: filter.type,
+          label: filter.label,
+          minAmount: filter.minAmount,
+          maxAmount: filter.maxAmount,
+          sortBy: filter.sortBy,
+          sort: filter.sort,
         })
         .then((res) => res.data);
       console.log("Fetched transactions:", response);
@@ -39,8 +39,6 @@ export default function Index() {
       );
     }
   };
-
-  console.log(filter);
 
   useEffect(() => {
     fetchedTransactions();

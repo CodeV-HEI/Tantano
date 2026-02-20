@@ -1,17 +1,8 @@
 import { useAuth } from "@/context/AuthContext";
 import { walletAPI } from "@/services/api";
 import { useWalletStore } from "@/store/useWalletStore";
-import { UpdateWallet, WalletSimple } from "@/types";
+import { Wallet } from "@/types";
 import { useCallback } from "react";
-
-const mapper = (data: UpdateWallet): WalletSimple => {
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description,
-    type: data.type,
-  };
-};
 
 export const getWallet = () => {
   const { user } = useAuth();
@@ -19,11 +10,11 @@ export const getWallet = () => {
 
   const fetchWallets = useCallback(async () => {
     try {
-      const data: UpdateWallet[] = await walletAPI
+      const data: Wallet[] = await walletAPI
         .getAll(user?.id || "")
         .then((res) => res.data.values);
 
-      setWallet(data.map(mapper));
+      setWallet(data);
       console.log("Wallets fetched successfully");
     } catch (error) {
       console.error("Failed to fetch wallets:", error);

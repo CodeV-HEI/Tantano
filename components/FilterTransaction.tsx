@@ -36,16 +36,30 @@ export default function FilterTransaction({
 }) {
   const { wallets } = useWalletStore();
   const { labels } = useLabelStore();
-  const { setFilter } = useTransactionStore();
-  const [walletFilter, setWalletFilter] = useState<string>("");
-  const [walletSelected, setWalletSelected] = useState<string>("");
-  const [typeFilter, setTypeFilter] = useState<TransactionType>();
-  const [typeSelected, setTypeSelected] = useState<string>("");
-  const [labelFilter, setLabelFilter] = useState<string[]>([]);
-  const [amountMax, setAmountMax] = useState<number>(0);
-  const [amountMin, setAmountMin] = useState<number>(0);
-  const [sortBy, setSortBy] = useState<"date" | "amount">("date");
-  const [sort, setSort] = useState<"asc" | "desc">("asc");
+  const { setFilter, filter } = useTransactionStore();
+  const [walletFilter, setWalletFilter] = useState<string>(
+    filter.walletId || "",
+  );
+  const [walletSelected, setWalletSelected] = useState<string>(
+    filter.walletId || "",
+  );
+  const [typeFilter, setTypeFilter] = useState<TransactionType | undefined>(
+    filter.type || undefined,
+  );
+  const [typeSelected, setTypeSelected] = useState<string | undefined>(
+    filter.type || undefined,
+  );
+  const [labelFilter, setLabelFilter] = useState<string[]>(filter.label || []);
+  const [amountMax, setAmountMax] = useState<number | undefined>(
+    filter.maxAmount,
+  );
+  const [amountMin, setAmountMin] = useState<number | undefined>(
+    filter.minAmount,
+  );
+  const [sortBy, setSortBy] = useState<"date" | "amount">(
+    filter.sortBy || "date",
+  );
+  const [sort, setSort] = useState<"asc" | "desc">(filter.sort || "asc");
 
   const handleChangeNumberMax = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
@@ -116,7 +130,7 @@ export default function FilterTransaction({
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
-          data={wallets}
+          data={wallets || []}
           contentContainerStyle={{ gap: 8 }}
           renderItem={({ item }) => (
             <Pressable
@@ -174,7 +188,7 @@ export default function FilterTransaction({
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
-          data={labels}
+          data={labels || []}
           contentContainerStyle={{ gap: 8 }}
           renderItem={({ item }) => (
             <Pressable
@@ -198,7 +212,7 @@ export default function FilterTransaction({
           className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-2 text-lg font-semibold"
           keyboardType="numeric"
           onChangeText={handleChangeNumberMax}
-          value={amountMax.toString()}
+          value={amountMax !== undefined ? amountMax.toString() : ""}
           placeholder="0"
         />
       </View>
@@ -208,7 +222,7 @@ export default function FilterTransaction({
           className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-2 text-lg font-semibold"
           keyboardType="numeric"
           onChangeText={handleChangeNumberMin}
-          value={amountMin.toString()}
+          value={amountMin !== undefined ? amountMin.toString() : ""}
           placeholder="0"
         />
       </View>
@@ -225,9 +239,17 @@ export default function FilterTransaction({
               onPress={() => {
                 setSortBy(item.id as "date" | "amount");
               }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${sortBy === item.id ? "bg-blue-500 border-blue-500" : ""}`}
+              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${
+                sortBy === item.id ? "bg-purple-500 border-purple-500" : ""
+              }`}
             >
-              <Text className={`text-gray-600 text-sm`}>{item.name}</Text>
+              <Text
+                className={`text-gray-600 text-sm ${
+                  sortBy === item.id ? "text-white" : ""
+                }`}
+              >
+                {item.name}
+              </Text>
             </Pressable>
           )}
         />
@@ -261,7 +283,7 @@ export default function FilterTransaction({
           className="bg-blue-50 p-2 rounded-full"
           onPress={clearFilters}
         >
-          <AntDesign name="clear" size={20} color="#ef4444" />
+          <AntDesign name="clear" size={20} color="#2563eb" />
         </Pressable>
         <Pressable
           className="bg-green-50 p-2 rounded-full"
