@@ -1,38 +1,83 @@
-import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import GoalModal from "@/components/DropDown";
+import { goalAPI } from "@/services/api";
+import { AsyncStorageUser, Goal } from "@/types";
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-export default function CustomDropdown () {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+export default function GoalsScreen() {
+  const { data, isLoading } = useQuery<Goal[]>({
+    queryKey: ["goals"],
+    queryFn: async () => {
+      try {
+        const user = await AsyncStorage.getItem("user");
+        if (!user) return [];
+        const userData: AsyncStorageUser = JSON.parse(user);
+        const response = await goalAPI.getAll(userData.id);
+        return response?.data?.values || [];
+      } catch (error) {
+        console.error("Erreur Query Goals:", error);
+        return [];
+      }
+    },
+  });
 
-  const options = [
-    { label: 'Voyage', value: '1' },
-    { label: 'Épargne', value: '2' },
-  ];
+
+
+
+  const handleAddNew = () => {
+    console.log("Ouvrir formulaire de création");
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white dark:bg-slate-950">
+        <ActivityIndicator size="large" color="#06b6d4" />
+      </View>
+    );
+  }
 
   return (
-    <View className="p-4 z-50">
-      <TouchableOpacity 
-        onPress={() => setIsOpen(!isOpen)}
-        className={`flex-row justify-between items-center p-4 bg-white border rounded-xl ${isOpen ? 'border-blue-500' : 'border-gray-200'}`}
-      >
-        <Text className="text-gray-700">{selected ? selected.label : "Choisir..."}</Text>
-        <Text>{isOpen ? "▲" : "▼"}</Text>
-      </TouchableOpacity>
-
-      {isOpen && (
-        <View className="absolute top-20 left-4 right-4 bg-white border border-gray-100 rounded-xl shadow-lg">
-          {options.map((item) => (
-            <TouchableOpacity 
-              key={item.value}
-              onPress={() => { setSelected(item); setIsOpen(false); }}
-              className="p-4 border-b border-gray-50 active:bg-gray-100"
-            >
-              <Text className="text-gray-800">{item.label}</Text>
-            </TouchableOpacity>
-          ))}
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+      <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
+        <View className="mt-8 mb-6">
+          <Text className="text-3xl font-extrabold text-slate-900 dark:text-white">
+            Objectifs
+          </Text>
+          <Text className="text-slate-500 text-sm">Gérez vos projets et votre épargne</Text>
         </View>
-      )}
+
+        {data && data.length > 0 ? (
+          data.map((item) => (
+            <GoalModal key={item.id} goals={item} />
+          ))
+        ) : (
+          <View className="mt-32 items-center justify-center">
+            <Ionicons name="sparkles-outline" size={48} color="#cbd5e1" />
+            <Text className="text-slate-400 text-lg mt-4">Rien ici pour le moment</Text>
+          </View>
+        )}
+        
+        <View className="h-28" />
+      </ScrollView>
+
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={handleAddNew}
+        style={{ 
+          backgroundColor: '#06b6d4',
+          shadowColor: '#06b6d4',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.4,
+          shadowRadius: 12,
+          elevation: 10,
+        }}
+        className="absolute bottom-10 right-8 w-16 h-16 rounded-full items-center justify-center border-2 border-white/20"
+      >
+        <Ionicons name="add" size={36} color="white" />
+      </TouchableOpacity>
     </View>
   );
-};
+}
