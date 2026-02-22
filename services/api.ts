@@ -135,10 +135,10 @@ export const goalAPI = {
     }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/goal`, { params })),
 
     getOne: (accountId: string, goalId: string) =>
-        apiWithRetry(() => api.get<Goal>(`/account/${accountId}/Goal/${goalId}`)),
+        apiWithRetry(() => api.get<Goal>(`/account/${accountId}/goal/${goalId}`)),
 
     create: (accountId: string, data: CreationGoal) =>
-        apiWithRetry(() => api.post<Goal>(`/account/${accountId}/Goal`, data)),
+        apiWithRetry(() => api.post<Goal>(`/account/${accountId}/goal`, data)),
 
     update: (accountId: string, goalId: string, data: Goal) =>
         apiWithRetry(() => api.put<Goal>(`/account/${accountId}/label/${goalId}`, data)),

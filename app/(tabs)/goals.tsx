@@ -1,21 +1,22 @@
+import CreationGoalModal from "@/components/CreationModal";
 import GoalModal from "@/components/DropDown";
+import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
-import { AsyncStorageUser, Goal } from "@/types";
+import { Goal } from "@/types";
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function GoalsScreen() {
+ const {user} = useAuth()
+const [isVisible, setVisible] = useState(false)
   const { data, isLoading } = useQuery<Goal[]>({
     queryKey: ["goals"],
     queryFn: async () => {
       try {
-        const user = await AsyncStorage.getItem("user");
         if (!user) return [];
-        const userData: AsyncStorageUser = JSON.parse(user);
-        const response = await goalAPI.getAll(userData.id);
+        const response = await goalAPI.getAll(user.id);
         return response?.data?.values || [];
       } catch (error) {
         console.error("Erreur Query Goals:", error);
@@ -27,9 +28,10 @@ export default function GoalsScreen() {
 
 
 
-  const handleAddNew = () => {
-    console.log("Ouvrir formulaire de création");
-  };
+
+
+
+ 
 
   if (isLoading) {
     return (
@@ -65,7 +67,6 @@ export default function GoalsScreen() {
 
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={handleAddNew}
         style={{ 
           backgroundColor: '#06b6d4',
           shadowColor: '#06b6d4',
@@ -74,10 +75,13 @@ export default function GoalsScreen() {
           shadowRadius: 12,
           elevation: 10,
         }}
+        onPress={()=> setVisible(true)}
         className="absolute bottom-10 right-8 w-16 h-16 rounded-full items-center justify-center border-2 border-white/20"
       >
         <Ionicons name="add" size={36} color="white" />
       </TouchableOpacity>
+
+      {isVisible && <CreationGoalModal isVisible={isVisible} onclose={() => setVisible(false)} />}
     </View>
   );
 }
