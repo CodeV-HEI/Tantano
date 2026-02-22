@@ -1,36 +1,47 @@
 import { useAuth } from '@/context/AuthContext';
 import { goalAPI } from '@/services/api';
 import { CreationGoal, Goal } from '@/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import {
     KeyboardAvoidingView,
     Modal,
     Platform,
-    Pressable, ScrollView, Text,
+    Pressable,
+    ScrollView,
+    Text,
     TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
 import Toast from 'react-native-toast-message';
+import CustomColorPicker from './CustomColorPicker';
+import IconPicker from './IconPicker';
 
-const CreationGoalModal = ({ isVisible, onclose }: { isVisible: boolean, onclose: () => void }) => {
+const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean, onclose: () => void, newGoal: CreationGoal }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    
+    const {data, isLoading} = useQuery({
+        queryFn : async () =>{
 
-    const [form, setForm] = useState <CreationGoal>({
-        name: "",
-        amount: 0,
-        endingDate: "",
-        color: "",
-        iconRef: "",
-        startingDate: "",
-        walletId: ""
+        }
+    })
+
+    const [form, setForm] = useState<CreationGoal>({
+        ...newGoal,
+        color: "#06b6d4", 
+        iconRef: "flag"
     });
 
+    const updateForm = (key: keyof CreationGoal, value: any) => {
+        setForm(prev => ({ ...prev, [key]: value }));
+    };
+
     const { mutate, isPending } = useMutation<Goal, Error, CreationGoal>({
-        mutationFn: async (newGoal: CreationGoal) => {
-            const res = await goalAPI.create(user?.id || "", newGoal);
+        mutationFn: async (goalData: CreationGoal) => {
+            const res = await goalAPI.create(user?.id || "", goalData);
             return res.values as Goal;
         },
         onSuccess: () => {
@@ -39,89 +50,125 @@ const CreationGoalModal = ({ isVisible, onclose }: { isVisible: boolean, onclose
             resetAndClose();
         },
         onError: (error: any) => {
-            Toast.show({
-                type: 'error',
-                text1: "Erreur",
-                text2: error.message,
-                position: 'bottom',
-            });
+            Toast.show({ type: 'error', text1: "Erreur", text2: error.message });
         }
     });
 
     const resetAndClose = () => {
-        setForm({ name: "", amount: 0, walletId: "", startingDate: "" , endingDate: "", color: "", iconRef: ""});
+        setForm({ ...newGoal, color: "#06b6d4", iconRef: "flag" });
         onclose();
     };
 
-    const isValid = form.name.trim().length > 0 && !isPending;
+    const isValid = form.name.trim().length > 0 && form.amount > 0 && !isPending;
 
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={resetAndClose}>
-            <Pressable className="flex-1 bg-black/50 justify-center" onPress={resetAndClose}>
+            <View className="flex-1 bg-black/60 justify-end"> 
+                <Pressable className="absolute inset-0" onPress={resetAndClose} />
+                
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                    <Pressable className="bg-white rounded-[32px] p-6 shadow-xl" onPress={(e) => e.stopPropagation()}>
+                    <View className="bg-white rounded-t-[40px] p-8 min-h-[70vh]">
                         
-                        <ScrollView showsVerticalScrollIndicator={false} className="max-h-[80vh]">
-                            <View className="mb-6">
-                                <Text className="text-2xl font-bold text-gray-800">🎯 Nouvel Objectif</Text>
-                                <Text className="text-gray-500">Prêt pour un nouveau défi ?</Text>
+                        <View className="w-12 h-1.5 bg-gray-100 rounded-full self-center mb-8" />
+
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View className="mb-8">
+                                <View className='flex flex-row justify-between'>
+                                <Text className="text-3xl font-black text-gray-900 italic">NEW GOAL</Text>             <Ionicons
+                                              name={form.iconRef as any}
+                                              size={50}
+                                              // Si sélectionné, l'icône brille de sa propre couleur, sinon gris standard
+                                              color={form.color}
+                                            />
+                                            </View>
+                                <View className="h-1 w-12 rounded-full mt-1" style={{ backgroundColor: form.color }} />
                             </View>
 
-                            <View className="space-y-4">
+                            <View className="gap-y-8">
+                                {/* SECTION NOM ET MONTANT */}
                                 <View>
-                                    <Text className="text-gray-700 font-semibold mb-1 ml-1">Titre</Text>
                                     <TextInput
-                                        className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-gray-800 focus:border-blue-500"
-                                        placeholder="ex: Épargne Voyage"
+                                        className="text-xl font-bold text-gray-800 p-4 bg-gray-50 rounded-2xl border border-gray-100"
+                                        placeholder="Nom de l'objectif"
+                                        placeholderTextColor="#9ca3af"
                                         value={form.name}
-                                        onChangeText={(val) => setForm({...form, name: val})}
+                                        onChangeText={(val) => updateForm('name', val)}
                                     />
+                                    <View className="mt-4 flex-row items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                        <Text className="text-xl font-bold mr-2" style={{ color: form.color }}>€</Text>
+                                        <TextInput
+                                            className="text-xl font-black text-gray-900 flex-1"
+                                            placeholder="Montant cible"
+                                            keyboardType="numeric"
+                                            value={form.amount === 0 ? "" : form.amount.toString()}
+                                            onChangeText={(val) => updateForm('amount', +val)}
+                                        />
+                                    </View>
                                 </View>
 
-                                <View>
-                                    <Text className="text-gray-700 font-semibold mb-1 ml-1">Montant cible</Text>
+                                {/* SECTION DATES */}
+                                <View className="flex-row gap-x-4">
                                     <TextInput
-                                        className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-gray-800"
-                                        placeholder="0.00"
-                                        keyboardType="numeric"
-                                        value={form.amount.toString()}
-                                        onChangeText={(val) => setForm({...form, amount: +val})}
-                                    />
-                                </View>
-
-                                <View>
-                                    <Text className="text-gray-700 font-semibold mb-1 ml-1">Description</Text>
-                                    <TextInput
-                                        className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-gray-800 h-24"
-                                        placeholder="Détails de l'objectif..."
-                                        multiline
-                                        textAlignVertical="top"
+                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
+                                        placeholder="Début (JJ/MM/AA)"
                                         value={form.startingDate}
-                                        onChangeText={(val : string) => setForm({...form, startingDate: val})}
+                                        onChangeText={(val) => updateForm('startingDate', val)}
+                                    />
+                                    <TextInput
+                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
+                                        placeholder="Fin (JJ/MM/AA)"
+                                        value={form.endingDate}
+                                        onChangeText={(val) => updateForm('endingDate', val)}
+                                    />
+                                </View>
+
+                                {/* CHOIX COULEUR NÉON */}
+                                <View>
+                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Palette Néon</Text>
+                                    <CustomColorPicker 
+                                        value={form.color} 
+                                        onChange={(c) => updateForm('color', c)} 
+                                    />
+                                </View>
+                              
+                                {/* CHOIX ICÔNE */}
+                                <View>
+                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Icône</Text>
+                                    <IconPicker 
+                                        color={form.color} 
+                                        value={form.iconRef} 
+                                        onChange={(i: string) => updateForm('iconRef', i)}
                                     />
                                 </View>
                             </View>
 
-                            <View className="flex-row justify-end items-center mt-8 space-x-3">
-                                <TouchableOpacity onPress={resetAndClose} className="px-6 py-3">
-                                    <Text className="text-gray-500 font-bold">Annuler</Text>
+                            {/* ACTIONS FINALES */}
+                            <View className="flex-row items-center mt-12 mb-6 gap-x-4">
+                                <TouchableOpacity onPress={resetAndClose} className="flex-1 py-4">
+                                    <Text className="text-gray-400 font-bold text-center">ANNULER</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity 
-                                    onPress={()=>mutate(form)}
+                                <TouchableOpacity
+                                    onPress={() => mutate(form)}
                                     disabled={!isValid}
-                                    className={`px-10 py-4 rounded-2xl shadow-sm ${isValid ? 'bg-blue-600' : 'bg-blue-200'}`}
+                                    style={{ 
+                                        backgroundColor: isValid ? form.color : '#f3f4f6',
+                                        shadowColor: isValid ? form.color : '#000',
+                                        shadowOffset: { width: 0, height: 8 },
+                                        shadowOpacity: isValid ? 0.3 : 0,
+                                        shadowRadius: 12,
+                                    }}
+                                    className="flex-[2] py-5 rounded-[24px]"
                                 >
-                                    <Text className="text-white font-bold text-center">
-                                        {isPending ? "Chargement..." : "Créer"}
+                                    <Text className={`font-black text-center text-lg ${isValid ? 'text-white' : 'text-gray-300'}`}>
+                                        {isPending ? "..." : "CRÉER"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
                         </ScrollView>
-                        
-                    </Pressable>
+                    </View>
                 </KeyboardAvoidingView>
-            </Pressable>
+            </View>
         </Modal>
     );
 };

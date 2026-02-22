@@ -2,7 +2,7 @@ import CreationGoalModal from "@/components/CreationModal";
 import GoalModal from "@/components/DropDown";
 import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
-import { Goal } from "@/types";
+import { CreationGoal, Goal } from "@/types";
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
@@ -25,6 +25,7 @@ const [isVisible, setVisible] = useState(false)
     },
   });
 
+  const newGoal : CreationGoal=  { name: "", amount: 0, walletId: "", startingDate: "", endingDate: "", color: "", iconRef: "" }
 
 
 
@@ -81,7 +82,7 @@ const [isVisible, setVisible] = useState(false)
         <Ionicons name="add" size={36} color="white" />
       </TouchableOpacity>
 
-      {isVisible && <CreationGoalModal isVisible={isVisible} onclose={() => setVisible(false)} />}
+      {isVisible && <CreationGoalModal isVisible={isVisible} onclose={() => setVisible(false)} newGoal={newGoal} />}
     </View>
   );
 }
