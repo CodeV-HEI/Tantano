@@ -1,9 +1,11 @@
 import { useAuth } from '@/context/AuthContext';
-import { goalAPI } from '@/services/api';
-import { CreationGoal, Goal } from '@/types';
+import { goalAPI, walletAPI } from '@/services/api';
+import { CreationGoal, Goal, Wallet } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+
 import {
     KeyboardAvoidingView,
     Modal,
@@ -23,16 +25,26 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
-    const {data, isLoading} = useQuery({
-        queryFn : async () =>{
-
+    const { data: wallets } = useQuery({
+        queryKey: ["wallets"],
+        queryFn: async () => {
+            try {
+                if (!user) return [];
+                const response = await walletAPI.getAll(user.id);
+                const data: Wallet[] = response?.data?.values || [];
+                return data;
+            } catch (error) {
+                console.error('Error fetching wallets:', error);
+                return [];
+            }
         }
-    })
+    });
 
     const [form, setForm] = useState<CreationGoal>({
         ...newGoal,
         color: "#06b6d4", 
-        iconRef: "flag"
+        iconRef: "flag",
+        walletId: "" 
     });
 
     const updateForm = (key: keyof CreationGoal, value: any) => {
@@ -55,11 +67,16 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
     });
 
     const resetAndClose = () => {
-        setForm({ ...newGoal, color: "#06b6d4", iconRef: "flag" });
+        setForm({ ...newGoal, color: "#06b6d4", iconRef: "flag", walletId: "" });
         onclose();
     };
 
-    const isValid = form.name.trim().length > 0 && form.amount > 0 && !isPending;
+    // Validation logic (added walletId check)
+    const isValid = 
+        form.name.trim().length > 0 && 
+        form.amount > 0 && 
+        form.walletId !== "" && 
+        !isPending;
 
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={resetAndClose}>
@@ -73,14 +90,14 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
 
                         <ScrollView showsVerticalScrollIndicator={false}>
                             <View className="mb-8">
-                                <View className='flex flex-row justify-between'>
-                                <Text className="text-3xl font-black text-gray-900 italic">NEW GOAL</Text>             <Ionicons
-                                              name={form.iconRef as any}
-                                              size={50}
-                                              // Si sélectionné, l'icône brille de sa propre couleur, sinon gris standard
-                                              color={form.color}
-                                            />
-                                            </View>
+                                <View className='flex flex-row justify-between items-center'>
+                                    <Text className="text-3xl font-black text-gray-900 italic">NEW GOAL</Text>             
+                                    <Ionicons
+                                        name={form.iconRef as any}
+                                        size={50}
+                                        color={form.color}
+                                    />
+                                </View>
                                 <View className="h-1 w-12 rounded-full mt-1" style={{ backgroundColor: form.color }} />
                             </View>
 
@@ -140,9 +157,29 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                                         onChange={(i: string) => updateForm('iconRef', i)}
                                     />
                                 </View>
+
+                                {/* CHOIX PORTEFEUILLE (PICKER) */}
+                                <View>
+                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Portefeuille Associé</Text>
+                                    <View className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                                        <Picker
+                                            selectedValue={form.walletId}
+                                            onValueChange={(itemValue) => updateForm('walletId', itemValue)}
+                                            dropdownIconColor={form.color}
+                                        >
+                                            <Picker.Item label="Sélectionner un compte..." value="" color="#9ca3af" />
+                                            {wallets?.map((wallet) => (
+                                                <Picker.Item 
+                                                    key={wallet.id} 
+                                                    label={wallet.name} 
+                                                    value={wallet.id} 
+                                                />
+                                            ))}
+                                        </Picker>
+                                    </View>
+                                </View>
                             </View>
 
-                            {/* ACTIONS FINALES */}
                             <View className="flex-row items-center mt-12 mb-6 gap-x-4">
                                 <TouchableOpacity onPress={resetAndClose} className="flex-1 py-4">
                                     <Text className="text-gray-400 font-bold text-center">ANNULER</Text>
@@ -169,6 +206,7 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                     </View>
                 </KeyboardAvoidingView>
             </View>
+            <Toast />
         </Modal>
     );
 };
