@@ -1280,13 +1280,10 @@ components:
           type: number
           format: int64
           example: 520000
-<<<<<<< HEAD
         walletId:
           type: string
           format: uuid
           description: "ID du wallet pour déduire le coût réel"
-=======
->>>>>>> 4792568 (docs: Update api.yml and openapi.json docs files)
 
     ProjectTransaction:
       type: object
@@ -1302,12 +1299,9 @@ components:
         accountId:
           type: string
           format: uuid
-<<<<<<< HEAD
         walletId:
           type: string
           format: uuid
-=======
->>>>>>> 4792568 (docs: Update api.yml and openapi.json docs files)
         createdAt:
           type: string
           format: date-time

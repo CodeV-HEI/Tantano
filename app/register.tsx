@@ -20,7 +20,11 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';
 import Toast from 'react-native-toast-message';
+<<<<<<< HEAD
 import GoogleButton from "@/components/GoogleButton";
+=======
+import GoogleButton from '@/components/GoogleButton';
+>>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState('');
@@ -49,7 +53,6 @@ export default function RegisterScreen() {
             "keyboardDidHide",
             () => setKeyboardVisible(false),
         );
-
         return () => {
             keyboardDidShowListener.remove();
             keyboardDidHideListener.remove();
@@ -57,11 +60,10 @@ export default function RegisterScreen() {
     }, []);
 
     const handleRegister = async () => {
-        if (!username || !password) {
+        if (!username || !email || !password) {
             Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
-
         if (password !== confirmPassword) {
             Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
             return;
@@ -69,7 +71,9 @@ export default function RegisterScreen() {
 
         setIsLoading(true);
         try {
-            await register(username, password);
+            // L'API utilise actuellement le champ "username" pour l'identifiant.
+            // On envoie donc l'email comme username.
+            await register(email, password);
             Toast.show({
                 type: "success",
                 text1: "Inscription réussie",
@@ -79,6 +83,7 @@ export default function RegisterScreen() {
             });
             router.replace("/(tabs)");
         } catch (error: any) {
+<<<<<<< HEAD
             const message =
                 error.response?.data?.message || "Une erreur est survenue";
             Toast.show({
@@ -86,19 +91,18 @@ export default function RegisterScreen() {
                 text1: "Échec de l'inscription",
                 text2: message,
                 position: "top",
+=======
+            Toast.show({
+                type: 'error',
+                text1: 'Échec de l\'inscription',
+                text2: error.message,
+                position: 'top',
+>>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
                 visibilityTime: 3000,
             });
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const toggleShowPassword = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const toggleShowConfirmPassword = () => {
-        setShowConfirmPassword(!showConfirmPassword);
     };
 
     return (
@@ -107,9 +111,13 @@ export default function RegisterScreen() {
             className="flex-1"
             keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
         >
+<<<<<<< HEAD
 
             <Background3D />
 
+=======
+            <Background3D />
+>>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
             <TouchableOpacity
                 onPress={toggleTheme}
                 className={`absolute top-12 right-6 z-50 p-3 rounded-full ${theme === "dark" ? "bg-black/10 backdrop-blur-sm border border-purple-500/20" : "bg-purple-50/80 backdrop-blur-sm border border-purple-200"}`}
@@ -159,16 +167,35 @@ export default function RegisterScreen() {
                                 NOM D&apos;UTILISATEUR
                             </Text>
                             <TextInput
+<<<<<<< HEAD
                                 className={`${theme === "dark" ? "bg-black/60 border-cyan-500/40 text-white" : "bg-cyan-50/50 border-cyan-300 text-gray-900"} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400`}
                                 placeholder="Choisissez votre nom"
                                 placeholderTextColor={
                                     theme === "dark" ? "#06b6d470" : "#0891b270"
                                 }
+=======
+                                className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400`}
+                                placeholder="Votre nom"
+                                placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
+>>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
                                 value={username}
                                 onChangeText={setUsername}
-                                autoCapitalize="none"
+                                autoCapitalize="words"
                                 returnKeyType="next"
-                                blurOnSubmit={false}
+                            />
+                        </Animated.View>
+
+                        <Animated.View entering={FadeInUp.delay(300)} className="space-y-3">
+                            <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>EMAIL</Text>
+                            <TextInput
+                                className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400`}
+                                placeholder="exemple@email.com"
+                                placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                returnKeyType="next"
                             />
                         </Animated.View>
 
@@ -206,12 +233,10 @@ export default function RegisterScreen() {
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
                                     returnKeyType="next"
-                                    blurOnSubmit={false}
                                 />
                                 <TouchableOpacity
-                                    onPress={toggleShowPassword}
+                                    onPress={() => setShowPassword(!showPassword)}
                                     className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                                    activeOpacity={0.7}
                                 >
                                     {showPassword ? (
                                         <EyeOff
@@ -251,9 +276,8 @@ export default function RegisterScreen() {
                                     onSubmitEditing={handleRegister}
                                 />
                                 <TouchableOpacity
-                                    onPress={toggleShowConfirmPassword}
+                                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                                     className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                                    activeOpacity={0.7}
                                 >
                                     {showConfirmPassword ? (
                                         <EyeOff
@@ -277,9 +301,9 @@ export default function RegisterScreen() {
                                 onPressIn={() => setIsPressed(true)}
                                 onPressOut={() => setIsPressed(false)}
                                 disabled={isLoading}
-                                activeOpacity={0.9}
                             >
                                 {isLoading ? (
+<<<<<<< HEAD
                                     <View className="flex-row justify-center items-center">
                                         <ActivityIndicator
                                             size="large"
@@ -294,6 +318,13 @@ export default function RegisterScreen() {
                                             S&apos;INSCRIRE
                                         </Text>
                                     </View>
+=======
+                                    <ActivityIndicator size="large" color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
+                                ) : (
+                                    <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-center text-xl font-bold tracking-widest`}>
+                                        S&apos;INSCRIRE
+                                    </Text>
+>>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
                                 )}
                             </TouchableOpacity>
                         </Animated.View>
