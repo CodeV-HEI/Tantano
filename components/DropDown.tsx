@@ -1,10 +1,16 @@
 import { Goal } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { LayoutAnimation, Platform, Text, TouchableOpacity, UIManager, View } from 'react-native';
+import UpdateGoalModal from './UpdateGoalModal';
 
-const GoalModal = ({ goals }: { goals: Goal }) => {
-  const [isVisible, setIsVisible] = useState(false);
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const GoalDropdown = ({ goals }: { goals: Goal }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setVisible] = useState(false)
 
   const neonColors: Record<string, string> = {
     'neon-cyan': '#06b6d4',
@@ -16,86 +22,90 @@ const GoalModal = ({ goals }: { goals: Goal }) => {
 
   const activeColor = neonColors[goals.color] || goals.color || '#06b6d4';
 
+  const toggleDropdown = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <View className="w-full mb-3">
+    <View className="w-full mb-3 px-1">
       <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={() => setIsVisible(true)}
-        className="flex-row justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm"
+        activeOpacity={0.8}
+        onPress={toggleDropdown}
+        style={{ 
+          borderLeftWidth: 4, 
+          borderLeftColor: activeColor,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 5,
+          elevation: 2
+        }}
+        className="flex-row justify-between items-center p-5 bg-white rounded-r-2xl rounded-l-md"
       >
-        <View className="flex-row items-center space-x-3">
-          <View style={{ backgroundColor: `${activeColor}15` }} className="p-2 rounded-xl">
+        <View className="flex-row items-center">
+          <View style={{ backgroundColor: `${activeColor}15` }} className="p-2 rounded-xl mr-4">
             <Ionicons 
               name={goals.iconRef && (goals.iconRef in Ionicons.glyphMap) ? (goals.iconRef as any) : "trophy"} 
-              size={22} 
+              size={24} 
               color={activeColor} 
             />
           </View>
-          <Text className="text-black text-base font-semibold">{goals.name}</Text>
+          <View>
+            <Text className="text-black text-lg font-bold">{goals.name}</Text>
+            <Text className="text-gray-400 text-xs uppercase tracking-widest">{goals.amount} €</Text>
+          </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+        
+        <Ionicons 
+          name={isOpen ? "chevron-up" : "chevron-down"} 
+          size={20} 
+          color="#9CA3AF" 
+        />
       </TouchableOpacity>
 
-      <Modal
-        animationType="fade" 
-      >
-        <Pressable 
-          className="flex-1 justify-center items-center bg-black/60 p-6" 
-          onPress={() => setIsVisible(false)}
-        >
-          <Pressable 
-            className="w-full bg-white rounded-[32px] p-6 shadow-2xl"
-            onPress={(e) => e.stopPropagation()} 
+      {isOpen && (
+        <View className="bg-white/50 border-x border-b border-gray-100 rounded-b-2xl p-5 mx-1 pt-2">
+          <View className="space-y-4">
+            <DetailRow label="Objectif Total" value={`${goals.amount} €`} color={activeColor} icon="cash-outline" />
+            <DetailRow label="Échéance" value={goals.endingDate} icon="calendar-outline" />
+            <DetailRow label="Portefeuille" value={goals.walletId} icon="wallet-outline" />
+            <DetailRow label="Date de début" value={goals.startingDate} icon="time-outline" />
+          </View>
+          
+          <TouchableOpacity 
+            className="mt-4 py-2 items-center"
+            onPress={() => setVisible(true) }
           >
-            <View className="items-center mb-6">
-              <View 
-                style={{ backgroundColor: `${activeColor}20`, borderColor: `${activeColor}40` }} 
-                className="p-5 rounded-full border-2 mb-4"
-              >
-                <Ionicons 
-                  name={goals.iconRef && (goals.iconRef in Ionicons.glyphMap) ? (goals.iconRef as any) : "trophy"} 
-                  size={40} 
-                  color={activeColor} 
-                />
-              </View>
-              <Text className="text-2xl font-bold text-gray-900 text-center">{goals.name}</Text>
-              <View style={{ backgroundColor: activeColor }} className="h-1 w-12 rounded-full mt-2" />
-            </View>
+            <Text style={{ color: activeColor }} className="font-bold text-xs uppercase tracking-tighter">
+              Modifier l'objectif
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-            <View className="space-y-4 py-2">
-              <DetailRow label="Objectif" value={`${goals.amount} €`} color={activeColor} icon="cash-outline" />
-              <DetailRow label="Échéance" value={goals.endingDate} icon="calendar-outline" />
-              <DetailRow label="Portefeuille" value={goals.walletId} icon="wallet-outline" />
-              <DetailRow label="Date de début" value={goals.startingDate} icon="time-outline" />
-            </View>
-
-            <TouchableOpacity
-              onPress={() => setIsVisible(false)}
-              style={{ backgroundColor: activeColor }}
-              className="mt-8 p-4 rounded-2xl items-center shadow-md"
-            >
-              <Text className="text-white font-bold text-lg">C'est noté !</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <UpdateGoalModal 
+        isVisible={isVisible} 
+        onclose={() => setVisible(false)} 
+        newGoal={goals} 
+      />
     </View>
   );
 };
 
 const DetailRow = ({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: string }) => (
-  <View className="flex-row justify-between items-center py-2 border-b border-gray-50">
+  <View className="flex-row justify-between items-center py-3 border-b border-gray-50/50">
     <View className="flex-row items-center">
-      {icon && <Ionicons name={icon as any} size={18} color="#9CA3AF" style={{ marginRight: 10 }} />}
-      <Text className="text-gray-500 font-medium">{label}</Text>
+      {icon && <Ionicons name={icon as any} size={16} color="#9CA3AF" className="mr-2" />}
+      <Text className="text-gray-500 text-sm ml-2">{label}</Text>
     </View>
     <Text 
       style={color ? { color: color } : { color: '#111827' }} 
-      className="font-bold text-base"
+      className="font-bold text-sm"
     >
       {value}
     </Text>
   </View>
 );
 
-export default GoalModal;
+export default GoalDropdown;

@@ -1,5 +1,5 @@
 import CreationGoalModal from "@/components/CreationModal";
-import GoalModal from "@/components/DropDown";
+import GoalItem from "@/components/DropDown"; // On suppose que c'est ta carte d'affichage
 import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
 import { CreationGoal, Goal } from "@/types";
@@ -8,9 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+
 export default function GoalsScreen() {
- const {user} = useAuth()
-const [isVisible, setVisible] = useState(false)
+  const { user } = useAuth();
+  const [isVisible, setVisible] = useState(false);
+
   const { data, isLoading } = useQuery<Goal[]>({
     queryKey: ["goals"],
     queryFn: async () => {
@@ -25,18 +27,19 @@ const [isVisible, setVisible] = useState(false)
     },
   });
 
-  const newGoal : CreationGoal=  { name: "", amount: 0, walletId: "", startingDate: "", endingDate: "", color: "", iconRef: "" }
-
-
-
-
-
-
- 
+  const initialGoal: CreationGoal = { 
+    name: "", 
+    amount: 0, 
+    walletId: "", 
+    startingDate: "", 
+    endingDate: "", 
+    color: "#06b6d4", 
+    iconRef: "flag" 
+  };
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white dark:bg-slate-950">
+      <View className="flex-1 justify-center items-center dark:bg-slate-950">
         <ActivityIndicator size="large" color="#06b6d4" />
       </View>
     );
@@ -53,21 +56,31 @@ const [isVisible, setVisible] = useState(false)
         </View>
 
         {data && data.length > 0 ? (
-          data.map((item) => (
-            <GoalModal key={item.id} goals={item} />
-          ))
+          <View className="gap-y-4"> 
+            {data.map((item) => (
+              <GoalItem key={item.id} goals={item} />
+            ))}
+          </View>
         ) : (
           <View className="mt-32 items-center justify-center">
             <Ionicons name="sparkles-outline" size={48} color="#cbd5e1" />
             <Text className="text-slate-400 text-lg mt-4">Rien ici pour le moment</Text>
+            <TouchableOpacity 
+              onPress={() => setVisible(true)}
+              className="mt-4"
+            >
+              <Text style={{ color: '#06b6d4' }} className="font-bold">Créer votre premier objectif</Text>
+            </TouchableOpacity>
           </View>
         )}
         
-        <View className="h-28" />
+        {/* Padding pour ne pas que le dernier item soit caché par le bouton flottant */}
+        <View className="h-32" />
       </ScrollView>
 
+      {/* Bouton Flottant (FAB) */}
       <TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={0.8}
         style={{ 
           backgroundColor: '#06b6d4',
           shadowColor: '#06b6d4',
@@ -76,13 +89,18 @@ const [isVisible, setVisible] = useState(false)
           shadowRadius: 12,
           elevation: 10,
         }}
-        onPress={()=> setVisible(true)}
+        onPress={() => setVisible(true)}
         className="absolute bottom-10 right-8 w-16 h-16 rounded-full items-center justify-center border-2 border-white/20"
       >
         <Ionicons name="add" size={36} color="white" />
       </TouchableOpacity>
 
-      {isVisible && <CreationGoalModal isVisible={isVisible} onclose={() => setVisible(false)} newGoal={newGoal} />}
+      {/* Le Modal de création */}
+      <CreationGoalModal 
+        isVisible={isVisible} 
+        onclose={() => setVisible(false)} 
+        newGoal={initialGoal} 
+      />
     </View>
   );
 }
