@@ -7,12 +7,13 @@ import { authAPI } from '@/services/api';
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
-    login: (username: string, password: string) => Promise<void>;
-    register: (username: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    register: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     updateToken: (token: string) => Promise<void>;
     loginWithBiometrics: () => Promise<boolean>;
     biometricsAvailable: boolean;
+    forgotPassword: (email: string) => Promise<void>;
     googleSignIn: (idToken: string) => Promise<void>;
 }
 
@@ -38,7 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const storedUser = await AsyncStorage.getItem('user');
             const storedToken = await AsyncStorage.getItem('token');
-
             if (storedUser && storedToken) {
                 setUser(JSON.parse(storedUser));
             }
@@ -49,48 +49,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const login = async (username: string, password: string) => {
+    const login = async (email: string, password: string) => {
         try {
             console.log('Tentative de connexion...');
-            const response = await authAPI.login({ username, password });
+            const response = await authAPI.login({ email, password });
             const { account, token } = response.data;
 
             await AsyncStorage.setItem('user', JSON.stringify(account));
             await AsyncStorage.setItem('token', token);
 
+            await SecureStore.setItemAsync('credentials', JSON.stringify({ email, password }));
+
             setUser(account);
+
             console.log('Connexion réussie');
 
             try {
-                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ email, password }));
             } catch (e) {
                 console.error('Failed to save credentials for biometrics', e);
             }
         } catch (error: any) {
             console.error('Login failed:', error);
-
             let errorMessage = 'Échec de connexion';
-            if (error.message && error.message.includes('Le serveur met trop de temps')) {
-                errorMessage = 'Le serveur met trop de temps à répondre. Réessayez dans quelques secondes (service gratuit en démarrage).';
+            if (error.message?.includes('Le serveur met trop de temps')) {
+                errorMessage = 'Le serveur met trop de temps à répondre. Réessayez dans quelques secondes.';
             } else if (error.response?.status === 401) {
-                errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect';
+                errorMessage = 'Email ou mot de passe incorrect';
             }
-
             const enhancedError = new Error(errorMessage);
             enhancedError.cause = error;
             throw enhancedError;
         }
     };
 
-    const register = async (username: string, password: string) => {
+    const register = async (email: string, password: string) => {
         try {
             console.log('Tentative d\'inscription...');
-
-            await authAPI.register({ username, password });
-
+            await authAPI.register({ email, password });
             console.log('Inscription réussie, connexion automatique...');
 
-            const loginResponse = await authAPI.login({ username, password });
+            const loginResponse = await authAPI.login({ email, password });
             const { account, token } = loginResponse.data;
 
             await AsyncStorage.setItem('user', JSON.stringify(account));
@@ -100,20 +99,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('Inscription et connexion réussies');
 
             try {
-                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ email, password }));
             } catch (e) {
                 console.error('Failed to save credentials for biometrics', e);
             }
+            await login(email, password);
         } catch (error: any) {
             console.error('Registration failed:', error);
-
             let errorMessage = 'Échec de l\'inscription';
-            if (error.message && error.message.includes('Le serveur met trop de temps')) {
-                errorMessage = 'Le serveur met trop de temps à répondre. Le service gratuit peut prendre jusqu\'à 30 secondes pour démarrer. Réessayez dans quelques instants.';
+            if (error.message?.includes('Le serveur met trop de temps')) {
+                errorMessage = 'Le serveur met trop de temps à répondre. Réessayez dans quelques instants.';
             } else if (error.response?.status === 409) {
-                errorMessage = 'Ce nom d\'utilisateur est déjà pris';
+                errorMessage = 'Cet email est déjà utilisé';
             }
-
             const enhancedError = new Error(errorMessage);
             enhancedError.cause = error;
             throw enhancedError;
@@ -147,8 +145,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (result.success) {
                 const creds = await SecureStore.getItemAsync('credentials');
                 if (creds) {
-                    const { username, password } = JSON.parse(creds);
-                    await login(username, password);
+                    const { email, password } = JSON.parse(creds);
+                    await login(email, password);
                     return true;
                 }
             }
@@ -157,6 +155,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error('Biometric login failed:', error);
             return false;
         }
+    };
+
+    const forgotPassword = async (email: string) => {
+        // Appel API à implémenter côté backend
+        // Pour l'instant, on simule
+        console.log('Demande de réinitialisation pour', email);
+        // throw new Error('Non implémenté');
     };
 
     const googleSignIn = async (idToken: string) => {
@@ -193,6 +198,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 updateToken,
                 loginWithBiometrics,
                 biometricsAvailable,
+                forgotPassword,
                 googleSignIn,
             }}
         >
