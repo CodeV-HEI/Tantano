@@ -20,6 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useSettings } from '@/hooks/useSettings';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';
@@ -33,8 +34,9 @@ export default function LoginScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, biometricsAvailable, loginWithBiometrics } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const { settings } = useSettings();
 
     React.useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
@@ -84,6 +86,21 @@ export default function LoginScreen() {
             });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleBiometricLogin = async () => {
+        const success = await loginWithBiometrics();
+        if (success) {
+            router.replace('/(tabs)');
+        } else {
+            Toast.show({
+                type: 'error',
+                text1: 'Authentification biométrique échouée',
+                text2: 'Veuillez réessayer',
+                position: 'top',
+                visibilityTime: 3000,
+            });
         }
     };
 
@@ -208,6 +225,19 @@ export default function LoginScreen() {
                             </TouchableOpacity>
                         </Animated.View>
 
+                        {/* Bouton de connexion biométrique */}
+                        {biometricsAvailable && settings.biometricsEnabled && (
+                            <TouchableOpacity
+                                onPress={handleBiometricLogin}
+                                className="flex-row justify-center items-center py-3"
+                            >
+                                <MaterialIcons name="fingerprint" size={24} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                                <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
+                                    Se connecter avec biométrie
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+
                         <Animated.View
                             entering={SlideInRight.delay(600)}
                             className="pt-10"
@@ -236,7 +266,6 @@ export default function LoginScreen() {
                                     <View
                                         key={i}
                                         className={`w-3 h-3 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-400'} rounded-full animate-pulse`}
-                                        style={{ animationDelay: `${i * 0.3}s` }}
                                     />
                                 ))}
                             </View>

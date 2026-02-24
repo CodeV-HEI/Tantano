@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { User } from '@/types/api';
 import { authAPI } from '@/services/api';
 
@@ -9,6 +11,8 @@ interface AuthContextType {
     login: (username: string, password: string) => Promise<void>;
     register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    loginWithBiometrics: () => Promise<boolean>;
+    biometricsAvailable: boolean;
     updateToken: (token: string) => Promise<void>;
 }
 
@@ -17,10 +21,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [biometricsAvailable, setBiometricsAvailable] = useState(false);
 
     useEffect(() => {
+        checkBiometrics();
         loadUser();
     }, []);
+
+    const checkBiometrics = async () => {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        setBiometricsAvailable(compatible && enrolled);
+    };
 
     const loadUser = async () => {
         try {
@@ -114,8 +126,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const loginWithBiometrics = async (): Promise<boolean> => {
+        try {
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Authentifiez-vous pour vous connecter',
+                cancelLabel: 'Annuler',
+            });
+            if (result.success) {
+                const creds = await SecureStore.getItemAsync('credentials');
+                if (creds) {
+                    const { email, password } = JSON.parse(creds);
+                    await login(email, password);
+                    return true;
+                }
+            }
+            return false;
+        } catch (error) {
+            console.error('Biometric login failed:', error);
+            return false;
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateToken }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isLoading,
+                login,
+                register,
+                logout,
+                updateToken,
+                loginWithBiometrics,
+                biometricsAvailable,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
