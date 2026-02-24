@@ -18,14 +18,6 @@ export default function ListTransaction() {
         padding: 16,
         paddingBottom: 40,
       }}
-      ListHeaderComponent={
-        <View className="mb-4">
-          <Text className="text-2xl font-bold text-gray-900">Transactions</Text>
-          <Text className="text-gray-400 mt-1">
-            Historique de vos opérations
-          </Text>
-        </View>
-      }
       renderItem={({ item }) => (
         <View className="mb-4">
           <CardTransaction data={item} onDeleteSuccess={onDeleteSuccess} />
