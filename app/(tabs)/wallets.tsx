@@ -5,18 +5,21 @@ import {
     ScrollView,
     RefreshControl,
     StatusBar,
-    Alert
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useWalletStore, WalletType } from '@/stores/useWalletStore';
 import { useRouter } from 'expo-router';
 
+
 import { Header } from './walletComponents/Header';
 import { StatCards } from './walletComponents/StatCards';
 import { FilterBar } from './walletComponents/FilterBar';
 import { CreateForm } from './walletComponents/CreateForm';
 import { WalletList } from './walletComponents/WalletList';
+import { SearchBar } from './walletComponents/SearchBar';
 
 export default function WalletsScreen() {
     const { theme } = useTheme();
@@ -26,48 +29,80 @@ export default function WalletsScreen() {
 
     const {
         wallets,
+        pagination,
         isLoading,
+        isLoadingMore,
         isCreating,
         isUpdating,
         isUpdatingIncome,
         fetchWallets,
+        loadMoreWallets,
         createWallet,
         toggleWalletActive,
         updateAutomaticIncome,
         toggleWalletDetails,
+        archiveWallet,  // Nouveau !
         getTotalBalance,
         getActiveCount,
         getInactiveCount
     } = useWalletStore();
 
-    // États locaux
+
     const [refreshing, setRefreshing] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showIncomeForm, setShowIncomeForm] = useState<string | null>(null);
     const [filterType, setFilterType] = useState<'ALL' | WalletType>('ALL');
     const [showInactive, setShowInactive] = useState(false);
-
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
     }, [theme]);
 
+
     useEffect(() => {
         if (user?.id) {
-            fetchWallets(user.id);
+            console.log(' Chargement initial des wallets');
+            fetchWallets(user.id, 1);
         }
     }, [user?.id]);
 
+    useEffect(() => {
+        const searchTimeout = setTimeout(() => {
+            if (user?.id) {
+                console.log(' Recherche avec filtre:', {
+                    name: searchQuery || undefined,
+                    type: filterType !== 'ALL' ? filterType : undefined,
+                    isActive: showInactive ? undefined : true
+                });
+
+                fetchWallets(user.id, 1, {
+                    name: searchQuery || undefined,
+                    type: filterType !== 'ALL' ? filterType : undefined,
+                    isActive: showInactive ? undefined : true
+                });
+            }
+        }, 500);
+
+        return () => clearTimeout(searchTimeout);
+    }, [searchQuery, filterType, showInactive, user?.id]);
 
     const onRefresh = async () => {
         setRefreshing(true);
-        if (user?.id) await fetchWallets(user.id);
+        if (user?.id) {
+            await fetchWallets(user.id, 1, {
+                name: searchQuery || undefined,
+                type: filterType !== 'ALL' ? filterType : undefined,
+                isActive: showInactive ? undefined : true
+            });
+        }
         setRefreshing(false);
     };
 
-    const handleCreateWallet = async (name: string, description: string, type: WalletType) => {
+    const handleCreateWallet = async (name: string, description: string, type: WalletType, color: string) => {
         if (!user?.id) return;
-        const created = await createWallet(user.id, { name, description, type });
+        console.log('🎨 Création wallet avec couleur:', color);
+        const created = await createWallet(user.id, { name, description, type, color });
         if (created) {
             setShowAddForm(false);
         }
@@ -92,7 +127,31 @@ export default function WalletsScreen() {
         setShowIncomeForm(id);
     };
 
-    const getWalletTypeStyle = (type: WalletType) => {
+    const handleArchiveWallet = (id: string, name: string) => {
+        if (!user?.id) return;
+        archiveWallet(user.id, id, name);
+    };
+
+    const handleLoadMore = () => {
+        if (user?.id && pagination?.hasNext && !isLoadingMore && !searchQuery) {
+            console.log('Chargement de plus de wallets...');
+            loadMoreWallets(user.id);
+        }
+    };
+
+    const handleScroll = ({ nativeEvent }) => {
+        const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+            const paddingToBottom = 100;
+            return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+        };
+
+        if (isCloseToBottom(nativeEvent)) {
+            handleLoadMore();
+        }
+    };
+
+        const getWalletTypeStyle = (type: WalletType) => {
         switch (type) {
             case 'CASH':
                 return {
@@ -132,18 +191,35 @@ export default function WalletsScreen() {
         }
     };
 
-
     const filteredWallets = wallets.filter(wallet => {
         if (!wallet || !wallet.id) return false;
-        if (filterType !== 'ALL' && wallet.type !== filterType) return false;
-        if (!showInactive && !wallet.isActive) return false;
+
+
+        // if (filterType !== 'ALL' && wallet.type !== filterType) return false;
+
+
+
         return true;
     });
 
 
-    const totalBalance = getTotalBalance();
-    const activeCount = getActiveCount();
-    const inactiveCount = getInactiveCount();
+    const totalBalance = wallets.reduce((sum, w) => sum + (w.amount || 0), 0);
+    const activeCount = wallets.filter(w => w.isActive).length;
+    const inactiveCount = wallets.filter(w => !w.isActive).length;
+
+
+    useEffect(() => {
+        console.log(' État actuel:', {
+            walletsLength: wallets.length,
+            totalBalance,
+            activeCount,
+            inactiveCount,
+            pagination,
+            searchQuery,
+            filterType,
+            showInactive
+        });
+    }, [wallets, totalBalance, activeCount, inactiveCount, pagination, searchQuery, filterType, showInactive]);
 
     return (
         <ScrollView
@@ -153,8 +229,12 @@ export default function WalletsScreen() {
             refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+            colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
             />
         }
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+        showsVerticalScrollIndicator={false}
         >
 
         <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
@@ -162,7 +242,7 @@ export default function WalletsScreen() {
         <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
         rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
-        <View className="px-4 pt-8">
+        <View className="px-4 pt-8 pb-8">
 
         <Header
         showCreateForm={showAddForm}
@@ -171,6 +251,17 @@ export default function WalletsScreen() {
             setShowIncomeForm(null);
         }}
         />
+
+
+        {wallets.length > 0 && (
+            <View className="mb-4">
+            <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Rechercher un portefeuille..."
+            />
+            </View>
+        )}
 
 
         {wallets.length > 0 && (
@@ -201,7 +292,26 @@ export default function WalletsScreen() {
         )}
 
 
-        <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-20`}>
+        <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mt-4`}>
+
+        <View className="flex-row justify-between items-center mb-4">
+        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>
+        MES PORTEFEUILLES
+        </Text>
+        <View className="flex-row items-center">
+        <Text className={`text-sm mr-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+        {wallets.length} au total
+        </Text>
+        {pagination && (
+            <View className={`px-2 py-1 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'}`}>
+            <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
+            Page {pagination.page}/{pagination.totalPage}
+            </Text>
+            </View>
+        )}
+        </View>
+        </View>
+
         <WalletList
         wallets={wallets}
         filteredWallets={filteredWallets}
@@ -215,12 +325,41 @@ export default function WalletsScreen() {
         onToggleActive={handleToggleActive}
         onToggleIncomeForm={handleToggleIncomeForm}
         onUpdateIncome={handleUpdateIncome}
+        onArchiveWallet={handleArchiveWallet}
         getWalletTypeStyle={getWalletTypeStyle}
         />
+
+
+        {isLoadingMore && (
+            <View className="py-6 items-center">
+            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+            <Text className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            Chargement de plus de portefeuilles...
+            </Text>
+            </View>
+        )}
+
+
+        {pagination && !pagination.hasNext && wallets.length > 0 && !searchQuery && (
+            <View className="py-4 items-center">
+            <Text className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+            — Tu as vu tous tes portefeuilles —
+            </Text>
+            </View>
+        )}
+
+
+        {searchQuery && wallets.length === 0 && !isLoading && (
+            <View className="py-10 items-center">
+            <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+            Aucun portefeuille trouvé pour "{searchQuery}"
+            </Text>
+            </View>
+        )}
         </View>
 
 
-        <View className="items-center mb-8">
+        <View className="items-center mt-8">
         <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
         © {new Date().getFullYear()} Tantano - CodeV
         </Text>

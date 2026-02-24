@@ -1,42 +1,41 @@
 import { create } from 'zustand';
 import { walletAPI } from '@/services/api';
 import { Alert } from 'react-native';
-
-
-export type WalletType = 'CASH' | 'MOBILE_MONEY' | 'BANK' | 'DEBT';
-
-export interface Wallet {
-    id: string;
-    name: string;
-    description?: string;
-    type: WalletType;
-    amount: number;
-    isActive: boolean;
-    walletAutomaticIncome?: {
-        type: 'NOT_SPECIFIED' | 'MENSUAL';
-        amount: number;
-        paymentDay: number;
-    };
-}
+import { Wallet, WalletWithUI, WalletType, PaginationInfo, WALLET_COLOR_PALETTE } from '@/types/wallet';
 
 interface WalletStore {
 
-    wallets: Wallet[];
+    wallets: WalletWithUI[];
+    pagination: PaginationInfo | null;
     isLoading: boolean;
+    isLoadingMore: boolean;
     isCreating: boolean;
     isUpdating: Record<string, boolean>;
     isUpdatingIncome: Record<string, boolean>;
     error: string | null;
+    currentFilters: {
+        name?: string;
+        isActive?: boolean;
+        type?: WalletType;
+    };
 
 
-    fetchWallets: (accountId: string) => Promise<void>;
+    fetchWallets: (accountId: string, page?: number, filters?: {
+        name?: string;
+        isActive?: boolean;
+        type?: WalletType;
+    }) => Promise<void>;
+    loadMoreWallets: (accountId: string) => Promise<void>;
     createWallet: (accountId: string, walletData: {
         name: string;
         description?: string;
         type: WalletType;
+        color?: string;
+        iconRef?: string;
     }) => Promise<Wallet | null>;
     updateWallet: (accountId: string, id: string, walletData: Partial<Wallet>) => Promise<Wallet | null>;
     toggleWalletActive: (accountId: string, id: string, isActive: boolean) => Promise<Wallet | null>;
+    archiveWallet: (accountId: string, id: string, name: string) => Promise<void>;
 
 
     updateAutomaticIncome: (
@@ -53,11 +52,13 @@ interface WalletStore {
     toggleWalletDetails: (id: string) => void;
 
 
-    getWalletById: (id: string) => Wallet | undefined;
+    getWalletById: (id: string) => WalletWithUI | undefined;
     getTotalBalance: () => number;
     getActiveCount: () => number;
     getInactiveCount: () => number;
-    getWalletsByType: (type: WalletType) => Wallet[];
+    getWalletsByType: (type: WalletType) => WalletWithUI[];
+
+
     clearError: () => void;
     reset: () => void;
 }
@@ -65,93 +66,114 @@ interface WalletStore {
 export const useWalletStore = create<WalletStore>((set, get) => ({
 
     wallets: [],
+    pagination: null,
     isLoading: false,
+    isLoadingMore: false,
     isCreating: false,
     isUpdating: {},
     isUpdatingIncome: {},
     error: null,
+    currentFilters: {},
 
+    fetchWallets: async (accountId, page = 1, filters = {}) => {
+        if (!accountId) return;
 
-    fetchWallets: async (accountId: string) => {
-        if (!accountId) {
-            console.error('fetchWallets: accountId manquant');
-            return;
-        }
-
-        set({ isLoading: true, error: null });
+        set(state => ({
+            isLoading: page === 1,
+            isLoadingMore: page > 1,
+            currentFilters: page === 1 ? filters : state.currentFilters,
+            error: null
+        }));
 
         try {
-            console.log(`📦 Récupération des wallets pour account: ${accountId}`);
-            const response = await walletAPI.getAll(accountId);
-            let fetchedWallets = response.data.values || [];
+            console.log(` Récupération page ${page} des wallets...`, filters);
 
-
-            fetchedWallets = fetchedWallets.filter((w: Wallet) => w && w.id && w.name);
-
-            console.log(`${fetchedWallets.length} wallets récupérés`);
-            set({
-                wallets: fetchedWallets,
-                isLoading: false
+            const response = await walletAPI.getAll(accountId, {
+                ...filters,
+                page,
+                pageSize: 20
             });
+
+            const newWallets = response.data.values || [];
+            const pagination = response.data.pagination;
+
+            console.log(` Page ${page}: ${newWallets.length} wallets reçus`);
+            console.log(' Pagination:', pagination);
+
+
+            const processedWallets = newWallets.map((w: any) => ({
+                ...w,
+                color: w.color || WALLET_COLOR_PALETTE[Math.floor(Math.random() * WALLET_COLOR_PALETTE.length)],
+                                                                 _showDetails: false
+            }));
+
+            set(state => ({
+                wallets: page === 1 ? processedWallets : [...state.wallets, ...processedWallets],
+                pagination,
+                isLoading: false,
+                isLoadingMore: false
+            }));
         } catch (error: any) {
-            console.error(' Erreur fetchWallets:', error?.response?.data || error.message);
+            console.error(' Erreur fetchWallets:', error?.response?.data || error);
             set({
                 isLoading: false,
-                error: 'Impossible de charger les portefeuilles'
+                isLoadingMore: false,
+                error: 'Erreur de chargement des wallets'
             });
-            Alert.alert('Erreur', 'Impossible de charger les portefeuilles');
+            Alert.alert('Erreur', 'Impossible de charger les wallets');
         }
     },
 
+    loadMoreWallets: async (accountId: string) => {
+        const { pagination, isLoadingMore, currentFilters } = get();
+        if (!pagination?.hasNext || isLoadingMore) return;
+
+        const nextPage = pagination.page + 1;
+        await get().fetchWallets(accountId, nextPage, currentFilters);
+    },
 
     createWallet: async (accountId, walletData) => {
-        if (!accountId) {
-            console.error('createWallet: accountId manquant');
-            return null;
-        }
-
+        if (!accountId) return null;
         if (!walletData.name.trim()) {
-            Alert.alert('Erreur', 'Le nom du portefeuille est requis');
+            Alert.alert('Erreur', 'Le nom du wallet est requis');
             return null;
         }
 
         set({ isCreating: true, error: null });
 
         try {
-            console.log(` Création du wallet: ${walletData.name}`);
+            const walletColor = walletData.color ||
+            WALLET_COLOR_PALETTE[Math.floor(Math.random() * WALLET_COLOR_PALETTE.length)];
+
+            console.log(' Création wallet:', { ...walletData, color: walletColor });
+
             const response = await walletAPI.create(accountId, {
                 name: walletData.name.trim(),
                                                     description: walletData.description?.trim() || undefined,
-                                                    type: walletData.type
+                                                    type: walletData.type,
+                                                    color: walletColor,
+                                                    iconRef: walletData.iconRef || undefined
             });
 
-            const newWallet = response.data;
-            console.log(' Wallet créé:', newWallet);
+            console.log(' Wallet créé:', response.data);
 
-            set(state => ({
-                wallets: [newWallet, ...state.wallets],
-                isCreating: false
-            }));
 
-            Alert.alert('Succès', 'Portefeuille créé avec succès');
-            return newWallet;
+            await get().fetchWallets(accountId, 1, get().currentFilters);
+
+            Alert.alert('Succès', 'Wallet créé avec succès');
+
+            set({ isCreating: false });
+            return response.data;
         } catch (error: any) {
-            console.error(' Erreur createWallet:', error?.response?.data || error.message);
-            set({
-                isCreating: false,
-                error: 'Impossible de créer le portefeuille'
-            });
-            Alert.alert('Erreur', 'Impossible de créer le portefeuille');
+            console.error(' Erreur createWallet:', error?.response?.data || error);
+            set({ isCreating: false, error: 'Erreur de création' });
+            Alert.alert('Erreur', error?.response?.data?.message || 'Impossible de créer le wallet');
             return null;
         }
     },
 
-
     updateWallet: async (accountId, id, walletData) => {
-        if (!accountId || !id) {
-            console.error('updateWallet: accountId ou id manquant');
-            return null;
-        }
+        if (!accountId || !id) return null;
 
         set(state => ({
             isUpdating: { ...state.isUpdating, [id]: true },
@@ -159,24 +181,33 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
         }));
 
         try {
-            console.log(` Mise à jour du wallet: ${id}`);
+            const existingWallet = get().wallets.find(w => w.id === id);
+            if (!existingWallet) throw new Error('Wallet non trouvé');
+
+            console.log(' Mise à jour wallet:', { id, ...walletData });
+
             const response = await walletAPI.update(accountId, id, {
                 id,
                 accountId,
-                ...walletData
+                name: walletData.name ?? existingWallet.name,
+                description: walletData.description ?? existingWallet.description,
+                type: walletData.type ?? existingWallet.type,
+                color: walletData.color ?? existingWallet.color,
+                iconRef: walletData.iconRef ?? existingWallet.iconRef,
+                isActive: walletData.isActive ?? existingWallet.isActive
             });
 
-            const updatedWallet = response.data;
-            console.log(' Wallet modifié:', updatedWallet);
-
+            console.log(' Wallet modifié:', response.data);
 
             set(state => {
                 const index = state.wallets.findIndex(w => w.id === id);
                 const newWallets = [...state.wallets];
                 if (index !== -1) {
-                    newWallets[index] = updatedWallet;
+                    newWallets[index] = {
+                        ...response.data,
+                        _showDetails: state.wallets[index]._showDetails
+                    };
                 }
-
                 const newIsUpdating = { ...state.isUpdating };
                 delete newIsUpdating[id];
 
@@ -186,42 +217,66 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
                 };
             });
 
-            Alert.alert('Succès', 'Portefeuille modifié avec succès');
-            return updatedWallet;
+            Alert.alert('Succès', 'Wallet modifié avec succès');
+            return response.data;
         } catch (error: any) {
-            console.error(' Erreur updateWallet:', error?.response?.data || error.message);
+            console.error(' Erreur updateWallet:', error?.response?.data || error);
             set(state => {
                 const newIsUpdating = { ...state.isUpdating };
                 delete newIsUpdating[id];
                 return {
                     isUpdating: newIsUpdating,
-                    error: 'Impossible de modifier le portefeuille'
+                    error: 'Erreur de modification'
                 };
             });
-            Alert.alert('Erreur', 'Impossible de modifier le portefeuille');
+            Alert.alert('Erreur', error?.response?.data?.message || 'Impossible de modifier le wallet');
             return null;
         }
     },
-
 
     toggleWalletActive: async (accountId, id, isActive) => {
         return get().updateWallet(accountId, id, { isActive: !isActive });
     },
 
+    archiveWallet: async (accountId: string, id: string, name: string) => {
+        Alert.alert(
+            'Archiver',
+            `Archiver "${name}" ?`,
+            [
+                { text: 'Annuler' },
+                {
+                    text: 'Archiver',
+                    onPress: async () => {
+                        set(state => ({
+                            wallets: state.wallets.map(w =>
+                            w.id === id ? { ...w, _isArchiving: true } : w
+                            )
+                        }));
+
+                        try {
+                            await walletAPI.archive(accountId, id);
+                            set(state => ({
+                                wallets: state.wallets.filter(w => w.id !== id)
+                            }));
+                            Alert.alert('Succès', 'Wallet archivé');
+                        } catch (error) {
+                            set(state => ({
+                                wallets: state.wallets.map(w =>
+                                w.id === id ? { ...w, _isArchiving: false } : w
+                                )
+                            }));
+                            Alert.alert('Erreur', "Impossible d'archiver");
+                        }
+                    }
+                }
+            ]
+        );
+    },
 
     updateAutomaticIncome: async (accountId, walletId, incomeData) => {
-        if (!accountId || !walletId) {
-            console.error('updateAutomaticIncome: accountId ou walletId manquant');
-            return null;
-        }
-
+        if (!accountId || !walletId) return null;
         if (!incomeData.amount || incomeData.amount <= 0) {
             Alert.alert('Erreur', 'Montant invalide');
-            return null;
-        }
-
-        if (incomeData.paymentDay < 1 || incomeData.paymentDay > 31) {
-            Alert.alert('Erreur', 'Le jour doit être entre 1 et 31');
             return null;
         }
 
@@ -231,24 +286,21 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
         }));
 
         try {
-            console.log(` Configuration revenu auto pour wallet: ${walletId}`);
-            const response = await walletAPI.updateAutomaticIncome(accountId, walletId, {
-                type: 'MENSUAL',
-                amount: incomeData.amount,
-                paymentDay: incomeData.paymentDay
-            });
+            console.log('📤 Configuration revenu auto:', incomeData);
 
-            const updatedWallet = response.data;
-            console.log(' Revenu automatique configuré:', updatedWallet);
+            const response = await walletAPI.updateAutomaticIncome(accountId, walletId, incomeData);
 
+            console.log(' Revenu auto configuré:', response.data);
 
             set(state => {
                 const index = state.wallets.findIndex(w => w.id === walletId);
                 const newWallets = [...state.wallets];
                 if (index !== -1) {
-                    newWallets[index] = updatedWallet;
+                    newWallets[index] = {
+                        ...response.data,
+                        _showDetails: state.wallets[index]._showDetails
+                    };
                 }
-
                 const newIsUpdatingIncome = { ...state.isUpdatingIncome };
                 delete newIsUpdatingIncome[walletId];
 
@@ -258,23 +310,22 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
                 };
             });
 
-            Alert.alert('Succès', 'Revenu automatique configuré avec succès');
-            return updatedWallet;
+            Alert.alert('Succès', 'Revenu automatique configuré');
+            return response.data;
         } catch (error: any) {
-            console.error(' Erreur updateAutomaticIncome:', error?.response?.data || error.message);
+            console.error(' Erreur updateAutomaticIncome:', error?.response?.data || error);
             set(state => {
                 const newIsUpdatingIncome = { ...state.isUpdatingIncome };
                 delete newIsUpdatingIncome[walletId];
                 return {
                     isUpdatingIncome: newIsUpdatingIncome,
-                    error: 'Fonctionnalité Premium requise'
+                    error: 'Erreur de configuration Premium'
                 };
             });
-            Alert.alert('Erreur', 'Fonctionnalité Premium requise');
+            Alert.alert('Erreur', error?.response?.data?.message || 'Fonctionnalité Premium requise');
             return null;
         }
     },
-
 
     toggleWalletDetails: (id: string) => {
         set(state => {
@@ -282,11 +333,10 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
             if (index === -1) return state;
 
             const newWallets = [...state.wallets];
-            const wallet = { ...newWallets[index] };
-
-
-            (wallet as any)._showDetails = !(wallet as any)._showDetails;
-            newWallets[index] = wallet;
+            newWallets[index] = {
+                ...newWallets[index],
+                _showDetails: !newWallets[index]._showDetails
+            };
 
             return { wallets: newWallets };
         });
@@ -295,7 +345,6 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     getWalletById: (id: string) => {
         return get().wallets.find(w => w.id === id);
     },
-
 
     getTotalBalance: () => {
         return get().wallets.reduce((sum, w) => sum + (w.amount || 0), 0);
@@ -309,20 +358,21 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
         return get().wallets.filter(w => !w.isActive).length;
     },
 
-
     getWalletsByType: (type: WalletType) => {
         return get().wallets.filter(w => w.type === type);
     },
-
 
     clearError: () => set({ error: null }),
 
                                                                  reset: () => set({
                                                                      wallets: [],
+                                                                     pagination: null,
                                                                      isLoading: false,
+                                                                     isLoadingMore: false,
                                                                      isCreating: false,
                                                                      isUpdating: {},
                                                                      isUpdatingIncome: {},
-                                                                     error: null
+                                                                     error: null,
+                                                                     currentFilters: {}
                                                                  })
 }));

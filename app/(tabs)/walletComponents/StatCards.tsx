@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
@@ -12,6 +12,11 @@ interface Props {
 
 export const StatCards = ({ totalBalance, activeCount, inactiveCount }: Props) => {
     const { theme } = useTheme();
+
+
+    useEffect(() => {
+        console.log('📊 StatCards reçoit:', { totalBalance, activeCount, inactiveCount });
+    }, [totalBalance, activeCount, inactiveCount]);
 
     const StatCard = ({ title, value, icon, color }: { title: string; value: string; icon: keyof typeof MaterialIcons.glyphMap; color: string }) => (
         <View className={`flex-1 ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mx-1`}>

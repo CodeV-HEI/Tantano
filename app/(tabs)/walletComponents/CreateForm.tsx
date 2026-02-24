@@ -2,28 +2,69 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import { WalletType } from '@/stores/useWalletStore';
+import { WalletType } from '@/types/wallet';
+import { WALLET_COLOR_PALETTE } from '@/types/wallet';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 interface Props {
-    onCreate: (name: string, description: string, type: WalletType) => Promise<void>;
+    onCreate: (name: string, description: string, type: WalletType, color: string) => Promise<void>;
     isCreating: boolean;
     onCancel: () => void;
     getWalletTypeStyle: (type: WalletType) => any;
 }
+
+
+const ColorPicker = ({ selectedColor, onSelectColor }: { selectedColor: string; onSelectColor: (color: string) => void }) => {
+    const { theme } = useTheme();
+
+    return (
+        <View className="mb-4">
+        <Text className={`text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+        Couleur du portefeuille
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+        {WALLET_COLOR_PALETTE.map((color) => (
+            <TouchableOpacity
+            key={color}
+            onPress={() => onSelectColor(color)}
+            className="mr-3 items-center"
+            >
+            <View
+            className={`w-10 h-10 rounded-full border-2 ${
+                selectedColor === color
+                ? 'border-cyan-500 scale-110'
+                : 'border-transparent'
+            }`}
+            style={{ backgroundColor: color }}
+            >
+            {selectedColor === color && (
+                <View className="absolute inset-0 items-center justify-center">
+                <MaterialIcons name="check" size={20} color="white" />
+                </View>
+            )}
+            </View>
+            </TouchableOpacity>
+        ))}
+        </ScrollView>
+        </View>
+    );
+};
 
 export const CreateForm = ({ onCreate, isCreating, onCancel, getWalletTypeStyle }: Props) => {
     const { theme } = useTheme();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [type, setType] = useState<WalletType>('CASH');
+    const [selectedColor, setSelectedColor] = useState(WALLET_COLOR_PALETTE[0]);
 
     const handleSubmit = async () => {
         if (!name.trim()) return;
-        await onCreate(name.trim(), description.trim(), type);
+        console.log(' Création wallet avec couleur:', selectedColor);
+        await onCreate(name.trim(), description.trim(), type, selectedColor);
         setName('');
         setDescription('');
         setType('CASH');
+        setSelectedColor(WALLET_COLOR_PALETTE[0]);
     };
 
     return (
@@ -54,6 +95,10 @@ export const CreateForm = ({ onCreate, isCreating, onCancel, getWalletTypeStyle 
         editable={!isCreating}
         />
 
+
+        <Text className={`text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+        Type de portefeuille
+        </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
         {(['CASH', 'MOBILE_MONEY', 'BANK', 'DEBT'] as WalletType[]).map((walletType) => {
             const style = getWalletTypeStyle(walletType);
@@ -79,6 +124,28 @@ export const CreateForm = ({ onCreate, isCreating, onCancel, getWalletTypeStyle 
             );
         })}
         </ScrollView>
+
+
+        <ColorPicker
+        selectedColor={selectedColor}
+        onSelectColor={setSelectedColor}
+        />
+
+
+        <View
+        className="flex-row items-center p-3 rounded-xl mb-4"
+        style={{ backgroundColor: selectedColor + '20' }}
+        >
+        <View className="w-8 h-8 rounded-lg mr-3" style={{ backgroundColor: selectedColor }} />
+        <View className="flex-1">
+        <Text className={`text-base font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+        {name || "Nom du portefeuille"}
+        </Text>
+        <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+        {type.replace('_', ' ')} • Aperçu
+        </Text>
+        </View>
+        </View>
 
         <View className="flex-row justify-end">
         <TouchableOpacity

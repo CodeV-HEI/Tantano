@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import { Wallet } from '@/stores/useWalletStore';
+import { Wallet } from '@/types/wallet';
 
 interface Props {
-    wallet: Wallet;
+    wallet: Wallet & { _isArchiving?: boolean; _showDetails?: boolean };
     style: any;
     isUpdating: boolean;
     isUpdatingIncome: boolean;
@@ -15,6 +15,7 @@ interface Props {
     onToggleDetails: () => void;
     onToggleActive: () => void;
     onToggleIncomeForm: () => void;
+    onArchive?: () => void;
     children?: React.ReactNode;
 }
 
@@ -29,9 +30,32 @@ export const WalletCard = ({
     onToggleDetails,
     onToggleActive,
     onToggleIncomeForm,
+    onArchive,
     children
 }: Props) => {
     const { theme } = useTheme();
+
+
+    if (wallet._isArchiving) {
+        return (
+            <View className="relative mb-3 opacity-50">
+            <View className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-2xl p-4 border border-gray-300 dark:border-gray-700`}>
+            <View className="flex-row items-center">
+            <View className="w-12 h-12 rounded-xl mr-3" style={{ backgroundColor: wallet.color }} />
+            <View className="flex-1">
+            <Text className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            {wallet.name}
+            </Text>
+            </View>
+            <View className="flex-row items-center">
+            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+            <Text className="ml-2 text-xs text-gray-500">Archivage...</Text>
+            </View>
+            </View>
+            </View>
+            </View>
+        );
+    }
 
     return (
         <View className="relative mb-3">
@@ -51,8 +75,15 @@ export const WalletCard = ({
         }`}>
         <View className="flex-row items-center">
 
-        <View className={`w-12 h-12 rounded-xl ${style.bg} items-center justify-center mr-3`}>
-        <MaterialIcons name={style.icon} size={24} color={style.text} />
+        <View
+        className="w-12 h-12 rounded-xl items-center justify-center mr-3"
+        style={{ backgroundColor: wallet.color }}
+        >
+        <MaterialIcons
+        name={style.icon}
+        size={24}
+        color="white"
+        />
         </View>
 
         <View className="flex-1">
@@ -84,15 +115,15 @@ export const WalletCard = ({
         <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
         {wallet.amount.toLocaleString('fr-FR')} Ar
         </Text>
-        <View className={`px-3 py-1 rounded-full ${style.bg}`}>
-        <Text className={`text-xs font-bold ${style.text}`}>
+        <View className={`px-3 py-1 rounded-full`} style={{ backgroundColor: wallet.color + '30' }}>
+        <Text className={`text-xs font-bold`} style={{ color: wallet.color }}>
         {wallet.type.replace('_', ' ')}
         </Text>
         </View>
         </View>
         </View>
 
-        {/* Expand icon */}
+
         <MaterialIcons
         name={isExpanded ? 'expand-less' : 'expand-more'}
         size={24}
@@ -102,9 +133,10 @@ export const WalletCard = ({
         </View>
         </TouchableOpacity>
 
+
         {isExpanded && (
             <View className={`mt-2 ${theme === 'dark' ? 'bg-gray-800/30' : 'bg-gray-50'} rounded-2xl p-4 border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-            {/* Actions */}
+
             <View className="flex-row mb-4">
             <TouchableOpacity
             onPress={onToggleActive}
@@ -149,6 +181,19 @@ export const WalletCard = ({
             </Text>
             </TouchableOpacity>
             </View>
+
+
+            {onArchive && (
+                <TouchableOpacity
+                onPress={onArchive}
+                className="flex-row items-center justify-center p-3 rounded-xl bg-red-500/10 border border-red-500/30"
+                >
+                <MaterialIcons name="archive" size={20} color={theme === 'dark' ? '#f87171' : '#dc2626'} />
+                <Text className={`ml-2 font-medium ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>
+                Archiver ce portefeuille
+                </Text>
+                </TouchableOpacity>
+            )}
 
             {children}
             </View>

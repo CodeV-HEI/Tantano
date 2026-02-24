@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import { Wallet } from '@/stores/useWalletStore';
+import { Wallet } from '@/types/wallet';
 import { WalletCard } from './WalletCard';
 import { IncomeForm } from './IncomeForm';
 import { IncomeDisplay } from './IncomeDisplay';
@@ -20,6 +20,7 @@ interface Props {
     onToggleActive: (id: string, isActive: boolean) => void;
     onToggleIncomeForm: (id: string | null) => void;
     onUpdateIncome: (walletId: string, amount: number, day: number) => Promise<void>;
+    onArchiveWallet?: (id: string, name: string) => void;  // Nouveau !
     getWalletTypeStyle: (type: Wallet['type']) => any;
 }
 
@@ -36,6 +37,7 @@ export const WalletList = ({
     onToggleActive,
     onToggleIncomeForm,
     onUpdateIncome,
+    onArchiveWallet,
     getWalletTypeStyle
 }: Props) => {
     const { theme } = useTheme();
@@ -91,6 +93,7 @@ export const WalletList = ({
                 onToggleDetails={() => onToggleDetails(wallet.id)}
                 onToggleActive={() => onToggleActive(wallet.id, wallet.isActive)}
                 onToggleIncomeForm={() => onToggleIncomeForm(isShowingIncomeForm ? null : wallet.id)}
+                onArchive={onArchiveWallet ? () => onArchiveWallet(wallet.id, wallet.name) : undefined}
                 >
                 {isShowingIncomeForm ? (
                     <IncomeForm
