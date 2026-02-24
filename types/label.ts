@@ -1,19 +1,17 @@
-// 📁 types/label.ts
 export interface Label {
     id: string;
     name: string;
-    color: string;        // Nouveau !
-    iconRef?: string;      // Nouveau (optionnel)
+    color: string;
+    iconRef?: string;
 }
 
 export interface LabelWithUI extends Label {
     _isDeleting?: boolean;
     _isUpdating?: boolean;
-    _isArchiving?: boolean;  // Nouveau pour l'archive
+    _isArchiving?: boolean;
 }
 
 
-// Palette de couleurs pour les nouveaux labels
 export const COLOR_PALETTE = [
     '#FF6B6B', // Rouge
 '#4ECDC4', // Turquoise
@@ -30,9 +28,9 @@ export const COLOR_PALETTE = [
 ];
 
 export const DEFAULT_LABELS = [
-    { name: 'NOURRITURE', color: '#FF6B6B' },     // Rouge
-{ name: 'TRANSPORT', color: '#4ECDC4' },      // Turquoise
-{ name: 'LOISIRS', color: '#FFD93D' }         // Jaune
+    { name: 'NOURRITURE', color: '#FF6B6B' },
+{ name: 'TRANSPORT', color: '#4ECDC4' },
+{ name: 'LOISIRS', color: '#FFD93D' }
 ];
 
 export const isDefaultLabel = (name: string): boolean => {
