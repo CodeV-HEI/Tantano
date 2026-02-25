@@ -135,6 +135,12 @@ export default function FormTrasansction() {
         <Text className="text-xs text-gray-400 mb-2">Wallet</Text>
         <Dropdown
           style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          containerStyle={{
+            borderRadius: 20,
+            padding: 8,
+          }}
           data={wallets}
           labelField="name"
           valueField="id"
@@ -142,52 +148,114 @@ export default function FormTrasansction() {
           value={valueWallet?.id}
           onChange={(item: Wallet) => setValueWallet(item)}
           renderItem={(item) => (
-            <View style={styles.itemStyle}>
-              {item.iconRef ? (
-                <Image
-                  source={{ uri: item.iconRef }}
-                  style={{ width: 20, height: 20, marginRight: 10 }}
-                />
-              ) : (
-                <MaterialIcons name="wallet" size={20} color="#A74BCA" />
-              )}
+            <View
+              style={[
+                styles.itemStyle,
+                valueWallet?.id === item.id && styles.selectedItem,
+              ]}
+            >
+              <View
+                style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+              >
+                {item.iconRef ? (
+                  <Image
+                    source={{ uri: item.iconRef }}
+                    style={{ width: 22, height: 22, marginRight: 12 }}
+                  />
+                ) : (
+                  <MaterialIcons
+                    name="account-balance-wallet"
+                    size={22}
+                    color="#7C3AED"
+                  />
+                )}
 
-              <Text style={styles.itemTextStyle}>{item.name}</Text>
-              {selectedLabels.includes(item.id) && (
-                <MaterialIcons name="check" size={20} color="#6200EE" />
+                <Text style={styles.itemTextStyle}>{item.name}</Text>
+              </View>
+
+              {valueWallet?.id === item.id && (
+                <MaterialIcons name="check-circle" size={20} color="#7C3AED" />
               )}
             </View>
           )}
         />
 
         {/* Labels */}
-        <Text className="text-xs text-gray-400 mb-2">Catégories</Text>
+        <Text className="text-xs text-gray-400 mb-2">Etiquette</Text>
         <MultiSelect
           style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          containerStyle={{
+            borderRadius: 20,
+            padding: 8,
+          }}
           data={labels}
           labelField="name"
           valueField="id"
-          placeholder="Choisir les Etiquettes"
+          placeholder="Choisir des étiquettes"
           value={selectedLabels}
           onChange={(items: string[]) => setSelectedLabels(items)}
-          renderItem={(item) => (
-            <View style={styles.itemStyle}>
-              {item.iconRef ? (
-                <Image
-                  source={{ uri: item.iconRef }}
-                  style={{ width: 20, height: 20, marginRight: 10 }}
-                />
-              ) : (
-                <MaterialIcons name="label" size={20} color="#A74BCA" />
-              )}
-
-              <Text style={styles.itemTextStyle}>{item.name}</Text>
-              {/* Check si sélectionné */}
-              {selectedLabels.includes(item.id) && (
-                <MaterialIcons name="check" size={20} color="#6200EE" />
-              )}
+          renderSelectedItem={(item) => (
+            <View>
+              <View
+                key={item.id}
+                className="p-4 mx-4 my-2 rounded-lg flex-row items-center"
+                style={{ backgroundColor: item.color + "22" }}
+              >
+                {item.iconRef ? (
+                  <Image
+                    source={{ uri: item.iconRef }}
+                    style={{ width: 16, height: 16, marginRight: 8 }}
+                  />
+                ) : (
+                  <MaterialIcons
+                    name="label"
+                    size={16}
+                    color={item.color}
+                    style={{ marginRight: 8 }}
+                  />
+                )}
+                <Text className="text-xs font-semibold">{item.name}</Text>
+              </View>
             </View>
           )}
+          renderItem={(item) => {
+            const isSelected = selectedLabels.includes(item.id);
+
+            return (
+              <View
+                style={[styles.itemStyle, isSelected && styles.selectedItem]}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    flex: 1,
+                  }}
+                >
+                  <MaterialIcons
+                    name="label"
+                    size={20}
+                    color={isSelected ? "#7C3AED" : "#9CA3AF"}
+                  />
+
+                  <Text
+                    style={[
+                      styles.itemTextStyle,
+                      { color: isSelected ? "#6D28D9" : "#374151" },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+
+                {isSelected && (
+                  <MaterialIcons name="check" size={20} color="#7C3AED" />
+                )}
+              </View>
+            );
+          }}
         />
 
         {/* Type */}
@@ -212,7 +280,16 @@ export default function FormTrasansction() {
                 size={20}
                 color={item.id === TransactionType.IN ? "green" : "red"}
               />
-              <Text style={styles.itemTextStyle}>{item.name}</Text>
+              <Text
+                style={styles.itemTextStyle}
+                className={
+                  item.id === TransactionType.IN
+                    ? "text-green-500"
+                    : "text-red-500"
+                }
+              >
+                {item.name}
+              </Text>
               {/* Check si sélectionné */}
               {item.id === type && (
                 <MaterialIcons name="check" size={20} color="#6200EE" />
@@ -260,30 +337,52 @@ export default function FormTrasansction() {
 
 const styles = StyleSheet.create({
   dropdown: {
-    height: 55,
-    backgroundColor: "#FFF",
-    borderColor: "#E0E0E0",
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    marginBottom: 25,
+    height: 60,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    marginBottom: 22,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
+
+  dropdownFocused: {
+    borderColor: "#7C3AED",
+    shadowOpacity: 0.15,
+  },
+
   itemStyle: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 14,
   },
+
+  selectedItem: {
+    backgroundColor: "#F3E8FF",
+  },
+
   itemTextStyle: {
-    fontSize: 16,
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "500",
     flex: 1,
-    marginLeft: 10, // espace entre icône et texte
+    marginLeft: 12,
   },
-  selectedStyle: {
-    borderRadius: 10,
-    backgroundColor: "#E3F2FD",
+
+  placeholderStyle: {
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+
+  selectedTextStyle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#111827",
   },
 });
