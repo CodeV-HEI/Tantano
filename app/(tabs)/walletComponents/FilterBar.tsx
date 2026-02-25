@@ -1,5 +1,6 @@
+
 import { useTheme } from '@/context/ThemeContext';
-import { WalletType } from '@/types/wallet';
+import { WalletType } from '@/types/api';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
@@ -23,7 +24,6 @@ export const FilterBar = ({
     return (
         <View className="flex-row justify-between mb-4">
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
-                {/* Bouton TOUS */}
                 <TouchableOpacity
                     onPress={() => onFilterTypeChange('ALL')}
                     className={`mr-2 px-4 py-2 rounded-full border ${
@@ -45,7 +45,6 @@ export const FilterBar = ({
                     </Text>
                 </TouchableOpacity>
 
-                {/* Boutons par type */}
                 {(['CASH', 'MOBILE_MONEY', 'BANK', 'DEBT'] as WalletType[]).map((type) => {
                     const style = getWalletTypeStyle(type);
                     return (
@@ -70,7 +69,6 @@ export const FilterBar = ({
                 })}
             </ScrollView>
 
-            {/* Bouton Actif/Inactif - CORRIGÉ */}
             <TouchableOpacity
                 onPress={onShowInactiveChange}
                 className={`px-4 py-2 rounded-full border ${
