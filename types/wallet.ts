@@ -1,4 +1,4 @@
-export type WalletType = 'CASH' | 'MOBILE_MONEY' | 'BANK' | 'DEBT';
+import { WalletType } from "./api";
 
 export interface Wallet {
     id: string;
