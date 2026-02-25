@@ -1,34 +1,20 @@
-import FilterTransaction from "@/components/FilterTransaction";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
-import { useRef, useState } from "react";
-import { Animated, Dimensions, Easing, Text, View } from "react-native";
-import { Menu, Provider } from "react-native-paper";
+import { Stack, useRouter } from "expo-router";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import { Provider } from "react-native-paper";
 
 const { height } = Dimensions.get("window");
 
 export default function Layout() {
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [filterVisible, setFilterVisible] = useState(false);
-  const translateY = useRef(new Animated.Value(height)).current;
+  const { logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
 
-  const openFilter = () => {
-    setFilterVisible(true);
-    Animated.timing(translateY, {
-      toValue: height / 3,
-      duration: 300,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const closeFilter = () => {
-    Animated.timing(translateY, {
-      toValue: height,
-      duration: 300,
-      easing: Easing.in(Easing.ease),
-      useNativeDriver: true,
-    }).start(() => setFilterVisible(false));
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
   };
 
   return (
@@ -49,76 +35,25 @@ export default function Layout() {
             </View>
           ),
           headerRight: () => (
-            <Menu
-              visible={menuVisible}
-              onDismiss={() => setMenuVisible(false)}
-              anchor={
+            <View className="flex-row items-center mr-4">
+              <TouchableOpacity onPress={toggleTheme} className="mr-4">
                 <MaterialIcons
-                  name="more-vert"
-                  size={26}
-                  color="#A74BCA"
-                  onPress={() => setMenuVisible(true)}
+                  name={theme === "dark" ? "light-mode" : "dark-mode"}
+                  size={24}
+                  color={theme === "dark" ? "#06b6d4" : "#A74BCA"}
                 />
-              }
-              contentStyle={{ backgroundColor: "white", borderRadius: 8 }}
-            >
-              <Menu.Item
-                leadingIcon={(props) => (
-                  <MaterialIcons
-                    name="filter-list"
-                    size={props.size}
-                    color="#A74BCA"
-                  />
-                )}
-                onPress={() => {
-                  setMenuVisible(false);
-                  openFilter();
-                }}
-                title="Filtrer"
-                titleStyle={{ color: "#A74BCA", fontWeight: "bold" }}
-              />
-              <Menu.Item
-                leadingIcon={(props) => (
-                  <MaterialIcons
-                    name="add-circle-outline"
-                    size={props.size}
-                    color="#A74BCA"
-                  />
-                )}
-                onPress={() => {
-                  setMenuVisible(false);
-                  router.push("/transactions/create");
-                }}
-                title="Créer"
-                titleStyle={{ color: "#A74BCA", fontWeight: "bold" }}
-              />
-            </Menu>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout}>
+                <MaterialIcons
+                  name="logout"
+                  size={24}
+                  color={theme === "dark" ? "#06b6d4" : "#0891b2"}
+                />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
-
-      {filterVisible && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: height * 0.4,
-            backgroundColor: "white",
-            borderTopLeftRadius: 25,
-            borderTopRightRadius: 25,
-            zIndex: 1000,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: -3 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 10,
-          }}
-        >
-          <FilterTransaction onClose={closeFilter} />
-        </Animated.View>
-      )}
     </Provider>
   );
 }

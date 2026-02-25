@@ -54,7 +54,7 @@ export default function Index() {
   }, [accountId, filter]);
 
   return (
-    <View>
+    <View className="flex-1">
       <ListTransaction />
     </View>
   );
