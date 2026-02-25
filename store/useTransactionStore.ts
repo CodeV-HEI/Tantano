@@ -11,6 +11,7 @@ import { create } from "zustand";
 
 interface TransactionStore {
   transactions: Transaction[];
+  isloaded: boolean;
   filter: TransactionFilter;
   setTransactions: (transactions: Transaction[]) => void;
   setFilter: (filter: Partial<TransactionFilter>) => void;
@@ -44,6 +45,7 @@ interface TransactionStore {
 
 export const useTransactionStore = create<TransactionStore>((set) => ({
   transactions: [],
+  isloaded: false,
   setTransactions: (transactions) => set({ transactions }),
   filter: {
     walletId: undefined,
@@ -65,6 +67,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
     })),
   getAllTransactions: async (accountId: string, params?: any) => {
     try {
+      set({ isloaded: true });
       const response: Transaction[] = await transactionAPI
         .getAll(accountId!, {
           walletId: params.walletId,
@@ -95,6 +98,8 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         text1: "Erreur de chargement",
         text2: "Impossible de charger les transactions. Veuillez réessayer.",
       });
+    } finally {
+      set({ isloaded: false });
     }
   },
   transactionOne: undefined,
