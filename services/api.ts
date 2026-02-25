@@ -1,22 +1,22 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    LoginRequest,
-    RegisterRequest,
-    UserWithToken,
-    Wallet,
-    CreationWallet,
-    UpdateWallet,
-    Transaction,
-    CreationTransaction,
-    Label,
     CreationLabel,
-    WalletAutomaticIncome,
+    CreationTransaction,
+    CreationWallet,
+    Label,
+    LoginRequest,
     PaginatedLabels,
     PaginatedWallets,
-    WalletType,
-    User
+    RegisterRequest,
+    Transaction,
+    UpdateWallet,
+    User,
+    UserWithToken,
+    Wallet,
+    WalletAutomaticIncome,
+    WalletType
 } from '@/types/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const API_URL = process.env.API_BASE_URL || 'https://tantano-api.onrender.com';
 
@@ -73,7 +73,6 @@ export const authAPI = {
     healthCheck: () =>
         api.get('/health'),
 };
-
 export const walletAPI = {
     getAll: (accountId: string, params?: {
         name?: string;
@@ -92,8 +91,10 @@ export const walletAPI = {
 
     updateAutomaticIncome: (accountId: string, walletId: string, data: WalletAutomaticIncome) =>
         apiWithRetry(() => api.put<Wallet>(`/account/${accountId}/wallet/${walletId}/automaticIncome`, data)),
-};
 
+    archive: (accountId: string, walletId: string) =>
+        apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet/${walletId}/archive`)),
+};
 export const transactionAPI = {
     getAll: (accountId: string, walletId: string) =>
         apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`)),
