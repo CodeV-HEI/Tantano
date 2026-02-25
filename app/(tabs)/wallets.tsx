@@ -1,31 +1,28 @@
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { useWalletStore } from '@/stores/useWalletStore';
+import { WalletType } from '@/types/api';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Text,
-    View,
-    ScrollView,
+    ActivityIndicator,
     RefreshControl,
+    ScrollView,
     StatusBar,
-    Alert,
-    ActivityIndicator
+    Text,
+    View
 } from 'react-native';
-import { useTheme } from '@/context/ThemeContext';
-import { useAuth } from '@/context/AuthContext';
-import { useWalletStore, WalletType } from '@/stores/useWalletStore';
-import { useRouter } from 'expo-router';
-
-
-import { Header } from './walletComponents/Header';
-import { StatCards } from './walletComponents/StatCards';
-import { FilterBar } from './walletComponents/FilterBar';
 import { CreateForm } from './walletComponents/CreateForm';
-import { WalletList } from './walletComponents/WalletList';
+import { FilterBar } from './walletComponents/FilterBar';
+import { Header } from './walletComponents/Header';
 import { SearchBar } from './walletComponents/SearchBar';
+import { StatCards } from './walletComponents/StatCards';
+import { WalletList } from './walletComponents/WalletList';
 
 export default function WalletsScreen() {
     const { theme } = useTheme();
     const { user } = useAuth();
     const router = useRouter();
-
 
     const {
         wallets,
@@ -41,12 +38,11 @@ export default function WalletsScreen() {
         toggleWalletActive,
         updateAutomaticIncome,
         toggleWalletDetails,
-        archiveWallet,  // Nouveau !
+        archiveWallet,
         getTotalBalance,
         getActiveCount,
         getInactiveCount
     } = useWalletStore();
-
 
     const [refreshing, setRefreshing] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
@@ -59,7 +55,6 @@ export default function WalletsScreen() {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
     }, [theme]);
 
-
     useEffect(() => {
         if (user?.id) {
             console.log(' Chargement initial des wallets');
@@ -70,16 +65,18 @@ export default function WalletsScreen() {
     useEffect(() => {
         const searchTimeout = setTimeout(() => {
             if (user?.id) {
-                console.log(' Recherche avec filtre:', {
+                const isActiveValue = !showInactive ? true : false;
+
+                console.log(' Appel API avec filtres:', {
                     name: searchQuery || undefined,
                     type: filterType !== 'ALL' ? filterType : undefined,
-                    isActive: showInactive ? undefined : true
+                    isActive: isActiveValue
                 });
 
                 fetchWallets(user.id, 1, {
                     name: searchQuery || undefined,
                     type: filterType !== 'ALL' ? filterType : undefined,
-                    isActive: showInactive ? undefined : true
+                    isActive: isActiveValue
                 });
             }
         }, 500);
@@ -90,10 +87,11 @@ export default function WalletsScreen() {
     const onRefresh = async () => {
         setRefreshing(true);
         if (user?.id) {
+            const isActiveValue = !showInactive ? true : false;
             await fetchWallets(user.id, 1, {
                 name: searchQuery || undefined,
                 type: filterType !== 'ALL' ? filterType : undefined,
-                isActive: showInactive ? undefined : true
+                isActive: isActiveValue
             });
         }
         setRefreshing(false);
@@ -101,7 +99,7 @@ export default function WalletsScreen() {
 
     const handleCreateWallet = async (name: string, description: string, type: WalletType, color: string) => {
         if (!user?.id) return;
-        console.log('🎨 Création wallet avec couleur:', color);
+        console.log('Création wallet avec couleur:', color);
         const created = await createWallet(user.id, { name, description, type, color });
         if (created) {
             setShowAddForm(false);
@@ -134,16 +132,15 @@ export default function WalletsScreen() {
 
     const handleLoadMore = () => {
         if (user?.id && pagination?.hasNext && !isLoadingMore && !searchQuery) {
-            console.log('Chargement de plus de wallets...');
+            console.log(' Chargement de plus de wallets...');
             loadMoreWallets(user.id);
         }
     };
 
-    const handleScroll = ({ nativeEvent }) => {
-        const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const handleScroll = ({ nativeEvent }: any) => {
+        const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
             const paddingToBottom = 100;
-            return layoutMeasurement.height + contentOffset.y >=
-            contentSize.height - paddingToBottom;
+            return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
         };
 
         if (isCloseToBottom(nativeEvent)) {
@@ -151,7 +148,7 @@ export default function WalletsScreen() {
         }
     };
 
-        const getWalletTypeStyle = (type: WalletType) => {
+    const getWalletTypeStyle = (type: WalletType) => {
         switch (type) {
             case 'CASH':
                 return {
@@ -193,20 +190,21 @@ export default function WalletsScreen() {
 
     const filteredWallets = wallets.filter(wallet => {
         if (!wallet || !wallet.id) return false;
-
-
-        // if (filterType !== 'ALL' && wallet.type !== filterType) return false;
-
-
-
+        if (filterType !== 'ALL' && wallet.type !== filterType) return false;
+        if (showInactive) {
+            if (wallet.isActive) return false;
+        } else {
+            if (!wallet.isActive) return false;
+        }
+        if (searchQuery && !wallet.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
+        }
         return true;
     });
-
 
     const totalBalance = wallets.reduce((sum, w) => sum + (w.amount || 0), 0);
     const activeCount = wallets.filter(w => w.isActive).length;
     const inactiveCount = wallets.filter(w => !w.isActive).length;
-
 
     useEffect(() => {
         console.log(' État actuel:', {
@@ -217,154 +215,143 @@ export default function WalletsScreen() {
             pagination,
             searchQuery,
             filterType,
-            showInactive
+            showInactive,
+            filteredCount: filteredWallets.length
         });
     }, [wallets, totalBalance, activeCount, inactiveCount, pagination, searchQuery, filterType, showInactive]);
 
     return (
         <ScrollView
-        className="flex-1 bg-white dark:bg-black"
-        refreshControl={
-            <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-            colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
-            />
-        }
-        onScroll={handleScroll}
-        scrollEventThrottle={400}
-        showsVerticalScrollIndicator={false}
+            className="flex-1 bg-white dark:bg-black"
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                    colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
+                />
+            }
+            onScroll={handleScroll}
+            scrollEventThrottle={400}
+            showsVerticalScrollIndicator={false}
         >
+            <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
+                rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+            <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
+                rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
-        <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
-        rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-        <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
-        rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+            <View className="px-4 pt-8 pb-8">
+                <Header
+                    showCreateForm={showAddForm}
+                    onToggleForm={() => {
+                        setShowAddForm(!showAddForm);
+                        setShowIncomeForm(null);
+                    }}
+                />
 
-        <View className="px-4 pt-8 pb-8">
+                {wallets.length > 0 && (
+                    <View className="mb-4">
+                        <SearchBar
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholder="Rechercher un portefeuille..."
+                        />
+                    </View>
+                )}
 
-        <Header
-        showCreateForm={showAddForm}
-        onToggleForm={() => {
-            setShowAddForm(!showAddForm);
-            setShowIncomeForm(null);
-        }}
-        />
+                {wallets.length > 0 && (
+                    <StatCards
+                        totalBalance={totalBalance}
+                        activeCount={activeCount}
+                        inactiveCount={inactiveCount}
+                    />
+                )}
 
+                <FilterBar
+                    filterType={filterType}
+                    onFilterTypeChange={setFilterType}
+                    showInactive={showInactive}
+                    onShowInactiveChange={() => setShowInactive(!showInactive)}
+                    getWalletTypeStyle={getWalletTypeStyle}
+                />
 
-        {wallets.length > 0 && (
-            <View className="mb-4">
-            <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Rechercher un portefeuille..."
-            />
+                {showAddForm && (
+                    <CreateForm
+                        onCreate={handleCreateWallet}
+                        isCreating={isCreating}
+                        onCancel={() => setShowAddForm(false)}
+                        getWalletTypeStyle={getWalletTypeStyle}
+                    />
+                )}
+
+                <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mt-4`}>
+                    <View className="flex-row justify-between items-center mb-4">
+                        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>
+                            MES PORTEFEUILLES
+                        </Text>
+                        <View className="flex-row items-center">
+                            <Text className={`text-sm mr-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {filteredWallets.length} / {wallets.length}
+                            </Text>
+                            {pagination && (
+                                <View className={`px-2 py-1 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'}`}>
+                                    <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                                        Page {pagination.page}/{pagination.totalPage}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+
+                    <WalletList
+                        wallets={wallets}
+                        filteredWallets={filteredWallets}
+                        isLoading={isLoading}
+                        isUpdating={isUpdating}
+                        isUpdatingIncome={isUpdatingIncome}
+                        showIncomeForm={showIncomeForm}
+                        filterType={filterType}
+                        showInactive={showInactive}
+                        onToggleDetails={toggleWalletDetails}
+                        onToggleActive={handleToggleActive}
+                        onToggleIncomeForm={handleToggleIncomeForm}
+                        onUpdateIncome={handleUpdateIncome}
+                        onArchiveWallet={handleArchiveWallet}
+                        getWalletTypeStyle={getWalletTypeStyle}
+                    />
+
+                    {isLoadingMore && (
+                        <View className="py-6 items-center">
+                            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                            <Text className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Chargement de plus de portefeuilles...
+                            </Text>
+                        </View>
+                    )}
+
+                    {pagination && !pagination.hasNext && wallets.length > 0 && !searchQuery && (
+                        <View className="py-4 items-center">
+                            <Text className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                                — Tu as vu tous tes portefeuilles —
+                            </Text>
+                        </View>
+                    )}
+
+                    {searchQuery && wallets.length === 0 && !isLoading && (
+                        <View className="py-10 items-center">
+                            <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Aucun portefeuille trouvé pour "{searchQuery}"
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                <View className="items-center mt-8">
+                    <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
+                        © {new Date().getFullYear()} Tantano - CodeV
+                    </Text>
+                </View>
             </View>
-        )}
-
-
-        {wallets.length > 0 && (
-            <StatCards
-            totalBalance={totalBalance}
-            activeCount={activeCount}
-            inactiveCount={inactiveCount}
-            />
-        )}
-
-
-        <FilterBar
-        filterType={filterType}
-        onFilterTypeChange={setFilterType}
-        showInactive={showInactive}
-        onShowInactiveChange={() => setShowInactive(!showInactive)}
-        getWalletTypeStyle={getWalletTypeStyle}
-        />
-
-
-        {showAddForm && (
-            <CreateForm
-            onCreate={handleCreateWallet}
-            isCreating={isCreating}
-            onCancel={() => setShowAddForm(false)}
-            getWalletTypeStyle={getWalletTypeStyle}
-            />
-        )}
-
-
-        <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mt-4`}>
-
-        <View className="flex-row justify-between items-center mb-4">
-        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>
-        MES PORTEFEUILLES
-        </Text>
-        <View className="flex-row items-center">
-        <Text className={`text-sm mr-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-        {wallets.length} au total
-        </Text>
-        {pagination && (
-            <View className={`px-2 py-1 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'}`}>
-            <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
-            Page {pagination.page}/{pagination.totalPage}
-            </Text>
-            </View>
-        )}
-        </View>
-        </View>
-
-        <WalletList
-        wallets={wallets}
-        filteredWallets={filteredWallets}
-        isLoading={isLoading}
-        isUpdating={isUpdating}
-        isUpdatingIncome={isUpdatingIncome}
-        showIncomeForm={showIncomeForm}
-        filterType={filterType}
-        showInactive={showInactive}
-        onToggleDetails={toggleWalletDetails}
-        onToggleActive={handleToggleActive}
-        onToggleIncomeForm={handleToggleIncomeForm}
-        onUpdateIncome={handleUpdateIncome}
-        onArchiveWallet={handleArchiveWallet}
-        getWalletTypeStyle={getWalletTypeStyle}
-        />
-
-
-        {isLoadingMore && (
-            <View className="py-6 items-center">
-            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-            <Text className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-            Chargement de plus de portefeuilles...
-            </Text>
-            </View>
-        )}
-
-
-        {pagination && !pagination.hasNext && wallets.length > 0 && !searchQuery && (
-            <View className="py-4 items-center">
-            <Text className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-            — Tu as vu tous tes portefeuilles —
-            </Text>
-            </View>
-        )}
-
-
-        {searchQuery && wallets.length === 0 && !isLoading && (
-            <View className="py-10 items-center">
-            <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-            Aucun portefeuille trouvé pour "{searchQuery}"
-            </Text>
-            </View>
-        )}
-        </View>
-
-
-        <View className="items-center mt-8">
-        <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
-        © {new Date().getFullYear()} Tantano - CodeV
-        </Text>
-        </View>
-        </View>
         </ScrollView>
     );
 }
