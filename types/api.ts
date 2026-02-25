@@ -1,3 +1,4 @@
+
 export interface Credentials {
     username: string;
     password: string;
@@ -24,8 +25,11 @@ export interface PaginationResult {
     hasPrev: boolean;
 }
 
+
 export interface CreationLabel {
     name: string;
+    color?: string;         
+    iconRef?: string;      
 }
 
 export interface Label extends CreationLabel {
@@ -37,6 +41,8 @@ export interface PaginatedLabels {
     values: Label[];
 }
 
+
+
 export enum WalletType {
     CASH = "CASH",
     MOBILE_MONEY = "MOBILE_MONEY",
@@ -44,21 +50,19 @@ export enum WalletType {
     DEBT = "DEBT"
 }
 
-export enum AutomaticIncomeType {
-    NOT_SPECIFIED = "NOT_SPECIFIED",
-    MENSUAL = "MENSUAL"
-}
+export type AutomaticIncomeType = 'NOT_SPECIFIED' | 'MENSUAL';
 
 export interface WalletAutomaticIncome {
     type: AutomaticIncomeType;
-    amount?: number;
-    paymentDay?: number;
+    amount?: number;       
 }
 
 export interface CreationWallet {
     name: string;
     description?: string;
     type: WalletType;
+    color?: string;       
+    iconRef?: string;      
 }
 
 export interface UpdateWallet extends CreationWallet {
@@ -76,6 +80,8 @@ export interface PaginatedWallets {
     pagination: PaginationResult;
     values: Wallet[];
 }
+
+
 
 export enum TransactionType {
     IN = "IN",
@@ -96,10 +102,14 @@ export interface Transaction extends CreationTransaction {
     id: string;
 }
 
+
+
 export interface WalletMinimalInfo {
     name: string;
     description?: string;
     type: WalletType;
+    color?: string;        
+    iconRef?: string;      
 }
 
 export interface TransactionMinimalInfo {
@@ -107,19 +117,25 @@ export interface TransactionMinimalInfo {
     type: TransactionType;
     walletId: string;
     amount: number;
-    labels: Label[]; // Utilise le type Label complet comme dans l'OpenAPI
+    labels: Label[];
     description: string;
 }
 
 export interface LabelMinimalInfo {
     name: string;
+    color?: string;        
+    iconRef?: string;      
 }
+
+
 
 export interface WalletUpdateInfo {
     name?: string;
     description?: string;
     type?: WalletType;
     isActive?: boolean;
+    color?: string;        
+    iconRef?: string;      
 }
 
 export interface TransactionUpdateInfo {
@@ -133,4 +149,6 @@ export interface TransactionUpdateInfo {
 
 export interface LabelUpdateInfo {
     name?: string;
+    color?: string;        
+    iconRef?: string;      
 }
