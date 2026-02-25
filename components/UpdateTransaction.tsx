@@ -20,7 +20,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
 } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
@@ -180,13 +180,13 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
           />
 
           {/* Labels */}
-          <Text className="text-xs text-gray-400 mb-2">Catégories</Text>
+          <Text className="text-xs text-gray-400 mb-2">Etiquettes</Text>
           <MultiSelect
             style={styles.dropdown}
             data={labels}
             labelField="name"
             valueField="id"
-            placeholder="Choisir les catégories"
+            placeholder="Choisir les étiquettes"
             value={selectedLabels}
             onChange={(item: any) => setSelectedLabels(item)}
             selectedStyle={styles.selectedStyle}
