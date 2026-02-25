@@ -1,17 +1,29 @@
 import FormTrasansction from "@/components/FormTrasansction";
-import { getLabels } from "@/hooks/labelHooks";
-import { getWallet } from "@/hooks/walletHooks";
+import { useAuth } from "@/context/AuthContext";
+import { useTransactionStore } from "@/store/useTransactionStore";
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function create() {
-  const fetchWallets = getWallet();
-  const fetchLabels = getLabels();
+  const { user } = useAuth();
+  const { getWallets, getAllLables } = useTransactionStore();
+
+  if (!user?.id) {
+    Toast.show({
+      type: "error",
+      text1: "Utilisateur non connecté",
+      text2: "Veuillez vous reconnecter.",
+    });
+    router.replace("/login");
+    return;
+  }
 
   useEffect(() => {
-    fetchWallets();
-    fetchLabels();
-  }, []);
+    getWallets(user.id);
+    getAllLables(user.id);
+  }, [user?.id]);
 
   return (
     <View>

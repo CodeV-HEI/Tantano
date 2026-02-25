@@ -1,57 +1,68 @@
 import ListTransaction from "@/components/ListTransaction";
+import Loader from "@/components/Loader";
 import { useAuth } from "@/context/AuthContext";
-import { transactionAPI } from "@/services/api";
 import { useTransactionStore } from "@/store/useTransactionStore";
-import { Transaction } from "@/types";
-import { useEffect } from "react";
-import { Alert, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function Index() {
   const { user } = useAuth();
-  const { setTransactions, filter } = useTransactionStore();
+  const { filter, getAllTransactions, getAllLables, getWallets } =
+    useTransactionStore();
   const accountId = user?.id;
 
-  const fetchedTransactions = async () => {
-    try {
-      const response: Transaction[] = await transactionAPI
-        .getAll(accountId!, {
-          walletId: filter.walletId,
-          startingDate: filter.startingDate,
-          endingDate: filter.endingDate,
-          type: filter.type,
-          label: filter.label,
-          minAmount: filter.minAmount,
-          maxAmount: filter.maxAmount,
-          sortBy: filter.sortBy,
-          sort: filter.sort,
-        })
-        .then((res) => res.data);
-      console.log("Fetched transactions:", response);
-      const uniqueTransactions = Array.from(
-        new Map(response.map((item) => [item.id, item])).values(),
-      );
-      setTransactions(uniqueTransactions);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      Alert.alert(
-        "Erreur",
-        "Impossible de récupérer les transactions. Veuillez réessayer plus tard.",
-      );
-    }
-  };
+  const [isCheckingToken, setIsCheckingToken] = useState(true);
 
   useEffect(() => {
-    fetchedTransactions();
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem("token");
 
-    const intervalId = setInterval(() => {
-      fetchedTransactions();
-    }, 60000);
+      if (!token) {
+        Toast.show({
+          type: "error",
+          text1: "Session expirée",
+          text2: "Veuillez vous reconnecter.",
+        });
+        router.replace("/login");
+        return;
+      }
 
-    return () => {
-      clearInterval(intervalId);
-      console.log("Polling arrêté");
+      setIsCheckingToken(false);
     };
-  }, [accountId, filter]);
+
+    checkToken();
+  }, []);
+
+  useEffect(() => {
+    if (!accountId || !user) {
+      Toast.show({
+        type: "error",
+        text1: "Utilisateur non connecté",
+        text2: "Veuillez vous reconnecter.",
+      });
+      router.replace("/login");
+      return;
+    }
+
+    if (!isCheckingToken) {
+      getAllLables(accountId);
+      getWallets(accountId);
+      getAllTransactions(accountId, filter);
+
+      const intervalId = setInterval(() => {
+        getAllTransactions(accountId, filter);
+      }, 60000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [accountId, filter, isCheckingToken]);
+
+  if (isCheckingToken) {
+    return <Loader />;
+  }
 
   return (
     <View className="flex-1">

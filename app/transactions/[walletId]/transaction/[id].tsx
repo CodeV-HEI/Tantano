@@ -1,45 +1,73 @@
+import Loader from "@/components/Loader";
 import UpdateTransaction from "@/components/UpdateTransaction";
 import { useAuth } from "@/context/AuthContext";
-import { getLabels } from "@/hooks/labelHooks";
-import { getWallet } from "@/hooks/walletHooks";
 import { transactionAPI } from "@/services/api";
-import { useWalletStore } from "@/store/useWalletStore";
+import { useTransactionStore } from "@/store/useTransactionStore";
 import { Transaction } from "@/types";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function TransactionDetails() {
   const { id, walletId } = useLocalSearchParams();
   const { user } = useAuth();
-  const fetchWallets = getWallet();
-  const fetchLabels = getLabels();
   const [transactionOne, setTransactionOne] = useState<Transaction>();
   const [edited, setEdited] = useState(false);
-  const { wallets } = useWalletStore();
+  const { wallets, getAllLables, getWallets } = useTransactionStore();
 
   const wallet = wallets.find((w) => w.id === transactionOne?.walletId);
 
-  const fetched = async () => {
-    try {
-      const response: Transaction = await transactionAPI
-        .getOne(user?.id || "", walletId.toString(), id.toString())
-        .then((res) => res.data);
-      console.log("Transaction get One success");
-      setTransactionOne(response);
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
-      Alert.alert("Erreur", "Impossible de charger");
-    }
-  };
-
   useEffect(() => {
+    if (!id || !walletId) {
+      Toast.show({
+        type: "error",
+        text1: "Paramètres manquants",
+        text2: "ID de transaction ou ID de portefeuille manquant.",
+      });
+      router.replace("/");
+      return;
+    }
+
+    if (!user?.id) {
+      Toast.show({
+        type: "error",
+        text1: "Utilisateur non connecté",
+        text2: "Veuillez vous reconnecter.",
+      });
+      router.replace("/login");
+      return;
+    }
+
+    const fetched = async () => {
+      try {
+        const response = await transactionAPI.getOne(
+          user.id,
+          walletId.toString(),
+          id.toString(),
+        );
+        setTransactionOne(response.data);
+        Toast.show({
+          type: "success",
+          text1: "Transaction chargée",
+          text2: "Détails de la transaction chargés avec succès.",
+        });
+      } catch (error) {
+        console.error("Error loading transaction:", error);
+        Toast.show({
+          type: "error",
+          text1: "Erreur de chargement",
+          text2: "Impossible de charger la transaction.",
+        });
+      }
+    };
+
     fetched();
-    fetchWallets();
-    fetchLabels();
-  }, [user?.id]);
+    getAllLables(user.id);
+    getWallets(user.id);
+  }, [id, walletId, user?.id]);
 
   return (
     <View className="flex-1 bg-gray-50 p-5">
@@ -163,7 +191,7 @@ export default function TransactionDetails() {
           </View>
         </>
       ) : (
-        <Text>Chargement...</Text>
+        <Loader />
       )}
     </View>
   );
