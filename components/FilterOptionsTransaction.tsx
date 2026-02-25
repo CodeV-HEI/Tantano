@@ -1,6 +1,4 @@
-import { useLabelStore } from "@/store/useLabelStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
-import { useWalletStore } from "@/store/useWalletStore";
 import { TransactionFilter, TransactionType } from "@/types";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -34,9 +32,7 @@ export default function FilterOptionsTransaction({
 }: {
   onClose: () => void;
 }) {
-  const { wallets } = useWalletStore();
-  const { labels } = useLabelStore();
-  const { setFilter, filter } = useTransactionStore();
+  const { setFilter, filter, wallets, labels } = useTransactionStore();
   const [walletFilter, setWalletFilter] = useState<string>(
     filter.walletId || "",
   );

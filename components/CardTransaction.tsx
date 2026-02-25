@@ -1,17 +1,17 @@
 import { transactionAPI } from "@/services/api";
-import { useWalletStore } from "@/store/useWalletStore";
+import { useTransactionStore } from "@/store/useTransactionStore";
 import { Transaction, TransactionType } from "@/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import {
-  Alert,
   Image,
   Pressable,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function CardTransaction({
   data,
@@ -20,7 +20,7 @@ export default function CardTransaction({
   data: Transaction;
   onDeleteSuccess: (id: string) => void;
 }) {
-  const { wallets } = useWalletStore();
+  const { wallets } = useTransactionStore();
 
   const wallet = wallets?.find((w) => w.id === data.walletId);
 
@@ -30,14 +30,19 @@ export default function CardTransaction({
         .delete(data.accountId, data.walletId, id)
         .then((res) => res.data);
       console.log("Transaction deleted:", response);
-      Alert.alert("Succès", "La transaction a été supprimée avec succès.");
+      Toast.show({
+        type: "success",
+        text1: "Transaction supprimée",
+        text2: "La transaction a été supprimée avec succès.",
+      });
       onDeleteSuccess(id);
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      Alert.alert(
-        "Erreur",
-        "Impossible de supprimer la transaction. Veuillez réessayer plus tard.",
-      );
+      Toast.show({
+        type: "error",
+        text1: "Erreur de suppression",
+        text2: "Impossible de supprimer la transaction. Veuillez réessayer.",
+      });
     }
   };
 

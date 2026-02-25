@@ -1,13 +1,11 @@
 import { useAuth } from "@/context/AuthContext";
 import { transactionAPI } from "@/services/api";
-import { useLabelStore } from "@/store/useLabelStore";
-import { useWalletStore } from "@/store/useWalletStore";
+import { useTransactionStore } from "@/store/useTransactionStore";
 import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -17,6 +15,8 @@ import {
   View,
 } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import Toast from "react-native-toast-message";
+import Loader from "./Loader";
 
 const transactionTypeSelected = [
   { id: TransactionType.IN, name: "Ajouter" },
@@ -24,14 +24,14 @@ const transactionTypeSelected = [
 ];
 
 export default function FormTrasansction() {
-  const { wallets } = useWalletStore();
   const [valueWallet, setValueWallet] = useState<Wallet | null>(null);
-  const { labels } = useLabelStore();
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const { user } = useAuth();
   const [type, setType] = useState<TransactionType>(TransactionType.IN);
   const [description, setDescription] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);
+  const { wallets, labels } = useTransactionStore();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleChangeNumber = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
@@ -44,7 +44,12 @@ export default function FormTrasansction() {
       selectedLabels === null ||
       selectedLabels.length === 0
     ) {
-      Alert.alert("Erreur", "Veuillez remplir tous les champs !");
+      Toast.show({
+        type: "error",
+        text1: "Champs manquants",
+        text2:
+          "Veuillez sélectionner un portefeuille et au moins une étiquette.",
+      });
       return;
     }
 
@@ -73,23 +78,40 @@ export default function FormTrasansction() {
     };
 
     try {
+      setIsLoading(true);
       const response = await transactionAPI.create(
         acountId,
         valueWallet.id,
         dataSend,
       );
       console.log("Réponse de l'API :", response);
-      Alert.alert("Succès", "Transaction créée avec succès !");
+      Toast.show({
+        type: "success",
+        text1: "Transaction créée",
+        text2: "La transaction a été créée avec succès.",
+      });
     } catch (error) {
       console.error("Erreur lors de la création de la transaction :", error);
-      Alert.alert(
-        "Erreur",
-        "Une erreur est survenue lors de la création de la transaction.",
-      );
+      Toast.show({
+        type: "error",
+        text1: "Erreur de création",
+        text2: "Une erreur est survenue lors de la création de la transaction.",
+      });
+      setIsLoading(false);
+      return;
     } finally {
       router.push("/transactions");
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center w-full h-screen">
+        <Loader />
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -145,7 +167,7 @@ export default function FormTrasansction() {
           data={labels}
           labelField="name"
           valueField="id"
-          placeholder="Choisir les catégories"
+          placeholder="Choisir les Etiquettes"
           value={selectedLabels}
           onChange={(items: string[]) => setSelectedLabels(items)}
           renderItem={(item) => (

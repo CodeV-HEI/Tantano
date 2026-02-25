@@ -1,4 +1,5 @@
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { Link } from "expo-router";
 import { FlatList, Text, View } from "react-native";
 import CardTransaction from "./CardTransaction";
 import HeaderRenderTranaction from "./HeaderRenderTranaction";
@@ -31,6 +32,9 @@ export default function ListTransaction() {
           <Text className="text-gray-400 text-base">
             Aucune transaction trouvée
           </Text>
+          <Link href="/transactions/create" className="text-blue-500 mt-2">
+            Ajouter une transaction
+          </Link>
         </View>
       }
     />

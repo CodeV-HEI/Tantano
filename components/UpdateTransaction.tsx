@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { transactionAPI } from "@/services/api";
-import { useLabelStore } from "@/store/useLabelStore";
-import { useWalletStore } from "@/store/useWalletStore";
+import { useTransactionStore } from "@/store/useTransactionStore";
 import {
   CreationTransaction,
   Label,
@@ -13,7 +12,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -22,9 +20,11 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import Toast from "react-native-toast-message";
+import Loader from "./Loader";
 
 const transactionTypeSelected = [
   { id: "IN", name: "Ajouter" },
@@ -32,8 +32,6 @@ const transactionTypeSelected = [
 ];
 
 export default function UpdateTransaction({ data }: { data: Transaction }) {
-  const { wallets } = useWalletStore();
-  const { labels } = useLabelStore();
   const { user } = useAuth();
   const [type, setType] = useState<TransactionType>(data.type);
   const [description, setDescription] = useState<string | undefined>(
@@ -44,10 +42,13 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const labelIds = data.labels?.map((label) => label.id) || [];
   const [selectedLabels, setSelectedLabels] = useState<string[]>(labelIds);
 
+  const { wallets, labels } = useTransactionStore();
   const walletForThis = wallets.find((wallet) => wallet.id === data.walletId);
   const [valueWallet, setValueWallet] = useState<Wallet | undefined>(
     walletForThis,
   );
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleChangeNumber = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
@@ -61,7 +62,12 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
       selectedLabels.length === 0 ||
       type === undefined
     ) {
-      Alert.alert("Erreur", "Veuillez remplir tous les champs !");
+      Toast.show({
+        type: "error",
+        text1: "Champs manquants",
+        text2:
+          "Veuillez sélectionner un portefeuille, au moins une étiquette et un type.",
+      });
       return;
     }
 
@@ -91,24 +97,36 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
     };
 
     try {
-      const response = await transactionAPI.update(
-        acountId,
-        valueWallet.id,
-        data.id,
-        dataSend,
-      );
-      console.log("Réponse de l'API :", response);
-      Alert.alert("Succès", "Mise à jour du transaction avec succès !");
+      setIsLoading(true);
+      await transactionAPI.update(acountId, valueWallet.id, data.id, dataSend);
+      console.log("Transaction mise à jour avec succès :");
+      Toast.show({
+        type: "success",
+        text1: "Transaction mise à jour",
+        text2: "La transaction a été mise à jour avec succès.",
+      });
     } catch (error) {
       console.error("Erreur lors de la création de la transaction :", error);
-      Alert.alert(
-        "Erreur",
-        "Une erreur est survenue lors de la mise à jour de la transaction.",
-      );
+      Toast.show({
+        type: "error",
+        text1: "Erreur de mise à jour",
+        text2:
+          "Une erreur est survenue lors de la mise à jour de la transaction.",
+      });
+      return;
     } finally {
+      setIsLoading(false);
       router.push("/transactions");
     }
   };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center w-full h-screen">
+        <Loader />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
