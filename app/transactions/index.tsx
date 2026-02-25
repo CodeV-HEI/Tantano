@@ -10,7 +10,7 @@ import Toast from "react-native-toast-message";
 
 export default function Index() {
   const { user } = useAuth();
-  const { filter, getAllTransactions, getAllLables, getWallets } =
+  const { filter, getAllTransactions, getAllLables, getWallets, isloaded } =
     useTransactionStore();
   const accountId = user?.id;
 
@@ -60,7 +60,7 @@ export default function Index() {
     }
   }, [accountId, filter, isCheckingToken]);
 
-  if (isCheckingToken) {
+  if (isCheckingToken || isloaded) {
     return <Loader />;
   }
 

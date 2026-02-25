@@ -2,10 +2,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Provider } from "react-native-paper";
-
-const { height } = Dimensions.get("window");
 
 export default function Layout() {
   const { logout } = useAuth();
