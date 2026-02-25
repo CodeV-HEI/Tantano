@@ -9,7 +9,6 @@ import {
   FlatList,
   LayoutAnimation,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -133,13 +132,9 @@ export default function FilterOptionsTransaction({
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 20, paddingBottom: 60, gap: 16 }}
-      showsVerticalScrollIndicator={true}
-      className="relative"
-    >
+    <View style={{ padding: 20, gap: 16 }} className="relative">
       <Text className="text-gray-700 font-bold text-lg mb-2">
-        Filtres disponibles :
+        Selectionner :
       </Text>
       <View className="mb-2">
         <Text className="text-gray-600 mb-4">- Par Wallet :</Text>
@@ -349,6 +344,6 @@ export default function FilterOptionsTransaction({
           <AntDesign name="close" size={20} color="#ef4444" />
         </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 }

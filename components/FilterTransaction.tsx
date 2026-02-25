@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, {
@@ -31,7 +32,7 @@ export default function FilterTransaction() {
           translateY: withTiming(progress.value ? 0 : -20),
         },
       ],
-      height: withTiming(progress.value ? 280 : 0),
+      height: withTiming(progress.value ? 700 : 0),
       overflow: "hidden",
     };
   });
@@ -41,10 +42,15 @@ export default function FilterTransaction() {
       {/* Bouton Toggle */}
       <Pressable
         onPress={toggleFilter}
-        className="mx-4 mb-4 bg-purple-600 rounded-2xl py-3 items-center shadow"
+        className="mx-4 mb-4 bg-purple-600 rounded-2xl py-4 shadow flex flex-row gap-2 justify-center items-center"
       >
-        <Text className="text-white font-bold text-lg">
-          {isOpen ? "Fermer le filtre" : "Afficher le filtre"}
+        {isOpen ? (
+          <MaterialIcons name="arrow-upward" size={20} color="white" />
+        ) : (
+          <MaterialIcons name="arrow-downward" size={20} color="white" />
+        )}
+        <Text className="text-white mt-1 font-bold">
+          Filtrer les transactions
         </Text>
       </Pressable>
 

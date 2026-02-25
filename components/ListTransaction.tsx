@@ -1,6 +1,7 @@
 import { useTransactionStore } from "@/store/useTransactionStore";
 import { FlatList, Text, View } from "react-native";
 import CardTransaction from "./CardTransaction";
+import HeaderRenderTranaction from "./HeaderRenderTranaction";
 
 export default function ListTransaction() {
   const { transactions, setTransactions } = useTransactionStore();
@@ -18,6 +19,8 @@ export default function ListTransaction() {
         padding: 16,
         paddingBottom: 40,
       }}
+      ListHeaderComponent={<HeaderRenderTranaction />}
+      ListHeaderComponentStyle={{ paddingBottom: 16 }}
       renderItem={({ item }) => (
         <View className="mb-4">
           <CardTransaction data={item} onDeleteSuccess={onDeleteSuccess} />
