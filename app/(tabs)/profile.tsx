@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, StatusBar } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Alert, Pressable, ScrollView, StatusBar, Switch, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 
 export default function ProfileScreen() {
@@ -128,6 +128,16 @@ export default function ProfileScreen() {
                                 />
                             }
                         />
+
+                        <Pressable onPress={() => router.push('/settings')}>
+                            <SettingItem
+                                icon="settings"
+                                title="Paramètres avancés"
+                                description="Configurer les paramétres avancés"
+                                    // rightComponent peut être vide ou un chevron si tu veux
+                                rightComponent={null} 
+                            />
+                        </Pressable>
                     </View>
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>

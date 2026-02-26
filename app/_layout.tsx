@@ -1,8 +1,9 @@
-import { Stack } from "expo-router";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { ActivityIndicator, View } from "react-native";
 import ThemeWrapper from "@/components/ThemeWrapper";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { Stack } from "expo-router";
+import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
 
 function RootLayoutContent() {
@@ -39,6 +40,7 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
+    <CurrencyProvider>
     <ThemeProvider>
       <AuthProvider>
         <ThemeWrapper>
@@ -47,5 +49,6 @@ export default function RootLayout() {
         </ThemeWrapper>
       </AuthProvider>
     </ThemeProvider>
+    </CurrencyProvider>
   );
 }

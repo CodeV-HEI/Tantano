@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import Background3D from '@/components/DashboardBackground';
+import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
+import { useTheme } from '@/context/ThemeContext';
+import { labelAPI, transactionAPI, walletAPI } from '@/services/api';
+import { Label, Transaction, Wallet, WalletType } from '@/types/api';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, RefreshControl, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     FadeInUp,
-    SlideInRight,
-    Layout
+    Layout,
+    SlideInRight
 } from 'react-native-reanimated';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
-import { walletAPI, transactionAPI, labelAPI } from '@/services/api';
-import { Wallet, Transaction, Label, WalletType } from '@/types/api';
-import Background3D from '@/components/DashboardBackground';
 import Toast from 'react-native-toast-message';
 
 export default function DashboardScreen() {
@@ -23,6 +24,7 @@ export default function DashboardScreen() {
     const { user } = useAuth();
     const { theme } = useTheme();
     const router = useRouter();
+    const { formatCurrency } = useCurrency();   
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
@@ -177,7 +179,7 @@ export default function DashboardScreen() {
                     >
                         <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} text-lg font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>SOLDE TOTAL</Text>
                         <Text className={`${theme === 'dark' ? 'text-white' : 'text-cyan-800'} text-4xl font-bold mt-2 ${theme === 'dark' ? 'neon-text' : ''}`}>
-                            {totalBalance.toLocaleString('fr-FR')} Ar
+                            {formatCurrency(totalBalance)}
                         </Text>
                         <Text className={`${theme === 'dark' ? 'text-cyan-300/60' : 'text-cyan-600/60'} mt-2 tracking-wide`}>
                             {transactions.length} transactions • {wallets.length} portefeuilles
@@ -247,7 +249,7 @@ export default function DashboardScreen() {
                                                         <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-sm mt-1`}>{wallet.description}</Text>
                                                     )}
                                                     <Text className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg font-bold mt-2`}>
-                                                        {wallet.amount.toLocaleString('fr-FR')} Ar
+                                                        {formatCurrency(wallet.amount)}
                                                     </Text>
                                                 </View>
                                                 <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
@@ -306,7 +308,7 @@ export default function DashboardScreen() {
                                                 )}
                                             </View>
                                             <Text className={`text-lg font-bold ${transaction.type === 'IN' ? (theme === 'dark' ? 'text-green-400' : 'text-green-600') : (theme === 'dark' ? 'text-red-400' : 'text-red-600')}`}>
-                                                {transaction.type === 'IN' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} Ar
+                                                {transaction.type === 'IN' ? '+' : '-'}{formatCurrency(transaction.amount)}
                                             </Text>
                                         </View>
                                     </TouchableOpacity>

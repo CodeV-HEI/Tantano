@@ -1,22 +1,22 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    LoginRequest,
-    RegisterRequest,
-    UserWithToken,
-    Wallet,
-    CreationWallet,
-    UpdateWallet,
-    Transaction,
-    CreationTransaction,
-    Label,
     CreationLabel,
-    WalletAutomaticIncome,
+    CreationTransaction,
+    CreationWallet,
+    Label,
+    LoginRequest,
     PaginatedLabels,
     PaginatedWallets,
-    WalletType,
-    User
+    RegisterRequest,
+    Transaction,
+    UpdateWallet,
+    User,
+    UserWithToken,
+    Wallet,
+    WalletAutomaticIncome,
+    WalletType
 } from '@/types/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const API_URL = process.env.API_BASE_URL || 'https://tantano-api.onrender.com';
 
@@ -123,6 +123,50 @@ export const labelAPI = {
 
     update: (accountId: string, labelId: string, data: Label) =>
         apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
+};
+
+export type CurrencyRates = {
+  [key: string]: number;
+};
+
+export type ExchangeApiResponse = {
+  result: string;
+  base_code: string;
+  rates: CurrencyRates;
+};
+
+export type Currency = {
+  label: string;
+  value: string;
+  rate: number;
+};
+
+const BASE_URL = "https://open.er-api.com/v6/latest";
+
+export const getCurrencies = async (
+  base: string = "MGA"
+): Promise<Currency[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/${base}`);
+    const data: ExchangeApiResponse = await response.json();
+
+    if (!data.rates) {
+      throw new Error("Erreur récupération devises");
+    }
+
+    const currencies: Currency[] = Object.keys(data.rates).map((code) => ({
+      label: code,
+      value: code,
+      rate: data.rates[code],
+    }));
+
+    console.log("Devises récupérées:", currencies);
+
+    return currencies;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export default api;
