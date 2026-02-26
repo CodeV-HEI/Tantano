@@ -1,3 +1,4 @@
+import Background from "@/components/Background";
 import ListTransaction from "@/components/ListTransaction";
 import Loader from "@/components/Loader";
 import { useAuth } from "@/context/AuthContext";
@@ -54,7 +55,7 @@ export default function Index() {
 
       const intervalId = setInterval(() => {
         getAllTransactions(accountId, filter);
-      }, 60000);
+      }, 90000);
 
       return () => clearInterval(intervalId);
     }
@@ -65,8 +66,11 @@ export default function Index() {
   }
 
   return (
-    <View className="flex-1">
-      <ListTransaction />
-    </View>
+    <>
+      <Background />
+      <View className="flex-1">
+        <ListTransaction />
+      </View>
+    </>
   );
 }

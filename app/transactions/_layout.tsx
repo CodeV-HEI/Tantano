@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Provider } from "react-native-paper";
@@ -19,7 +19,19 @@ export default function Layout() {
     <Provider>
       <Stack
         screenOptions={{
+          headerStyle: {
+            backgroundColor: theme === "dark" ? "#000000" : "#ffffff",
+          },
           headerShown: true,
+          headerLeft: () => (
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              onPress={() => router.push("/(tabs)")}
+              className="mx-6"
+              color={"#A74BCA"}
+            />
+          ),
           headerTitle: () => (
             <View className="flex-row items-center gap-3">
               <FontAwesome6

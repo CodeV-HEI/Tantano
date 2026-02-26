@@ -1,3 +1,4 @@
+import Background from "@/components/Background";
 import Loader from "@/components/Loader";
 import UpdateTransaction from "@/components/UpdateTransaction";
 import { useAuth } from "@/context/AuthContext";
@@ -70,145 +71,148 @@ export default function TransactionDetails() {
   }, [id, walletId, user?.id]);
 
   return (
-    <View className="flex-1 bg-gray-100 px-5 pt-6">
-      {/* ===== HEADER ACTION ===== */}
-      <View className="w-full items-end mb-6">
-        <Pressable
-          onPress={() => setEdited(!edited)}
-          className={`p-3 rounded-full shadow-sm ${
-            edited ? "bg-red-100" : "bg-blue-100"
-          }`}
-        >
-          {edited ? (
-            <AntDesign name="close" size={20} color="#dc2626" />
-          ) : (
-            <FontAwesome name="edit" size={18} color="#2563eb" />
-          )}
-        </Pressable>
-      </View>
+    <>
+      <Background />
+      <View className="flex-1 bg-gray-100 px-5 pt-6">
+        {/* ===== HEADER ACTION ===== */}
+        <View className="w-full items-end mb-6">
+          <Pressable
+            onPress={() => setEdited(!edited)}
+            className={`p-3 rounded-full shadow-sm ${
+              edited ? "bg-red-100" : "bg-blue-100"
+            }`}
+          >
+            {edited ? (
+              <AntDesign name="close" size={20} color="#dc2626" />
+            ) : (
+              <FontAwesome name="edit" size={18} color="#2563eb" />
+            )}
+          </Pressable>
+        </View>
 
-      {edited ? (
-        transactionOne && <UpdateTransaction data={transactionOne} />
-      ) : transactionOne ? (
-        <>
-          {/* ===== AMOUNT CARD ===== */}
-          <View className="bg-white rounded-3xl p-7 mb-6 shadow-md">
-            <View className="items-center">
-              <View className="bg-blue-100 p-4 rounded-2xl mb-4">
-                <FontAwesome name="exchange" size={28} color="#2563eb" />
-              </View>
+        {edited ? (
+          transactionOne && <UpdateTransaction data={transactionOne} />
+        ) : transactionOne ? (
+          <>
+            {/* ===== AMOUNT CARD ===== */}
+            <View className="bg-white rounded-3xl p-7 mb-6 shadow-md">
+              <View className="items-center">
+                <View className="bg-blue-100 p-4 rounded-2xl mb-4">
+                  <FontAwesome name="exchange" size={28} color="#2563eb" />
+                </View>
 
-              <Text className="text-4xl font-extrabold text-gray-900">
-                {Number(transactionOne.amount).toLocaleString()} Ar
-              </Text>
+                <Text className="text-4xl font-extrabold text-gray-900">
+                  {Number(transactionOne.amount).toLocaleString()} Ar
+                </Text>
 
-              <Text
-                className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${
-                  transactionOne.type === "IN"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-rose-100 text-rose-700"
-                }`}
-              >
-                {transactionOne.type === "IN" ? "ENTRÉE" : "SORTIE"}
-              </Text>
-            </View>
-          </View>
-
-          {/* ===== DETAILS CARD ===== */}
-          <View className="bg-white rounded-3xl p-6 mb-6 shadow-sm">
-            <Text className="text-lg font-bold text-gray-900 mb-5">
-              Détails
-            </Text>
-
-            {/* Date */}
-            <View className="mb-4">
-              <Text className="text-xs uppercase tracking-wide text-gray-400">
-                Date
-              </Text>
-              <Text className="text-base font-semibold text-gray-800 mt-1">
-                {new Date(transactionOne.date).toLocaleString()}
-              </Text>
-            </View>
-
-            {/* Description */}
-            <View className="mb-4">
-              <Text className="text-xs uppercase tracking-wide text-gray-400">
-                Description
-              </Text>
-              <Text className="text-base font-semibold text-gray-800 mt-1">
-                {transactionOne.description || "Aucune description"}
-              </Text>
-            </View>
-
-            {/* Labels */}
-            <View>
-              <Text className="text-xs uppercase tracking-wide text-gray-400 mb-3">
-                Labels
-              </Text>
-
-              <View className="flex-row flex-wrap gap-2">
-                {transactionOne.labels?.map((label) => (
-                  <View
-                    key={label.id}
-                    className="px-4 py-1 rounded-full"
-                    style={{ backgroundColor: label.color + "22" }}
-                  >
-                    <Text
-                      className="text-xs font-semibold"
-                      style={{ color: label.color }}
-                    >
-                      {label.name}
-                    </Text>
-                  </View>
-                ))}
+                <Text
+                  className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${
+                    transactionOne.type === "IN"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  {transactionOne.type === "IN" ? "ENTRÉE" : "SORTIE"}
+                </Text>
               </View>
             </View>
-          </View>
 
-          {/* ===== WALLET CARD ===== */}
-          <View className="bg-white rounded-3xl p-6 shadow-sm">
-            <Text className="text-lg font-bold text-gray-900 mb-5">
-              Portefeuille
-            </Text>
+            {/* ===== DETAILS CARD ===== */}
+            <View className="bg-white rounded-3xl p-6 mb-6 shadow-sm">
+              <Text className="text-lg font-bold text-gray-900 mb-5">
+                Détails
+              </Text>
 
-            <View className="flex-row items-center gap-4 mb-4">
-              <View
-                className="p-3 rounded-2xl"
-                style={{ backgroundColor: wallet?.color + "22" }}
-              >
-                {wallet?.iconRef ? (
-                  <Image
-                    source={{ uri: wallet.iconRef }}
-                    width={22}
-                    height={22}
-                  />
-                ) : (
-                  <MaterialCommunityIcons
-                    name="wallet-bifold"
-                    size={22}
-                    color={wallet?.color || "#2563eb"}
-                  />
-                )}
+              {/* Date */}
+              <View className="mb-4">
+                <Text className="text-xs uppercase tracking-wide text-gray-400">
+                  Date
+                </Text>
+                <Text className="text-base font-semibold text-gray-800 mt-1">
+                  {new Date(transactionOne.date).toLocaleString()}
+                </Text>
               </View>
 
+              {/* Description */}
+              <View className="mb-4">
+                <Text className="text-xs uppercase tracking-wide text-gray-400">
+                  Description
+                </Text>
+                <Text className="text-base font-semibold text-gray-800 mt-1">
+                  {transactionOne.description || "Aucune description"}
+                </Text>
+              </View>
+
+              {/* Labels */}
               <View>
-                <Text className="text-base font-bold text-gray-900">
-                  {wallet?.name}
+                <Text className="text-xs uppercase tracking-wide text-gray-400 mb-3">
+                  Labels
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">
-                  {wallet?.type}
-                </Text>
+
+                <View className="flex-row flex-wrap gap-2">
+                  {transactionOne.labels?.map((label) => (
+                    <View
+                      key={label.id}
+                      className="px-4 py-1 rounded-full"
+                      style={{ backgroundColor: label.color + "22" }}
+                    >
+                      <Text
+                        className="text-xs font-semibold"
+                        style={{ color: label.color }}
+                      >
+                        {label.name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             </View>
 
-            <Text className="text-sm text-gray-600 leading-relaxed">
-              {wallet?.description}
-            </Text>
-          </View>
-        </>
-      ) : (
-        <Loader />
-      )}
-    </View>
+            {/* ===== WALLET CARD ===== */}
+            <View className="bg-white rounded-3xl p-6 shadow-sm">
+              <Text className="text-lg font-bold text-gray-900 mb-5">
+                Portefeuille
+              </Text>
+
+              <View className="flex-row items-center gap-4 mb-4">
+                <View
+                  className="p-3 rounded-2xl"
+                  style={{ backgroundColor: wallet?.color + "22" }}
+                >
+                  {wallet?.iconRef ? (
+                    <Image
+                      source={{ uri: wallet.iconRef }}
+                      width={22}
+                      height={22}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="wallet-bifold"
+                      size={22}
+                      color={wallet?.color || "#2563eb"}
+                    />
+                  )}
+                </View>
+
+                <View>
+                  <Text className="text-base font-bold text-gray-900">
+                    {wallet?.name}
+                  </Text>
+                  <Text className="text-xs text-gray-500 mt-1">
+                    {wallet?.type}
+                  </Text>
+                </View>
+              </View>
+
+              <Text className="text-sm text-gray-600 leading-relaxed">
+                {wallet?.description}
+              </Text>
+            </View>
+          </>
+        ) : (
+          <Loader />
+        )}
+      </View>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import Background from "@/components/Background";
 import FormTrasansction from "@/components/FormTrasansction";
 import { useAuth } from "@/context/AuthContext";
 import { useTransactionStore } from "@/store/useTransactionStore";
@@ -26,8 +27,11 @@ export default function create() {
   }, [user?.id]);
 
   return (
-    <View>
-      <FormTrasansction />
-    </View>
+    <>
+      <Background />
+      <View>
+        <FormTrasansction />
+      </View>
+    </>
   );
 }
