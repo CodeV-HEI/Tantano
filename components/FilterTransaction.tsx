@@ -38,7 +38,7 @@ export default function FilterTransaction() {
   });
 
   return (
-    <View className="bg-gray-100">
+    <View className="bg-transparent">
       {/* Bouton Toggle */}
       <Pressable
         onPress={toggleFilter}

@@ -361,36 +361,6 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   );
 }
 
-// const styles = StyleSheet.create({
-//   dropdown: {
-//     height: 55,
-//     backgroundColor: "#FFF",
-//     borderColor: "#E0E0E0",
-//     borderWidth: 1,
-//     borderRadius: 15,
-//     paddingHorizontal: 15,
-//     marginBottom: 25,
-//     elevation: 3,
-//   },
-//   itemStyle: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     paddingVertical: 12,
-//     paddingHorizontal: 10,
-//   },
-//   itemTextStyle: {
-//     fontSize: 16,
-//     color: "#333",
-//     flex: 1,
-//     marginLeft: 10,
-//   },
-//   selectedStyle: {
-//     borderRadius: 10,
-//     backgroundColor: "#E3F2FD",
-//   },
-// });
-
 const styles = StyleSheet.create({
   dropdown: {
     height: 60,
