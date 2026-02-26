@@ -2,11 +2,15 @@ import Background from "@/components/Background";
 import Loader from "@/components/Loader";
 import UpdateTransaction from "@/components/UpdateTransaction";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { transactionAPI } from "@/services/api";
 import { useTransactionStore } from "@/store/useTransactionStore";
 import { Transaction } from "@/types";
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import {
+  AntDesign,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
@@ -18,6 +22,18 @@ export default function TransactionDetails() {
   const [transactionOne, setTransactionOne] = useState<Transaction>();
   const [edited, setEdited] = useState(false);
   const { wallets, getAllLables, getWallets } = useTransactionStore();
+  const { theme } = useTheme();
+
+  const isDark = theme === "dark";
+
+  // 🎨 Dynamic styles
+  const cardBg = isDark ? "bg-neutral-900 border border-white/5" : "bg-white";
+
+  const textPrimary = isDark ? "text-white" : "text-gray-900";
+  const textSecondary = isDark ? "text-gray-300" : "text-gray-700";
+  const textMuted = "text-gray-400";
+
+  const shadow = isDark ? "" : "shadow-md";
 
   const wallet = wallets.find((w) => w.id === transactionOne?.walletId);
 
@@ -50,11 +66,6 @@ export default function TransactionDetails() {
           id.toString(),
         );
         setTransactionOne(response.data);
-        Toast.show({
-          type: "success",
-          text1: "Transaction chargée",
-          text2: "Détails de la transaction chargés avec succès.",
-        });
       } catch (error) {
         console.error("Error loading transaction:", error);
         Toast.show({
@@ -73,19 +84,25 @@ export default function TransactionDetails() {
   return (
     <>
       <Background />
-      <View className="flex-1 bg-gray-100 px-5 pt-6">
-        {/* ===== HEADER ACTION ===== */}
+      <View className="flex-1 px-5 pt-6">
+        {/* Edit Button */}
         <View className="w-full items-end mb-6">
           <Pressable
             onPress={() => setEdited(!edited)}
-            className={`p-3 rounded-full shadow-sm ${
-              edited ? "bg-red-100" : "bg-blue-100"
-            }`}
+            className={`p-3 rounded-full ${
+              edited
+                ? isDark
+                  ? "bg-red-900/40"
+                  : "bg-red-100"
+                : isDark
+                  ? "bg-blue-900/40"
+                  : "bg-blue-100"
+            } ${shadow}`}
           >
             {edited ? (
-              <AntDesign name="close" size={20} color="#dc2626" />
+              <AntDesign name="close" size={20} color="#ef4444" />
             ) : (
-              <FontAwesome name="edit" size={18} color="#2563eb" />
+              <FontAwesome name="edit" size={18} color="#3b82f6" />
             )}
           </Pressable>
         </View>
@@ -94,22 +111,30 @@ export default function TransactionDetails() {
           transactionOne && <UpdateTransaction data={transactionOne} />
         ) : transactionOne ? (
           <>
-            {/* ===== AMOUNT CARD ===== */}
-            <View className="bg-white rounded-3xl p-7 mb-6 shadow-md">
+            {/* Amount Card */}
+            <View className={`${cardBg} rounded-3xl p-7 mb-6 ${shadow}`}>
               <View className="items-center">
-                <View className="bg-blue-100 p-4 rounded-2xl mb-4">
-                  <FontAwesome name="exchange" size={28} color="#2563eb" />
+                <View
+                  className={`p-4 rounded-2xl mb-4 ${
+                    isDark ? "bg-blue-900/30" : "bg-blue-100"
+                  }`}
+                >
+                  <FontAwesome name="exchange" size={28} color="#3b82f6" />
                 </View>
 
-                <Text className="text-4xl font-extrabold text-gray-900">
+                <Text className={`text-4xl font-extrabold ${textPrimary}`}>
                   {Number(transactionOne.amount).toLocaleString()} Ar
                 </Text>
 
                 <Text
                   className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${
                     transactionOne.type === "IN"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-rose-100 text-rose-700"
+                      ? isDark
+                        ? "bg-emerald-900/30 text-emerald-400"
+                        : "bg-emerald-100 text-emerald-700"
+                      : isDark
+                        ? "bg-rose-900/30 text-rose-400"
+                        : "bg-rose-100 text-rose-700"
                   }`}
                 >
                   {transactionOne.type === "IN" ? "ENTRÉE" : "SORTIE"}
@@ -117,35 +142,42 @@ export default function TransactionDetails() {
               </View>
             </View>
 
-            {/* ===== DETAILS CARD ===== */}
-            <View className="bg-white rounded-3xl p-6 mb-6 shadow-sm">
-              <Text className="text-lg font-bold text-gray-900 mb-5">
+            {/* Details Card */}
+            <View className={`${cardBg} rounded-3xl p-6 mb-6 ${shadow}`}>
+              <Text className={`text-lg font-bold mb-5 ${textPrimary}`}>
                 Détails
               </Text>
 
-              {/* Date */}
               <View className="mb-4">
-                <Text className="text-xs uppercase tracking-wide text-gray-400">
+                <Text
+                  className={`text-xs uppercase tracking-wide ${textMuted}`}
+                >
                   Date
                 </Text>
-                <Text className="text-base font-semibold text-gray-800 mt-1">
+                <Text
+                  className={`text-base font-semibold mt-1 ${textSecondary}`}
+                >
                   {new Date(transactionOne.date).toLocaleString()}
                 </Text>
               </View>
 
-              {/* Description */}
               <View className="mb-4">
-                <Text className="text-xs uppercase tracking-wide text-gray-400">
+                <Text
+                  className={`text-xs uppercase tracking-wide ${textMuted}`}
+                >
                   Description
                 </Text>
-                <Text className="text-base font-semibold text-gray-800 mt-1">
+                <Text
+                  className={`text-base font-semibold mt-1 ${textSecondary}`}
+                >
                   {transactionOne.description || "Aucune description"}
                 </Text>
               </View>
 
-              {/* Labels */}
               <View>
-                <Text className="text-xs uppercase tracking-wide text-gray-400 mb-3">
+                <Text
+                  className={`text-xs uppercase tracking-wide mb-3 ${textMuted}`}
+                >
                   Labels
                 </Text>
 
@@ -168,9 +200,9 @@ export default function TransactionDetails() {
               </View>
             </View>
 
-            {/* ===== WALLET CARD ===== */}
-            <View className="bg-white rounded-3xl p-6 shadow-sm">
-              <Text className="text-lg font-bold text-gray-900 mb-5">
+            {/* Wallet Card */}
+            <View className={`${cardBg} rounded-3xl p-6 ${shadow}`}>
+              <Text className={`text-lg font-bold mb-5 ${textPrimary}`}>
                 Portefeuille
               </Text>
 
@@ -189,22 +221,22 @@ export default function TransactionDetails() {
                     <MaterialCommunityIcons
                       name="wallet-bifold"
                       size={22}
-                      color={wallet?.color || "#2563eb"}
+                      color={wallet?.color || "#3b82f6"}
                     />
                   )}
                 </View>
 
                 <View>
-                  <Text className="text-base font-bold text-gray-900">
+                  <Text className={`text-base font-bold ${textPrimary}`}>
                     {wallet?.name}
                   </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
+                  <Text className={`text-xs mt-1 ${textMuted}`}>
                     {wallet?.type}
                   </Text>
                 </View>
               </View>
 
-              <Text className="text-sm text-gray-600 leading-relaxed">
+              <Text className={`text-sm leading-relaxed ${textSecondary}`}>
                 {wallet?.description}
               </Text>
             </View>
