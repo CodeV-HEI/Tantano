@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { transactionAPI } from "@/services/api";
 import { useTransactionStore } from "@/store/useTransactionStore";
 import {
@@ -8,7 +9,7 @@ import {
   TransactionType,
   Wallet,
 } from "@/types";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -47,6 +48,20 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const [valueWallet, setValueWallet] = useState<Wallet | undefined>(
     walletForThis,
   );
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const cardBg = isDark
+    ? "bg-neutral-900 border border-white/5"
+    : "bg-white border border-gray-100";
+
+  const textPrimary = isDark ? "text-white" : "text-gray-900";
+  const textSecondary = isDark ? "text-gray-400" : "text-gray-500";
+  const inputBackground = isDark ? "#18181B" : "#F9FAFB";
+  const inputBorder = isDark ? "#27272A" : "#A78BFA";
+  const dropdownBg = isDark ? "#171717" : "#FFFFFF";
+  const dropdownBorder = isDark ? "#2A2A2A" : "#E5E7EB";
+  const shadow = isDark ? {} : styles.shadowLight;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -131,34 +146,50 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-gray-50"
+      className="flex-1"
     >
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 10, paddingBottom: 50 }}
+        contentContainerStyle={{ padding: 10, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
         {/* ===== HEADER ===== */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900">
+          <Text className={`text-2xl font-bold ${textPrimary}`}>
             Modifier Transaction
           </Text>
-          <Text className="text-gray-400 mt-1">
+          <Text className={`mt-1 ${textSecondary}`}>
             Mettre à jour les informations
           </Text>
         </View>
 
         {/* ===== FORM CARD ===== */}
-        <View className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+        <View
+          className={`${cardBg} rounded-3xl p-5 shadow-sm border border-gray-100 ${shadow}`}
+        >
           {/* Wallet */}
-          <Text className="text-xs text-gray-400 mb-2">Wallet</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Wallet</Text>
           <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: dropdownBg,
+                borderColor: "#A78BFA",
+              },
+            ]}
+            iconColor="#A78BFA"
+            placeholderStyle={{ color: "#A78BFA" }}
+            selectedTextStyle={[
+              styles.itemTextStyle,
+              {
+                color: "#A78BFA",
+              },
+            ]}
             containerStyle={{
+              borderWidth: 1.5,
+              borderColor: valueWallet ? "#7C3AED" : dropdownBorder,
               borderRadius: 20,
               padding: 8,
+              backgroundColor: isDark ? "#171717" : "#FFFFFF",
             }}
             data={wallets}
             labelField="name"
@@ -168,10 +199,10 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             onChange={(item: Wallet) => setValueWallet(item)}
             renderItem={(item) => (
               <View
-                style={[
-                  styles.itemStyle,
-                  valueWallet?.id === item.id && styles.selectedItem,
-                ]}
+                style={{
+                  backgroundColor: isDark ? "#171717" : "#FFFFFF",
+                }}
+                className={`flex flex-row py-4 px-2`}
               >
                 <View
                   style={{
@@ -183,24 +214,37 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                   {item.iconRef ? (
                     <Image
                       source={{ uri: item.iconRef }}
-                      style={{ width: 22, height: 22, marginRight: 12 }}
+                      style={{ width: 22, height: 22, marginRight: 14 }}
                     />
                   ) : (
-                    <MaterialIcons
-                      name="account-balance-wallet"
+                    <MaterialCommunityIcons
+                      name="wallet-bifold"
                       size={22}
-                      color="#7C3AED"
+                      color={
+                        valueWallet?.id === item.id ? "#A78BFA" : "#6B7280"
+                      }
                     />
                   )}
 
-                  <Text style={styles.itemTextStyle}>{item.name}</Text>
+                  <Text
+                    style={[
+                      styles.itemTextStyle,
+                      {
+                        color:
+                          valueWallet?.id === item.id ? "#A78BFA" : "#6B7280",
+                        fontWeight: valueWallet?.id === item.id ? "600" : "500",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
                 </View>
 
                 {valueWallet?.id === item.id && (
                   <MaterialIcons
                     name="check-circle"
                     size={20}
-                    color="#7C3AED"
+                    color="#A78BFA"
                   />
                 )}
               </View>
@@ -208,14 +252,22 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
           />
 
           {/* Labels */}
-          <Text className="text-xs text-gray-400 mb-2">Etiquettes</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Etiquettes</Text>
           <MultiSelect
-            style={styles.dropdown}
-            placeholderStyle={styles.placeholderStyle}
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: dropdownBg,
+                borderColor: "#A78BFA",
+              },
+            ]}
+            placeholderStyle={{ color: "#A78BFA" }}
             selectedTextStyle={styles.selectedTextStyle}
             containerStyle={{
+              borderWidth: 1.5,
               borderRadius: 20,
               padding: 8,
+              backgroundColor: isDark ? "#171717" : "#FFFFFF",
             }}
             data={labels}
             labelField="name"
@@ -243,7 +295,11 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                       style={{ marginRight: 8 }}
                     />
                   )}
-                  <Text className="text-xs font-semibold">{item.name}</Text>
+                  <Text
+                    className={`text-xs font-semibold ${theme === "dark" ? "text-white" : ""}`}
+                  >
+                    {item.name}
+                  </Text>
                 </View>
               </View>
             )}
@@ -252,7 +308,8 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
 
               return (
                 <View
-                  style={[styles.itemStyle, isSelected && styles.selectedItem]}
+                  className={`flex flex-row py-4 px-2 rounded-lg`}
+                  style={[isSelected && styles.selectedItem]}
                 >
                   <View
                     style={{
@@ -264,13 +321,13 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                     <MaterialIcons
                       name="label"
                       size={20}
-                      color={isSelected ? "#7C3AED" : "#9CA3AF"}
+                      color={isSelected ? "#A78BFA" : "#6B7280"}
                     />
 
                     <Text
                       style={[
                         styles.itemTextStyle,
-                        { color: isSelected ? "#6D28D9" : "#374151" },
+                        { color: isSelected ? "#A78BFA" : "#6B7280" },
                       ]}
                     >
                       {item.name}
@@ -278,7 +335,11 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                   </View>
 
                   {isSelected && (
-                    <MaterialIcons name="check" size={20} color="#7C3AED" />
+                    <MaterialIcons
+                      name="check-circle"
+                      size={20}
+                      color="#A78BFA"
+                    />
                   )}
                 </View>
               );
@@ -286,58 +347,107 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
           />
 
           {/* Type */}
-          <Text className="text-xs text-gray-400 mb-2">Type</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Type</Text>
           <Dropdown
-            style={styles.dropdown}
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: dropdownBg,
+                borderColor:
+                  type === TransactionType.IN ? "#22c55e" : "#ef4444",
+              },
+            ]}
+            iconColor={type === TransactionType.IN ? "#22c55e" : "#ef4444"}
             data={transactionTypeSelected}
             labelField="name"
             valueField="id"
             placeholder="Type de transaction"
+            selectedTextStyle={[
+              styles.itemTextStyle,
+              {
+                color: type === TransactionType.IN ? "#22c55e" : "#ef4444",
+              },
+            ]}
+            containerStyle={{
+              borderWidth: 1.5,
+              borderColor: type === TransactionType.IN ? "#22c55e" : "#ef4444",
+              borderRadius: 20,
+              padding: 8,
+              backgroundColor: isDark ? "#171717" : "#FFFFFF",
+            }}
             value={type}
             onChange={(item: any) => setType(item.id)}
             renderItem={(item) => (
-              <View style={styles.itemStyle}>
-                {/* Icône à gauche */}
-                <MaterialIcons
-                  name={
-                    item.id === TransactionType.IN
-                      ? "arrow-upward"
-                      : "arrow-downward"
-                  }
-                  size={20}
-                  color={item.id === TransactionType.IN ? "green" : "red"}
-                />
-                <Text
-                  style={styles.itemTextStyle}
-                  className={
-                    item.id === TransactionType.IN
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }
+              <View
+                style={{
+                  backgroundColor: isDark ? "#171717" : "#FFFFFF",
+                }}
+                className={`flex flex-row py-4 px-2`}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    flex: 1,
+                  }}
+                  className={`${item.id === TransactionType.IN ? "bg-green-50" : "bg-red-50"} py-4 px-4 rounded-lg`}
                 >
-                  {item.name}
-                </Text>
-                {/* Check si sélectionné */}
-                {item.id === type && (
-                  <MaterialIcons name="check" size={20} color="#6200EE" />
-                )}
+                  <MaterialCommunityIcons
+                    name={item.id === TransactionType.IN ? "plus" : "minus"}
+                    size={22}
+                    color={item.id === TransactionType.IN ? "green" : "red"}
+                  />
+
+                  <Text
+                    style={[
+                      styles.itemTextStyle,
+                      {
+                        color: item.id === TransactionType.IN ? "green" : "red",
+                        fontWeight: item?.id === item.id ? "600" : "500",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
               </View>
             )}
           />
 
           {/* Description */}
-          <Text className="text-xs text-gray-400 mb-2">Description</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Description</Text>
           <TextInput
-            className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-5"
+            style={{
+              height: 55,
+              backgroundColor: inputBackground,
+              borderWidth: 1.5,
+              borderColor: "#A78BFA",
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              color: isDark ? "#FFFFFF" : "#111827",
+              fontSize: 15,
+              marginBottom: 22,
+            }}
+            placeholderTextColor="#A78BFA"
             placeholder="Ex: Paiement facture"
             value={description}
             onChangeText={setDescription}
           />
 
           {/* Amount */}
-          <Text className="text-xs text-gray-400 mb-2">Montant</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Montant</Text>
           <TextInput
-            className="h-[55px] bg-gray-50 border border-gray-200 rounded-xl px-4 mb-2 text-lg font-semibold"
+            style={{
+              height: 55,
+              backgroundColor: inputBackground,
+              borderWidth: 1.5,
+              borderColor: "#A78BFA",
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              color: isDark ? "#FFFFFF" : "#111827",
+              fontSize: 15,
+            }}
+            placeholderTextColor="#A78BFA"
             keyboardType="numeric"
             onChangeText={handleChangeNumber}
             value={amount.toString()}
@@ -382,16 +492,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
   },
 
-  itemStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-  },
-
   selectedItem: {
-    backgroundColor: "#F3E8FF",
+    backgroundColor: "#64748b",
   },
 
   itemTextStyle: {
@@ -410,5 +512,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#111827",
+  },
+
+  shadowLight: {
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
 });
