@@ -3,6 +3,19 @@ export interface Credentials {
     password: string;
 }
 
+export type Recurrence = "daily" | "weekly" | "monthly";
+export interface Pagination {
+    totalPage: number;
+    page: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}
+
+export interface PaginatedResponse<T> {
+    pagination: Pagination;
+    values: T[];
+}
+
 export interface User {
     id: string;
     username: string;
@@ -70,6 +83,18 @@ export interface UpdateWallet extends CreationWallet {
 export interface Wallet extends UpdateWallet {
     amount: number;
     walletAutomaticIncome?: WalletAutomaticIncome;
+}
+
+export interface TransactionFilters {
+    walletId?: string;
+    startingDate?: string;       // ISO 8601 : "2024-01-01T00:00:00.000Z"
+    endingDate?: string;         // ISO 8601 : "2024-01-31T23:59:59.999Z"
+    type?: "IN" | "OUT";
+    label?: string[];
+    minAmount?: number;
+    maxAmount?: number;
+    sortBy?: "date" | "amount";
+    sort?: "asc" | "desc";
 }
 
 export interface PaginatedWallets {

@@ -8,6 +8,7 @@ import {
     PaginatedWallets,
     RegisterRequest,
     Transaction,
+    TransactionFilters,
     UpdateWallet,
     User,
     UserWithToken,
@@ -95,6 +96,15 @@ export const walletAPI = {
 };
 
 export const transactionAPI = {
+  getALLTransactions: (accountId: string, filters?: TransactionFilters) => 
+    apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/transaction`, {
+        params: {
+            ...filters,
+        }
+    })),
+
+    
+
     getAll: (accountId: string, walletId: string) =>
         apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/wallet/${walletId}/transaction`)),
 

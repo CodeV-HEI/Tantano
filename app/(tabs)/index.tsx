@@ -42,7 +42,7 @@ export default function DashboardScreen() {
         try {
             // Récupérer les portefeuilles
             const walletsRes = await walletAPI.getAll(user.id);
-            const walletsData = walletsRes.data.values;
+            const walletsData: Wallet[] = walletsRes.data.values;
             setWallets(walletsData);
 
             // Récupérer les labels
@@ -219,7 +219,7 @@ export default function DashboardScreen() {
                     <Animated.View entering={FadeInUp.delay(400)} className="mt-10">
                         <View className="flex-row justify-between items-center mb-4">
                             <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>PORTEFEUILLES</Text>
-                            <TouchableOpacity onPress={() => router.push('/wallets')}>
+                            <TouchableOpacity onPress={() => router.push('/')}> {/** /Wallet */}
                                 <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
                             </TouchableOpacity>
                         </View>
@@ -241,7 +241,7 @@ export default function DashboardScreen() {
                                         entering={FadeInUp.delay(500 + index * 100)}
                                         className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
                                     >
-                                        <TouchableOpacity onPress={() => router.push('/wallets')}>
+                                        <TouchableOpacity onPress={() => router.push('/')}> {/** /Wallet */}
                                             <View className="flex-row justify-between items-center">
                                                 <View className="flex-1">
                                                     <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg`}>{wallet.name}</Text>
@@ -268,7 +268,7 @@ export default function DashboardScreen() {
                     <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
                         <View className="flex-row justify-between items-center mb-4">
                             <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>TRANSACTIONS RÉCENTES</Text>
-                            <TouchableOpacity onPress={() => router.push('/transactions')}>
+                            <TouchableOpacity onPress={() => router.push('/')}> {/** /Transaction */}
                                 <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
                             </TouchableOpacity>
                         </View>
@@ -288,7 +288,7 @@ export default function DashboardScreen() {
                                     entering={FadeInUp.delay(700 + index * 100)}
                                     className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
                                 >
-                                    <TouchableOpacity onPress={() => router.push('/transactions')}>
+                                    <TouchableOpacity onPress={() => router.push('/')}> {/** /Transaction */}
                                         <View className="flex-row justify-between items-start">
                                             <View className="flex-1">
                                                 <Text className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>

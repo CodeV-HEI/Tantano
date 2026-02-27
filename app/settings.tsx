@@ -1,8 +1,12 @@
+import SettingItem from '@/components/SettingItem';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useNotification } from '@/context/NotificationContext';
 import { useTheme } from '@/context/ThemeContext';
+import { Currency } from '@/services/api';
+import { Recurrence } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     FlatList,
     Modal,
@@ -16,15 +20,38 @@ import {
 } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
+    { value: "daily", label: "Quotidien" },
+    { value: "weekly", label: "Hebdomadaire" },
+    { value: "monthly", label: "Mensuel" },
+];
+
 
 export default function SettingsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
-    const { currency, isLoading, updateCurrency, formatCurrency, currencies  } = useCurrency();
+    const { currency, isLoading, updateCurrency, currencies } = useCurrency();
+    const { 
+            recurrence,
+            calculePeriod,
+            setRecurrence,
+            setCalculePeriod,
+            setFreshAmount
+    } = useNotification();
+
+   useFocusEffect(
+    useCallback(() => {
+        setFreshAmount();
+        return () => {
+            setFreshAmount();
+        };
+    }, [setFreshAmount])
+);
+
     
     
  
-  const handleCurrencyChange = async (currency: typeof currencies[0]) => {
+  const handleCurrencyChange = async (currency: Currency) => {
         try {
             await updateCurrency(currency);
             setIsCurrencyModalVisible(false);
@@ -38,7 +65,6 @@ export default function SettingsScreen() {
     const [searchQuery, setSearchQuery] = useState('');
 
     // States for Notifications
-    const [recurrence, setRecurrence] = useState('Semaine');
     const [isRecurrenceModalVisible, setIsRecurrenceModalVisible] = useState(false);
     const [daysCount, setDaysCount] = useState('30');
 
@@ -56,32 +82,6 @@ export default function SettingsScreen() {
       )
     : [];
 
-    const SettingItem = ({
-        icon,
-        title,
-        description,
-        rightComponent
-    }: {
-        icon: keyof typeof MaterialIcons.glyphMap;
-        title: string;
-        description?: string;
-        rightComponent?: React.ReactNode;
-    }) => (
-        <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800">
-            <View className="flex-row items-center flex-1">
-                <View className={`w-10 h-10 rounded-lg ${theme === 'dark' ? 'bg-cyan-500/10' : 'bg-cyan-400/10'} items-center justify-center mr-3`}>
-                    <MaterialIcons name={icon} size={22} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-                </View>
-                <View className="flex-1">
-                    <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>{title}</Text>
-                    {description && (
-                        <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-0.5`}>{description}</Text>
-                    )}
-                </View>
-            </View>
-            {rightComponent}
-        </View>
-    );
 
     return (
         <View className="flex-1 bg-white dark:bg-black">
@@ -147,8 +147,8 @@ export default function SettingsScreen() {
                             description="Nombre de jours pour les dépenses"
                             rightComponent={
                                 <TextInput
-                                    value={daysCount}
-                                    onChangeText={setDaysCount}
+                                    value={calculePeriod.toString()}            
+                                    onChangeText={(text) => setCalculePeriod(parseInt(text) || 1)}
                                     keyboardType="numeric"
                                     className={`w-16 h-8 text-right font-medium ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}
                                     placeholderTextColor="#9ca3af"
@@ -231,22 +231,23 @@ export default function SettingsScreen() {
                 >
                     <View className={`w-full rounded-2xl p-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
                         <Text className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Récurrence</Text>
-                        {['Jour', 'Semaine', 'Mois'].map((option) => (
-                            <TouchableOpacity 
-                                key={option}
+                        {RECURRENCE_OPTIONS.map(({ value, label }) => (
+                            <TouchableOpacity
+                                key={value}
                                 onPress={() => {
-                                    setRecurrence(option);
+                                    setRecurrence(value);
                                     setIsRecurrenceModalVisible(false);
                                 }}
                                 className="py-4 border-b border-gray-100 dark:border-gray-800"
                             >
-                                <Text className={`text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{option}</Text>
+                                <Text className={`text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                        { label}
+                                </Text>
                             </TouchableOpacity>
                         ))}
-                    </View>
+                     </View>
                 </TouchableOpacity>
             </Modal>
-
         </View>
     );
 }

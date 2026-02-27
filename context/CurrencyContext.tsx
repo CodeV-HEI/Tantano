@@ -6,7 +6,7 @@ interface CurrencyContextType {
     currencies: Currency[] | null;
     currency: Currency | null;
     isLoading: boolean;
-    updateCurrency: () => Promise<void>;
+    updateCurrency: (currency: Currency) => Promise<void>;
     formatCurrency: (amount: number) => string;
 }
 
