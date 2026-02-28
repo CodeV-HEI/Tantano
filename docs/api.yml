@@ -10,6 +10,16 @@ security:
 tags:
   - name: auth
     description: For all authentications requests
+  - name: label
+    description: Label management
+  - name: wallet
+    description: Wallet management
+  - name: transaction
+    description: Transaction management
+  - name: goal
+    description: Goal management
+  - name: project
+    description: Project and budget management
 paths:
   /auth/sign-up:
     post:
@@ -138,6 +148,23 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/Label"
+  /account/{accountId}/label/{labelId}/archive:
+    post:
+      tags:
+        - label
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/LabelId"
+      summary: Archive one label by id
+      operationId: archiveOneLabel
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Label"
   /account/{accountId}/wallet:
     get:
       tags:
@@ -225,6 +252,22 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/Wallet"
+  /account/{accountId}/wallet/{walletId}/archive:
+    post:
+      tags:
+        - wallet
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Archive one wallet by id
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Wallet"
 
   /account/{accountId}/wallet/{walletId}/automaticIncome:
     put:
@@ -250,13 +293,21 @@ paths:
                 allOf:
                   - $ref: "#/components/schemas/Wallet"
 
-  /account/{accountId}/wallet/{walletId}/transaction:
+  /account/{accountId}/transaction:
     get:
       tags:
         - transaction
       parameters:
         - $ref: "#/components/parameters/AccountId"
-        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/QueryWalletId"
+        - $ref: "#/components/parameters/StartingDate"
+        - $ref: "#/components/parameters/EndingDate"
+        - $ref: "#/components/parameters/TransactionType"
+        - $ref: "#/components/parameters/TransactionLabel"
+        - $ref: "#/components/parameters/MinAmount"
+        - $ref: "#/components/parameters/MaxAmount"
+        - $ref: "#/components/parameters/TransactionSortBy"
+        - $ref: "#/components/parameters/Sort"
       summary: Get all disponibles transaction for the specified account
       operationId: getAllTransactions
       responses:
@@ -268,6 +319,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Transaction"
+
+  /account/{accountId}/wallet/{walletId}/transaction:
     post:
       tags:
         - transaction
@@ -331,6 +384,443 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/Transaction"
+    delete:
+      tags:
+        - transaction
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Delete one transaction and update wallet amount
+      operationId: removeOneTransaction
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Transaction"
+
+  /account/{accountId}/goal:
+    get:
+      tags:
+        - goal
+      summary: Get all disponibles goal of one account
+      operationId: getAllGoals
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/QueryWalletId"
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/MinAmount"
+        - $ref: "#/components/parameters/MaxAmount"
+        - $ref: "#/components/parameters/StartingDateBeginning"
+        - $ref: "#/components/parameters/StartingDateEnding"
+        - $ref: "#/components/parameters/EndingDateBeginning"
+        - $ref: "#/components/parameters/EndingDateEnding"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    allOf:
+                      - $ref: "#/components/schemas/PaginationResult"
+                  values:
+                    items:
+                      $ref: "#/components/schemas/Goal"
+
+  /account/{accountId}/wallet/{walletId}/goal:
+    post:
+      tags:
+        - goal
+      summary: create new goal for one account
+      operationId: createOneGoal
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationGoal"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    allOf:
+                      - $ref: "#/components/schemas/PaginationResult"
+                  values:
+                    items:
+                      $ref: "#/components/schemas/Goal"
+  /account/{accountId}/wallet/{walletId}/goal/{goalId}:
+    get:
+      tags:
+        - goal
+      summary: Get one goal of one account by it's id
+      operationId: getOneGoal
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/GoalId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: "#/components/schemas/Goal"
+    put:
+      tags:
+        - goal
+      summary: update one goal of one account
+      operationId: updateOneGoal
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/WalletId"
+        - $ref: "#/components/parameters/GoalId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Goal"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: "#/components/schemas/Goal"
+  /account/{accountId}/wallet/{walletId}/goal/{goalId}/archive:
+    post:
+      tags:
+        - goal
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/LabelId"
+        - $ref: "#/components/parameters/WalletId"
+      summary: Archive one label by id
+      operationId: archiveOneGoal
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Goal"
+
+  /account/{accountId}/project:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Name"
+      summary: Get all projects for the specified account
+      operationId: getAllProjects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+    post:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Create new project for the specified account
+      operationId: createOneProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationProject"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Project"
+
+  /account/{accountId}/project/{projectId}:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Get one project by id for the specified account
+      operationId: getOneProject
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Project"
+
+    put:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Update one project by id for the specified account
+      operationId: updateOneProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationProject"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Project"
+
+    delete:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Delete one project by id for the specified account
+      operationId: deleteOneProject
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Project"
+
+  /account/{accountId}/project/{projectId}/archive:
+    post:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Archive one project by id
+      operationId: archiveOneProject
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Project"
+
+  /account/{accountId}/project/{projectId}/transaction:
+    post:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Create new project transaction for the specified account
+      operationId: createOneProjectTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationProjectTransaction"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTransaction"
+
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Get all project transactions for the specified project
+      operationId: getAllProjectTransactions
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectTransaction"
+
+  /account/{accountId}/project/{projectId}/transaction/{transactionId}:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Get one project transaction by id
+      operationId: getOneProjectTransaction
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTransaction"
+
+    put:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Update one project transaction by id
+      operationId: updateOneProjectTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CreationProjectTransaction"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTransaction"
+
+    delete:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/TransactionId"
+      summary: Delete one project transaction by id
+      operationId: deleteOneProjectTransaction
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTransaction"
+
+  /account/{accountId}/project/{projectId}/statistics:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Get statistics for one project
+      operationId: getProjectStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectStatistics"
+
+  /account/{accountId}/project/{projectId}/pdf/statistics:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Download project statistics as PDF
+      operationId: downloadProjectStatisticsPDF
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /account/{accountId}/project/{projectId}/pdf/invoice:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Download project invoice as PDF
+      operationId: downloadProjectInvoicePDF
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /account/{accountId}/project/{projectId}/pdf/summary:
+    get:
+      tags:
+        - project
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - $ref: "#/components/parameters/ProjectId"
+      summary: Download project summary as PDF
+      operationId: downloadProjectSummaryPDF
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
 components:
   parameters:
     Id:
@@ -363,6 +853,20 @@ components:
         format: uuid
     WalletId:
       name: walletId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    GoalId:
+      name: goalId
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    ProjectId:
+      name: projectId
       required: true
       in: path
       schema:
@@ -405,6 +909,118 @@ components:
           - MOBILE_MONEY
           - BANK
           - DEBT
+    StartingDate:
+      name: startingDate
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    EndingDate:
+      name: endingDate
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    StartingDateBeginning:
+      name: startingDateBeginning
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    StartingDateEnding:
+      name: startingDateEnding
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    EndingDateBeginning:
+      name: endingDateBeginning
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    EndingDateEnding:
+      name: endingDateEnding
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+    TransactionType:
+      name: type
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+          - IN
+          - OUT
+    TransactionLabel:
+      name: label
+      required: false
+      in: query
+      schema:
+        type: array
+        items:
+          description: label ids
+          type: string
+          format: uuid
+    QueryWalletId:
+      name: walletId
+      required: false
+      in: query
+      schema:
+        type: string
+        format: uuid
+    MinAmount:
+      name: minAmount
+      required: false
+      in: query
+      schema:
+        type: number
+        format: double
+    MaxAmount:
+      name: maxAmount
+      required: false
+      in: query
+      schema:
+        type: number
+        format: double
+    TransactionSortBy:
+      name: sortBy
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+          - date
+          - amount
+    GoalSortBy:
+      name: sortBy
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+          - startingDate
+          - endingDate
+          - name
+          - createdAt
+          - amount
+    Sort:
+      name: sort
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
     Month:
       name: month
       required: false
@@ -421,13 +1037,43 @@ components:
         type: number
 
   schemas:
+    CreationGoal:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Frebruary resolution
+        amount:
+          type: number
+        walletId:
+          type: string
+        startingDate:
+          type: string
+          format: date-time
+        endingDate:
+          type: string
+          format: date-time
+        color:
+          type: string
+        iconRef:
+          type: string
+    Goal:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CreationGoal"
+      properties:
+        id:
+          type: string
+          format: uuid
     CreationTransaction:
       type: object
       properties:
         date:
           type: string
-          format: datetime
-          example: Personal
+          format: date-time
         labels:
           type: array
           items:
@@ -487,6 +1133,12 @@ components:
             - MOBILE_MONEY
             - BANK
             - DEBT
+        color:
+          type: string
+          example: "#00ff00"
+          default: "#00ff00"
+        iconRef:
+          type: string
 
     UpdateWallet:
       type: object
@@ -518,6 +1170,12 @@ components:
         name:
           type: string
           example: FOOD
+        color:
+          type: string
+          example: "#00ff00"
+          default: "#00ff00"
+        iconRef:
+          type: string
     Label:
       type: object
       allOf:
@@ -563,3 +1221,101 @@ components:
           type: boolean
         hasPrev:
           type: boolean
+
+    CreationProject:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Renovation Maison"
+        description:
+          type: string
+          example: "Renovation de la cuisine"
+        initialBudget:
+          type: number
+          format: int64
+          example: 5000000
+        color:
+          type: string
+          example: "#FF5733"
+          default: "#00ff00"
+        iconRef:
+          type: string
+
+    Project:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CreationProject"
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isArchived:
+          type: boolean
+          default: false
+
+    CreationProjectTransaction:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Achat Matériaux"
+        description:
+          type: string
+          example: "Ciment, sable, briques"
+        estimatedCost:
+          type: number
+          format: int64
+          example: 500000
+        realCost:
+          type: number
+          format: int64
+          example: 520000
+
+    ProjectTransaction:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CreationProjectTransaction"
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProjectStatistics:
+      type: object
+      properties:
+        project:
+          allOf:
+            - $ref: "#/components/schemas/Project"
+        totalEstimatedCost:
+          type: number
+          format: int64
+        totalRealCost:
+          type: number
+          format: int64
+        remainingBudget:
+          type: number
+          format: int64
+        transactionCount:
+          type: number
