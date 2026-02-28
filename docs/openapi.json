@@ -3039,11 +3039,14 @@
             "example": 520000,
             "format": "int64",
             "type": "number"
+<<<<<<< HEAD
           },
           "walletId": {
             "description": "ID du wallet pour déduire le coût réel",
             "format": "uuid",
             "type": "string"
+=======
+>>>>>>> 4792568 (docs: Update api.yml and openapi.json docs files)
           }
         },
         "type": "object"
@@ -3067,10 +3070,13 @@
                 "format": "uuid",
                 "type": "string"
               },
+<<<<<<< HEAD
               "walletId": {
                 "format": "uuid",
                 "type": "string"
               },
+=======
+>>>>>>> 4792568 (docs: Update api.yml and openapi.json docs files)
               "createdAt": {
                 "format": "date-time",
                 "type": "string"
