@@ -60,6 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             setUser(account);
             console.log('Connexion réussie');
+
+            try {
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+            } catch (e) {
+                console.error('Failed to save credentials for biometrics', e);
+            }
         } catch (error: any) {
             console.error('Login failed:', error);
 
@@ -92,6 +98,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             setUser(account);
             console.log('Inscription et connexion réussies');
+
+            try {
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+            } catch (e) {
+                console.error('Failed to save credentials for biometrics', e);
+            }
         } catch (error: any) {
             console.error('Registration failed:', error);
 
@@ -135,8 +147,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (result.success) {
                 const creds = await SecureStore.getItemAsync('credentials');
                 if (creds) {
-                    const { email, password } = JSON.parse(creds);
-                    await login(email, password);
+                    const { username, password } = JSON.parse(creds);
+                    await login(username, password);
                     return true;
                 }
             }
