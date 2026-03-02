@@ -22,11 +22,11 @@ export default function CardTransaction({
 
   const deletePress = async (id: string) => {
     try {
-      const response = await transactionAPI
+      await transactionAPI
         .delete(data.accountId, data.walletId, id)
         .then((res) => res.data);
 
-      console.log("Transaction deleted:", response);
+      console.log("Transaction deleted:");
 
       Toast.show({
         type: "success",
