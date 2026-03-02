@@ -4,6 +4,7 @@ import { transactionAPI } from "@/services/api";
 import { useTransactionStore } from "@/store/useTransactionStore";
 import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -33,6 +34,9 @@ export default function FormTrasansction() {
   const [amount, setAmount] = useState<number>(0);
   const { wallets, labels } = useTransactionStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const dateToday = new Date();
+  const [date, setDate] = useState(dateToday);
+  const [showDate, setShowDate] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -43,7 +47,6 @@ export default function FormTrasansction() {
   const textPrimary = isDark ? "text-white" : "text-gray-900";
   const textSecondary = isDark ? "text-gray-400" : "text-gray-500";
   const inputBackground = isDark ? "#18181B" : "#F9FAFB";
-  const inputBorder = isDark ? "#27272A" : "#A78BFA";
   const dropdownBg = isDark ? "#171717" : "#FFFFFF";
   const dropdownBorder = isDark ? "#2A2A2A" : "#E5E7EB";
   const shadow = isDark ? {} : styles.shadowLight;
@@ -51,6 +54,11 @@ export default function FormTrasansction() {
   const handleChangeNumber = (text: string) => {
     const numericValue = text.replace(/[^0-9]/g, "");
     setAmount(Number(numericValue));
+  };
+
+  const handleChangeDate = (event: any, selected?: Date) => {
+    setDate(selected || date);
+    setShowDate(false);
   };
 
   const handleSubmit = async () => {
@@ -79,11 +87,10 @@ export default function FormTrasansction() {
       })
       .filter((l) => l !== null);
 
-    const dateToday = new Date().toISOString();
     const acountId = user?.id || "";
 
     const dataSend: CreationTransaction = {
-      date: dateToday,
+      date: date.toISOString(),
       labels: labelSubmit,
       type: type,
       description: description,
@@ -94,17 +101,14 @@ export default function FormTrasansction() {
 
     try {
       setIsLoading(true);
-      const response = await transactionAPI.create(
-        acountId,
-        valueWallet.id,
-        dataSend,
-      );
-      console.log("Réponse de l'API :", response);
+      await transactionAPI.create(acountId, valueWallet.id, dataSend);
+      console.log("Transaction created");
       Toast.show({
         type: "success",
         text1: "Transaction créée",
         text2: "La transaction a été créée avec succès.",
       });
+      router.push("/transactions");
     } catch (error) {
       console.error("Erreur lors de la création de la transaction :", error);
       Toast.show({
@@ -112,10 +116,7 @@ export default function FormTrasansction() {
         text1: "Erreur de création",
         text2: "Une erreur est survenue lors de la création de la transaction.",
       });
-      setIsLoading(false);
-      return;
     } finally {
-      router.push("/transactions");
       setIsLoading(false);
     }
   };
@@ -147,6 +148,22 @@ export default function FormTrasansction() {
       <View
         className={`${cardBg} rounded-3xl p-5 shadow-sm border border-gray-100 ${shadow}`}
       >
+        <Text className={`text-lg mb-2 ${textSecondary}`}>Date : </Text>
+        <Pressable
+          onPress={() => setShowDate(true)}
+          className="flex-1 bg-transparent border border-[#A78BFA] rounded-xl px-4 py-4 mb-6"
+        >
+          <Text className={`${isDark && "text-[#A78BFA]"} font-bold`}>
+            Le {date.toLocaleDateString()}
+          </Text>
+        </Pressable>
+        {showDate && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            onChange={handleChangeDate}
+          />
+        )}
         {/* Wallet */}
         <Text className={`text-lg mb-2 ${textSecondary}`}>Portefeuille</Text>
         <Dropdown
