@@ -1,6 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -38,35 +45,45 @@ export default function FilterTransaction() {
   });
 
   return (
-    <View className="bg-transparent">
-      {/* Bouton Toggle */}
-      <Pressable
-        onPress={toggleFilter}
-        className="mx-4 mb-4 bg-purple-600 rounded-2xl py-4 shadow flex flex-row gap-2 justify-center items-center"
-      >
-        {isOpen ? (
-          <MaterialIcons name="arrow-upward" size={20} color="white" />
-        ) : (
-          <MaterialIcons name="arrow-downward" size={20} color="white" />
-        )}
-        <Text className="text-white mt-1 font-bold">
-          Filtrer les transactions
-        </Text>
-      </Pressable>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View className="bg-transparent">
+        {/* Bouton Toggle */}
+        <Pressable
+          onPress={toggleFilter}
+          className="mx-4 mb-4 bg-purple-600 rounded-2xl py-4 shadow flex flex-row gap-2 justify-center items-center"
+        >
+          {isOpen ? (
+            <MaterialIcons name="arrow-upward" size={20} color="white" />
+          ) : (
+            <MaterialIcons name="arrow-downward" size={20} color="white" />
+          )}
+          <Text className="text-white mt-1 font-bold">
+            Filtrer les transactions
+          </Text>
+        </Pressable>
 
-      {/* Animated Filter */}
-      <Animated.View
-        style={[
-          animatedStyle,
-          {
-            backgroundColor: "white",
-            borderRadius: 20,
-            marginHorizontal: 16,
-          },
-        ]}
-      >
-        <FilterOptionsTransaction onClose={toggleFilter} />
-      </Animated.View>
-    </View>
+        {/* Animated Filter */}
+        <Animated.View
+          style={[
+            animatedStyle,
+            {
+              backgroundColor: "white",
+              borderRadius: 20,
+              marginHorizontal: 16,
+            },
+          ]}
+        >
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <FilterOptionsTransaction onClose={toggleFilter} />
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
