@@ -25,6 +25,7 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';
 import Toast from 'react-native-toast-message';
+import GoogleButton from '@/components/GoogleButton';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -118,10 +119,9 @@ export default function LoginScreen() {
             className="flex-1"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
-            {/* Background 3D */}
+
             <Background3D />
 
-            {/* Bouton de changement de thème */}
             <TouchableOpacity
                 onPress={toggleTheme}
                 className={`absolute top-12 right-6 z-50 p-3 rounded-full ${theme === 'dark' ? 'bg-black/10 backdrop-blur-sm border border-cyan-500/20' : 'bg-cyan-50/80 backdrop-blur-sm border border-cyan-200'}`}
@@ -225,7 +225,8 @@ export default function LoginScreen() {
                             </TouchableOpacity>
                         </Animated.View>
 
-                        {/* Bouton de connexion biométrique */}
+                        <GoogleButton mode="login" />
+
                         {biometricsAvailable && settings.biometricsEnabled && (
                             <TouchableOpacity
                                 onPress={handleBiometricLogin}

@@ -17,7 +17,7 @@ const defaultSettings: Settings = {
     notificationDays: 1,
     isPremium: false,
     currency: 'MGA',
-    biometricsEnabled: true,
+    biometricsEnabled: false,
 };
 
 const SETTINGS_KEY = 'app_settings';

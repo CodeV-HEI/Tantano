@@ -11,9 +11,10 @@ interface AuthContextType {
     login: (username: string, password: string) => Promise<void>;
     register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    updateToken: (token: string) => Promise<void>;
     loginWithBiometrics: () => Promise<boolean>;
     biometricsAvailable: boolean;
-    updateToken: (token: string) => Promise<void>;
+    googleSignIn: (idToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -159,6 +160,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const googleSignIn = async (idToken: string) => {
+        try {
+            // On simule une réponse
+            const response = await fetch(`${process.env.API_BASE_URL}/auth/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                const { account, token } = data;
+                await AsyncStorage.setItem('user', JSON.stringify(account));
+                await AsyncStorage.setItem('token', token);
+                setUser(account);
+            } else {
+                throw new Error(data.message || 'Erreur Google Sign-In');
+            }
+        } catch (error) {
+            console.error('Google sign-in failed:', error);
+            throw error;
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -170,6 +194,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 updateToken,
                 loginWithBiometrics,
                 biometricsAvailable,
+                googleSignIn,
             }}
         >
             {children}

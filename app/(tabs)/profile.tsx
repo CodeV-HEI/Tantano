@@ -16,6 +16,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSettings, NotificationRecurrence, Currency } from '@/hooks/useSettings';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 export default function ProfileScreen() {
     const { user, logout, biometricsAvailable } = useAuth();
@@ -64,7 +65,6 @@ export default function ProfileScreen() {
     };
 
     const handlePremiumToggle = () => {
-        // Simulation d'abonnement (dans un vrai projet, appeler une API ou un achat in-app)
         updateSettings({ isPremium: !settings.isPremium });
         Toast.show({
             type: 'success',
@@ -73,6 +73,53 @@ export default function ProfileScreen() {
             position: 'top',
             visibilityTime: 2000,
         });
+    };
+
+    const handleBiometricToggle = async (value: boolean) => {
+        if (value) {
+            try {
+                const result = await LocalAuthentication.authenticateAsync({
+                    promptMessage: 'Authentifiez-vous pour activer la connexion biométrique',
+                    cancelLabel: 'Annuler',
+                    disableDeviceFallback: false,
+                });
+                if (result.success) {
+                    updateSettings({ biometricsEnabled: true });
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Connexion biométrique activée',
+                        text2: 'Vous pouvez maintenant vous connecter avec votre empreinte',
+                        position: 'top',
+                        visibilityTime: 2000,
+                    });
+                } else {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Activation annulée',
+                        text2: 'Authentification biométrique échouée',
+                        position: 'top',
+                        visibilityTime: 2000,
+                    });
+                }
+            } catch (error) {
+                console.error('Biometric auth error', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Erreur',
+                    text2: 'Impossible d\'utiliser la biométrie',
+                    position: 'top',
+                    visibilityTime: 2000,
+                });
+            }
+        } else {
+            updateSettings({ biometricsEnabled: false });
+            Toast.show({
+                type: 'info',
+                text1: 'Connexion biométrique désactivée',
+                position: 'top',
+                visibilityTime: 2000,
+            });
+        }
     };
 
     const SettingItem = ({
@@ -187,7 +234,6 @@ export default function ProfileScreen() {
                         </Text>
                     </Animated.View>
 
-                    {/* SECTION NOTIFICATIONS */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             NOTIFICATIONS
@@ -221,7 +267,6 @@ export default function ProfileScreen() {
                         </View>
                     </View>
 
-                    {/* SECTION ABONNEMENT */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             ABONNEMENT
@@ -250,7 +295,6 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* SECTION PRÉFÉRENCES */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             PRÉFÉRENCES
@@ -271,7 +315,7 @@ export default function ProfileScreen() {
                             rightComponent={
                                 <Switch
                                     value={settings.biometricsEnabled}
-                                    onValueChange={(value) => updateSettings({ biometricsEnabled: value })}
+                                    onValueChange={handleBiometricToggle}
                                     disabled={!biometricsAvailable}
                                     trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
@@ -285,7 +329,6 @@ export default function ProfileScreen() {
                         )}
                     </View>
 
-                    {/* SECTION AFFICHAGE (existante) */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             AFFICHAGE
@@ -324,7 +367,6 @@ export default function ProfileScreen() {
                         />
                     </View>
 
-                    {/* SECTION COMPTE ET SÉCURITÉ (existante) */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             COMPTE ET SÉCURITÉ
@@ -340,7 +382,6 @@ export default function ProfileScreen() {
                         />
                     </View>
 
-                    {/* SECTION AIDE ET SUPPORT (existante) */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
                             AIDE ET SUPPORT
@@ -374,7 +415,6 @@ export default function ProfileScreen() {
                         />
                     </View>
 
-                    {/* BOUTON DÉCONNEXION */}
                     <TouchableOpacity
                         onPress={handleLogout}
                         className="bg-red-500/10 border-2 border-red-500/30 rounded-xl py-4 flex-row justify-center items-center mb-8"
