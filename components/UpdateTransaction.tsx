@@ -58,7 +58,6 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const textPrimary = isDark ? "text-white" : "text-gray-900";
   const textSecondary = isDark ? "text-gray-400" : "text-gray-500";
   const inputBackground = isDark ? "#18181B" : "#F9FAFB";
-  const inputBorder = isDark ? "#27272A" : "#A78BFA";
   const dropdownBg = isDark ? "#171717" : "#FFFFFF";
   const dropdownBorder = isDark ? "#2A2A2A" : "#E5E7EB";
   const shadow = isDark ? {} : styles.shadowLight;
@@ -114,7 +113,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
     try {
       setIsLoading(true);
       await transactionAPI.update(acountId, valueWallet.id, data.id, dataSend);
-      console.log("Transaction mise à jour avec succès :");
+      console.log("Transaction mise à jour avec succès");
       Toast.show({
         type: "success",
         text1: "Transaction mise à jour",
