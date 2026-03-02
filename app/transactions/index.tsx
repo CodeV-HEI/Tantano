@@ -11,7 +11,7 @@ import Toast from "react-native-toast-message";
 
 export default function Index() {
   const { user } = useAuth();
-  const { filter, getAllTransactions, getAllLables, getWallets, isloaded } =
+  const { filter, getAllTransactions, getAllLables, getWallets } =
     useTransactionStore();
   const accountId = user?.id;
 
@@ -52,16 +52,10 @@ export default function Index() {
       getAllLables(accountId);
       getWallets(accountId);
       getAllTransactions(accountId, filter);
-
-      const intervalId = setInterval(() => {
-        getAllTransactions(accountId, filter);
-      }, 90000);
-
-      return () => clearInterval(intervalId);
     }
   }, [accountId, filter, isCheckingToken]);
 
-  if (isCheckingToken || isloaded) {
+  if (isCheckingToken) {
     return <Loader />;
   }
 
