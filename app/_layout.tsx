@@ -1,9 +1,9 @@
-import { Stack } from "expo-router";
+import ThemeWrapper from "@/components/ThemeWrapper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
-import ThemeWrapper from "@/components/ThemeWrapper";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
@@ -20,9 +20,12 @@ function RootLayoutContent() {
     <Stack screenOptions={{ headerShown: false }}>
       {!user ? (
         <>
-          <Stack.Screen name="index" options={{ animation: 'fade' }} />
-          <Stack.Screen name="login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="register" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="index" options={{ animation: "fade" }} />
+          <Stack.Screen name="login" options={{ animation: "fade" }} />
+          <Stack.Screen
+            name="register"
+            options={{ animation: "slide_from_right" }}
+          />
           <Stack.Screen name="(tabs)" redirect={true} />
         </>
       ) : (

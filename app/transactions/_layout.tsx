@@ -1,14 +1,55 @@
+import FilterOptionsTransaction from "@/components/FilterOptionsTransaction";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome6, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import { Provider } from "react-native-paper";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+
+const { height } = Dimensions.get("window");
+const FILTER_HEIGHT = Math.min(height * 0.8, 500); // 80% max 500px
 
 export default function Layout() {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const [showFilter, setShowFilter] = useState(false);
+
+  // valeur partagée pour l'animation
+  const translateY = useSharedValue(height);
+
+  const openFilter = () => {
+    setShowFilter(true);
+    translateY.value = withTiming(height - FILTER_HEIGHT, {
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+    });
+  };
+
+  const closeFilter = () => {
+    translateY.value = withTiming(
+      height,
+      {
+        duration: 300,
+        easing: Easing.in(Easing.ease),
+      },
+      () => {
+        runOnJS(setShowFilter)(false);
+      },
+    );
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
   const handleLogout = async () => {
     await logout();
@@ -28,7 +69,7 @@ export default function Layout() {
               name="chevron-back"
               size={24}
               onPress={() => router.push("/(tabs)")}
-              className="mx-6"
+              className="mr-6"
               color={"#A74BCA"}
             />
           ),
@@ -46,6 +87,9 @@ export default function Layout() {
           ),
           headerRight: () => (
             <View className="flex-row items-center mr-4">
+              <TouchableOpacity onPress={openFilter} className="mr-4">
+                <MaterialIcons name="filter-list" size={24} color="#A74BCA" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={toggleTheme} className="mr-4">
                 <MaterialIcons
                   name={theme === "dark" ? "light-mode" : "dark-mode"}
@@ -64,6 +108,26 @@ export default function Layout() {
           ),
         }}
       />
+
+      {showFilter && (
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: FILTER_HEIGHT,
+              backgroundColor: theme === "dark" ? "#111111" : "#ffffff",
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+            },
+            animatedStyle,
+          ]}
+        >
+          <FilterOptionsTransaction onClose={closeFilter} />
+        </Animated.View>
+      )}
     </Provider>
   );
 }
