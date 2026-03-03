@@ -7,6 +7,7 @@ import {
     StatusBar,
     ActivityIndicator
 } from 'react-native';
+import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLabelStore } from '@/stores/useLabelStore';
@@ -19,6 +20,7 @@ import { CreateForm } from './components/CreateForm';
 import { EditForm } from './components/EditForm';
 import { LabelList } from './components/LabelList';
 import { EmptyState } from './components/EmptyState';
+import { ConfirmationModal } from './components/ConfirmationModal'; 
 
 export default function LabelsScreen() {
     const { theme } = useTheme();
@@ -38,7 +40,12 @@ export default function LabelsScreen() {
         searchLabels,
         createLabel,
         updateLabel,
-        deleteLabel
+        deleteLabel,
+
+        modalVisible,
+        modalData,
+        hideArchiveModal,
+        confirmArchive
     } = useLabelStore();
 
 
@@ -53,7 +60,6 @@ export default function LabelsScreen() {
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
     }, [theme]);
-
 
     useEffect(() => {
         if (user?.id) {
@@ -72,7 +78,6 @@ export default function LabelsScreen() {
                     setIsSearching(false);
                 });
             } else if (user?.id && !searchQuery.trim()) {
-
                 fetchLabels(user.id, 1);
             }
         }, 500);
@@ -133,11 +138,13 @@ export default function LabelsScreen() {
         }
     };
 
-    const handleScroll = ({ nativeEvent }) => {
-        const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const { nativeEvent } = event;
+
+        const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
             const paddingToBottom = 100;
             return layoutMeasurement.height + contentOffset.y >=
-            contentSize.height - paddingToBottom;
+                contentSize.height - paddingToBottom;
         };
 
         if (isCloseToBottom(nativeEvent)) {
@@ -147,150 +154,159 @@ export default function LabelsScreen() {
 
 
     const filteredLabels = labels.filter(label =>
-    label && label.name &&
-    label.name.toLowerCase().includes(searchQuery.toLowerCase())
+        label && label.name &&
+        label.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
-        <ScrollView
-        className="flex-1 bg-white dark:bg-black"
-        refreshControl={
-            <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-            colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
-            />
-        }
-        onScroll={handleScroll}
-        scrollEventThrottle={400}
-        showsVerticalScrollIndicator={false}
-        >
+        <>
+            <ScrollView
+                className="flex-1 bg-white dark:bg-black"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                        colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
+                    />
+                }
+                onScroll={handleScroll}
+                scrollEventThrottle={400}
+                showsVerticalScrollIndicator={false}
+            >
 
-        <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
-        rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
-        <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
-        rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+                <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
+                    rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
+                <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
+                    rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
-        <View className="px-4 pt-8 pb-8">
+                <View className="px-4 pt-8 pb-8">
 
-        <Header
-        showCreateForm={showCreateForm}
-        onToggleForm={() => {
-            setShowCreateForm(!showCreateForm);
-            setEditingId(null);
-        }}
-        />
-
-        <View className="relative">
-        <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder={isSearching ? "Recherche en cours..." : "Rechercher un label..."}
-        />
-        {isSearching && (
-            <View className="absolute right-12 top-3">
-            <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-            </View>
-        )}
-        </View>
+                    <Header
+                        showCreateForm={showCreateForm}
+                        onToggleForm={() => {
+                            setShowCreateForm(!showCreateForm);
+                            setEditingId(null);
+                        }}
+                    />
 
 
-        {showCreateForm && (
-            <CreateForm
-            onCreate={handleCreateLabel}
-            isCreating={isCreating}
-            onCancel={() => setShowCreateForm(false)}
-            />
-        )}
+                    <View className="relative">
+                        <SearchBar
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholder={isSearching ? "Recherche en cours..." : "Rechercher un label..."}
+                        />
+                        {isSearching && (
+                            <View className="absolute right-12 top-3">
+                                <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                            </View>
+                        )}
+                    </View>
 
 
-        {editingId && (
-            <EditForm
-            initialName={editingName}
-            onUpdate={handleUpdateLabel}
-            isUpdating={isUpdating[editingId]}
-            onCancel={handleCancelEdit}
-            />
-        )}
+                    {showCreateForm && (
+                        <CreateForm
+                            onCreate={handleCreateLabel}
+                            isCreating={isCreating}
+                            onCancel={() => setShowCreateForm(false)}
+                        />
+                    )}
 
 
-        <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mt-4`}>
+                    {editingId && (
+                        <EditForm
+                            initialName={editingName}
+                            onUpdate={handleUpdateLabel}
+                            isUpdating={isUpdating[editingId]}
+                            onCancel={handleCancelEdit}
+                        />
+                    )}
 
-        <View className="flex-row justify-between items-center mb-4">
-        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>
-        MES LABELS
-        </Text>
-        <View className="flex-row items-center">
-        <Text className={`text-sm mr-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-        {filteredLabels.length} affiché{filteredLabels.length > 1 ? 's' : ''}
-        </Text>
-        {pagination && (
-            <View className={`px-2 py-1 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'}`}>
-            <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
-            Page {pagination.page}/{pagination.totalPage}
-            </Text>
-            </View>
-        )}
-        </View>
-        </View>
+                    <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mt-4`}>
 
-
-        {isLoading && labels.length === 0 ? (
-            <View className="py-10 items-center">
-            <ActivityIndicator size="large" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-            <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-4`}>
-            Chargement des labels...
-            </Text>
-            </View>
-        ) : (
-            <>
-
-            <LabelList
-            labels={labels}
-            isUpdating={isUpdating}
-            onEdit={handleEditClick}
-            onDelete={handleDeleteLabel}
-            searchQuery={searchQuery}
-            />
+                        <View className="flex-row justify-between items-center mb-4">
+                            <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'}`}>
+                                MES LABELS
+                            </Text>
+                            <View className="flex-row items-center">
+                                <Text className={`text-sm mr-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {filteredLabels.length} affiché{filteredLabels.length > 1 ? 's' : ''}
+                                </Text>
+                                {pagination && (
+                                    <View className={`px-2 py-1 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'}`}>
+                                        <Text className={`text-xs ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                                            Page {pagination.page}/{pagination.totalPage}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
 
 
-            {filteredLabels.length === 0 && !isLoading && (
-                <EmptyState
-                searchQuery={searchQuery}
-                isLoading={isLoading}
-                />
-            )}
+                        {isLoading && labels.length === 0 ? (
+                            <View className="py-10 items-center">
+                                <ActivityIndicator size="large" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                                <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-4`}>
+                                    Chargement des labels...
+                                </Text>
+                            </View>
+                        ) : (
+                            <>
+                                <LabelList
+                                    labels={labels}
+                                    isUpdating={isUpdating}
+                                    onEdit={handleEditClick}
+                                    onDelete={handleDeleteLabel}
+                                    searchQuery={searchQuery}
+                                />
+
+                                {filteredLabels.length === 0 && !isLoading && (
+                                    <EmptyState
+                                        searchQuery={searchQuery}
+                                        isLoading={isLoading}
+                                    />
+                                )}
+
+                                {isLoadingMore && (
+                                    <View className="py-6 items-center">
+                                        <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                                        <Text className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            Chargement de plus de labels...
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {pagination && !pagination.hasNext && labels.length > 0 && (
+                                    <View className="py-4 items-center">
+                                        <Text className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                                            — Tu as vu tous tes labels —
+                                        </Text>
+                                    </View>
+                                )}
+                            </>
+                        )}
+                    </View>
 
 
-            {isLoadingMore && (
-                <View className="py-6 items-center">
-                <ActivityIndicator size="small" color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-                <Text className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                Chargement de plus de labels...
-                </Text>
+                    <View className="items-center mt-8">
+                        <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
+                            © {new Date().getFullYear()} Tantano - CodeV
+                        </Text>
+                    </View>
                 </View>
-            )}
+            </ScrollView>
 
 
-            {pagination && !pagination.hasNext && labels.length > 0 && (
-                <View className="py-4 items-center">
-                <Text className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                — Tu as vu tous tes labels —
-                </Text>
-                </View>
-            )}
-            </>
-        )}
-        </View>
-
-
-        <View className="items-center mt-8">
-        <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-500'} text-center`}>
-        © {new Date().getFullYear()} Tantano - CodeV
-        </Text>
-        </View>
-        </View>
-        </ScrollView>
+            <ConfirmationModal
+                visible={modalVisible}
+                title="Archiver le label"
+                message={`Archiver "${modalData?.name}" ?\nCette action est réversible.`}
+                onConfirm={confirmArchive}
+                onCancel={hideArchiveModal}
+                confirmText="Archiver"
+                cancelText="Annuler"
+            />
+        </>
     );
 }
