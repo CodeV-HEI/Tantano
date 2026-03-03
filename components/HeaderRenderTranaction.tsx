@@ -2,7 +2,6 @@ import { useTheme } from "@/context/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import FilterTransaction from "./FilterTransaction";
 
 export default function HeaderRenderTranaction() {
   const { theme } = useTheme();
@@ -27,7 +26,6 @@ export default function HeaderRenderTranaction() {
           <Text className="text-white">Créer</Text>
         </Pressable>
       </View>
-      <FilterTransaction />
     </>
   );
 }

@@ -1,13 +1,16 @@
+import { useTheme } from "@/context/ThemeContext"; // récupère le thème
 import { useTransactionStore } from "@/store/useTransactionStore";
-import { TransactionFilter, TransactionType } from "@/types";
+import { TransactionType } from "@/types";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
   LayoutAnimation,
+  Platform,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -33,7 +36,9 @@ export default function FilterOptionsTransaction({
 }: {
   onClose: () => void;
 }) {
+  const { theme } = useTheme();
   const { setFilter, filter, wallets, labels } = useTransactionStore();
+
   const [walletFilter, setWalletFilter] = useState<string>(
     filter.walletId || "",
   );
@@ -62,42 +67,42 @@ export default function FilterOptionsTransaction({
   const [dateEnd, setDateEnd] = useState<Date | undefined>(undefined);
   const [showDateEnd, setShowDateEnd] = useState(false);
 
-  const handleChangeNumberMax = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, "");
-    setAmountMax(Number(numericValue));
+  const colors = {
+    background: theme === "dark" ? "#1c1c1e" : "#ffffff",
+    card: theme === "dark" ? "#2c2c2e" : "#f3f4f6",
+    text: theme === "dark" ? "#f3f3f3" : "#111827",
+    textSecondary: theme === "dark" ? "#d1d1d6" : "#6b7280",
+    primary: "#A74BCA",
+    success: "#10b981",
+    danger: "#ef4444",
+    info: "#2563eb",
+    selectedWallet: theme === "dark" ? "#7c3aed" : "#a855f7",
+    selectedType: theme === "dark" ? "#22c55e" : "#16a34a",
   };
 
-  const handleChangeNumberMin = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, "");
-    setAmountMin(Number(numericValue));
-  };
+  const handleChangeNumberMax = (text: string) =>
+    setAmountMax(Number(text.replace(/[^0-9]/g, "")));
+  const handleChangeNumberMin = (text: string) =>
+    setAmountMin(Number(text.replace(/[^0-9]/g, "")));
 
   const handleChangeDateStart = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || dateStart;
-    setDateStart(currentDate);
+    setDateStart(selectedDate || dateStart);
     setShowDateStart(false);
   };
-
   const handleChangeDateEnd = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || dateEnd;
-    setDateEnd(currentDate);
+    setDateEnd(selectedDate || dateEnd);
     setShowDateEnd(false);
   };
 
   const toggleLabel = (id: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-    setLabelFilter((prevSelected) => {
-      if (prevSelected.includes(id)) {
-        return prevSelected.filter((item) => item !== id);
-      } else {
-        return [...prevSelected, id];
-      }
-    });
+    setLabelFilter((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
   };
 
   const filterOptionsSelected = () => {
-    const filters: TransactionFilter = {
+    setFilter({
       walletId: walletFilter,
       type: typeFilter,
       label: labelFilter,
@@ -105,15 +110,13 @@ export default function FilterOptionsTransaction({
       maxAmount: amountMax,
       startingDate: dateStart ? dateStart.toISOString().split("T")[0] : "",
       endingDate: dateEnd ? dateEnd.toISOString().split("T")[0] : "",
-      sortBy: sortBy,
-      sort: sort,
-    };
-
-    setFilter(filters);
+      sortBy,
+      sort,
+    });
   };
 
   const clearFilters = () => {
-    const filters: TransactionFilter = {
+    setFilter({
       walletId: undefined,
       startingDate: undefined,
       endingDate: undefined,
@@ -123,153 +126,260 @@ export default function FilterOptionsTransaction({
       minAmount: undefined,
       sortBy: "date",
       sort: "asc",
-    };
-
-    setFilter(filters);
+    });
   };
 
   return (
-    <View style={{ padding: 20, gap: 16 }} className="relative">
-      <Text className="text-gray-700 font-bold text-lg mb-2">
-        Selectionner :
-      </Text>
-      <View className="mb-2">
-        <Text className="text-gray-600 mb-4">- Par Wallet :</Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          data={wallets || []}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setWalletFilter(item.id);
-                setWalletSelected(item.id);
-              }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${walletSelected === item.id ? "bg-purple-500 border-purple-500" : ""}`}
-            >
-              <Text
-                className={`text-gray-600 text-sm ${walletSelected === item.id ? "text-white" : ""}`}
-              >
-                {item.name}
-              </Text>
-            </Pressable>
-          )}
-          ListEmptyComponent={
-            <View className="items-center mt-20">
-              <Text className="text-gray-400 text-base">
-                Aucune Portefeuille trouvée
-              </Text>
-              <Link href="/transactions" className="text-blue-500 mt-2">
-                Ajouter une Portefeuille
-              </Link>
-            </View>
-          }
-        />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          gap: 8,
+          padding: 16,
+          zIndex: 10,
+          backgroundColor: colors.background,
+        }}
+      >
+        <Pressable
+          style={{
+            backgroundColor: colors.info + "33",
+            padding: 10,
+            borderRadius: 999,
+          }}
+          onPress={clearFilters}
+        >
+          <AntDesign name="clear" size={20} color={colors.info} />
+        </Pressable>
+        <Pressable
+          style={{
+            backgroundColor: colors.success + "33",
+            padding: 10,
+            borderRadius: 999,
+          }}
+          onPress={filterOptionsSelected}
+        >
+          <AntDesign name="check" size={20} color={colors.success} />
+        </Pressable>
+        <Pressable
+          style={{
+            backgroundColor: colors.danger + "33",
+            padding: 10,
+            borderRadius: 999,
+          }}
+          onPress={onClose}
+        >
+          <AntDesign name="close" size={20} color={colors.danger} />
+        </Pressable>
       </View>
-      <View className="mb-2">
-        <Text className="text-gray-600 mb-4">- Par Type : </Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          data={transactionTypeSelected}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setTypeFilter(item.id as TransactionType);
-                setTypeSelected(item.id);
-              }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${typeSelected === item.id ? "bg-green-500 border-green-500" : ""}`}
-            >
-              <Text
-                className={`text-gray-600 text-sm ${typeSelected === item.id ? "text-white" : ""}`}
-              >
-                {item.name}
-              </Text>
-            </Pressable>
-          )}
-        />
-      </View>
-      <View className="mb-2">
-        <Text className="text-gray-600 mb-4">- Par Etiquette : </Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          data={labels || []}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                toggleLabel(item.id);
-              }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${labelFilter.includes(item.id) ? "bg-purple-500 border-purple-500" : ""}`}
-            >
-              <Text
-                className={`text-gray-600 text-sm ${labelFilter.includes(item.id) ? "text-white" : ""}`}
-              >
-                {item.name}
-              </Text>
-            </Pressable>
-          )}
-          ListEmptyComponent={
-            <View className="items-center mt-20">
-              <Text className="text-gray-400 text-base">
-                Aucune Etiquette trouvée
-              </Text>
-              <Link href="/transactions" className="text-blue-500 mt-2">
-                Ajouter une Etiquette
-              </Link>
-            </View>
-          }
-        />
-      </View>
-      <View className="mb-2">
-        {/* Amount Section */}
-        <View className="mb-5">
-          <Text className="text-gray-600 mb-4">- Par Montant (Ar) : </Text>
 
-          <View className="flex-row gap-3">
+      <ScrollView
+        contentContainerStyle={{ padding: 16, paddingTop: 70, flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text
+          style={{
+            color: colors.text,
+            fontWeight: "bold",
+            fontSize: 18,
+            marginBottom: 12,
+          }}
+        >
+          Selectionner :
+        </Text>
+
+        {/* Wallets */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Par Wallet :
+          </Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            data={wallets || []}
+            contentContainerStyle={{ gap: 8 }}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => {
+                  setWalletFilter(item.id);
+                  setWalletSelected(item.id);
+                }}
+                style={{
+                  backgroundColor:
+                    walletSelected === item.id
+                      ? colors.selectedWallet
+                      : colors.card,
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color:
+                      walletSelected === item.id
+                        ? "#fff"
+                        : colors.textSecondary,
+                  }}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+
+        {/* Type */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Par Type :
+          </Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            data={transactionTypeSelected}
+            contentContainerStyle={{ gap: 8 }}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => {
+                  setTypeFilter(item.id as TransactionType);
+                  setTypeSelected(item.id);
+                }}
+                style={{
+                  backgroundColor:
+                    typeSelected === item.id
+                      ? colors.selectedType
+                      : colors.card,
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color:
+                      typeSelected === item.id ? "#fff" : colors.textSecondary,
+                  }}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+
+        {/* Labels */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Par Etiquette :
+          </Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            data={labels || []}
+            contentContainerStyle={{ gap: 8 }}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => toggleLabel(item.id)}
+                style={{
+                  backgroundColor: labelFilter.includes(item.id)
+                    ? colors.selectedWallet
+                    : colors.card,
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: labelFilter.includes(item.id)
+                      ? "#fff"
+                      : colors.textSecondary,
+                  }}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+
+        {/* Montant */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Par Montant (Ar) :
+          </Text>
+          <View style={{ flexDirection: "row", gap: 8 }}>
             <TextInput
-              className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-base"
+              style={{
+                flex: 1,
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                padding: 12,
+                color: colors.text,
+              }}
               keyboardType="numeric"
+              placeholderTextColor={colors.textSecondary}
               onChangeText={handleChangeNumberMin}
-              value={amountMin ? amountMin.toString() : ""}
+              value={amountMin?.toString() || ""}
               placeholder="Minimum"
             />
-
             <TextInput
-              className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-base"
+              style={{
+                flex: 1,
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                padding: 12,
+                color: colors.text,
+              }}
               keyboardType="numeric"
+              placeholderTextColor={colors.textSecondary}
               onChangeText={handleChangeNumberMax}
-              value={amountMax ? amountMax.toString() : ""}
+              value={amountMax?.toString() || ""}
               placeholder="Maximum"
             />
           </View>
         </View>
 
-        {/* Date Section */}
-        <View>
-          <Text className="text-gray-600 mb-4">- Par Date : </Text>
-
-          <View className="flex-row gap-3">
+        {/* Date */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Par Date :
+          </Text>
+          <View style={{ flexDirection: "row", gap: 8 }}>
             <Pressable
               onPress={() => setShowDateStart(true)}
-              className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3"
+              style={{
+                flex: 1,
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                padding: 12,
+              }}
             >
-              <Text className="text-gray-700">
+              <Text style={{ color: colors.text }}>
                 {dateStart ? dateStart.toLocaleDateString() : "Date début"}
               </Text>
             </Pressable>
-
             <Pressable
               onPress={() => setShowDateEnd(true)}
-              className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3"
+              style={{
+                flex: 1,
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                padding: 12,
+              }}
             >
-              <Text className="text-gray-700">
+              <Text style={{ color: colors.text }}>
                 {dateEnd ? dateEnd.toLocaleDateString() : "Date fin"}
               </Text>
             </Pressable>
@@ -283,7 +393,6 @@ export default function FilterOptionsTransaction({
             onChange={handleChangeDateStart}
           />
         )}
-
         {showDateEnd && (
           <DateTimePicker
             value={dateEnd || new Date()}
@@ -291,76 +400,75 @@ export default function FilterOptionsTransaction({
             onChange={handleChangeDateEnd}
           />
         )}
-      </View>
-      <View className="mb-2">
-        <Text className="text-gray-600 mb-4">- Trier par : </Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          data={sortBySelected}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSortBy(item.id as "date" | "amount");
-              }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${
-                sortBy === item.id ? "bg-purple-500 border-purple-500" : ""
-              }`}
-            >
-              <Text
-                className={`text-gray-600 text-sm ${
-                  sortBy === item.id ? "text-white" : ""
-                }`}
+
+        {/* Trier */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Trier par :
+          </Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            data={sortBySelected}
+            contentContainerStyle={{ gap: 8 }}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => setSortBy(item.id as "date" | "amount")}
+                style={{
+                  backgroundColor:
+                    sortBy === item.id ? colors.selectedWallet : colors.card,
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
               >
-                {item.name}
-              </Text>
-            </Pressable>
-          )}
-        />
-      </View>
-      <View className="mb-2">
-        <Text className="text-gray-600 mb-4">- Sens du tri : </Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          data={sortSelected}
-          contentContainerStyle={{ gap: 8 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setSort(item.id as "asc" | "desc");
-              }}
-              className={`bg-gray-100 border border-gray-200 rounded-full px-4 py-2 ${sort === item.id ? "bg-green-500 border-green-500" : ""}`}
-            >
-              <Text
-                className={`text-gray-600 text-sm ${sort === item.id ? "text-white" : ""}`}
+                <Text
+                  style={{
+                    color: sortBy === item.id ? "#fff" : colors.textSecondary,
+                  }}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+
+        {/* Sens du tri */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
+            - Sens du tri :
+          </Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            data={sortSelected}
+            contentContainerStyle={{ gap: 8 }}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => setSort(item.id as "asc" | "desc")}
+                style={{
+                  backgroundColor:
+                    sort === item.id ? colors.selectedType : colors.card,
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
               >
-                {item.name}
-              </Text>
-            </Pressable>
-          )}
-        />
-      </View>
-      <View className="absolute top-0 left-0 right-0 flex-row justify-end p-4 gap-2">
-        <Pressable
-          className="bg-blue-50 p-2 rounded-full"
-          onPress={clearFilters}
-        >
-          <AntDesign name="clear" size={20} color="#2563eb" />
-        </Pressable>
-        <Pressable
-          className="bg-green-50 p-2 rounded-full"
-          onPress={filterOptionsSelected}
-        >
-          <AntDesign name="check" size={20} color="#10b981" />
-        </Pressable>
-        <Pressable className="bg-red-50 p-2 rounded-full" onPress={onClose}>
-          <AntDesign name="close" size={20} color="#ef4444" />
-        </Pressable>
-      </View>
-    </View>
+                <Text
+                  style={{
+                    color: sort === item.id ? "#fff" : colors.textSecondary,
+                  }}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
