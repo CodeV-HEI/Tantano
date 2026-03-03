@@ -18,7 +18,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_URL = process.env.API_BASE_URL || 'https://tantano-api.onrender.com';
+const API_URL = process.env.API_BASE_URL || 'http://localhost:8080';
 
 
 const api = axios.create({
@@ -124,6 +124,9 @@ export const labelAPI = {
 
     update: (accountId: string, labelId: string, data: Label) =>
         apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
+
+    archive: (accountId: string, labelId: string) =>
+        apiWithRetry(() => api.post<Label>(`/account/${accountId}/label/${labelId}/archive`)),
 };
 
 export default api;
