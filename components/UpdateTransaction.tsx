@@ -144,8 +144,8 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      // style={{ flex: 1 }}
     >
       <ScrollView
         contentContainerStyle={{ padding: 10, paddingBottom: 40 }}
