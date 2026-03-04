@@ -94,16 +94,18 @@ export default function LabelsScreen() {
         setRefreshing(false);
     };
 
-    const handleCreateLabel = async (name: string, color: string) => {
-        if (!user?.id) return;
 
-        console.log(' Création de label:', { name, color });
+    const handleCreateLabel = async (name: string, color: string, iconRef?: string) => {
+    if (!user?.id) return;
 
-        const created = await createLabel(user.id, name, color);
-        if (created) {
-            setShowCreateForm(false);
-        }
-    };
+    console.log(' Création de label:', { name, color, iconRef });
+
+    const created = await createLabel(user.id, name, color, iconRef);
+    if (created) {
+        setShowCreateForm(false);
+    }
+};
+
 
     const handleUpdateLabel = async (name: string, color: string) => {
         if (!user?.id || !editingId) return;

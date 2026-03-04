@@ -44,14 +44,27 @@ interface LabelStore {
     createLabel: (accountId: string, name: string, color?: string, iconRef?: string) => Promise<Label | null>;
     updateLabel: (accountId: string, id: string, name: string, color?: string, iconRef?: string) => Promise<Label | null>;
     checkDefaultLabels: (accountId: string, currentLabels: Label[]) => Promise<void>;
-    archiveLabel: (accountId: string, id: string, name: string) => void; // Plus async
+    archiveLabel: (accountId: string, id: string, name: string) => void; 
     deleteLabel: (accountId: string, id: string, name: string) => Promise<void>;
 }
 
+
 export const DEFAULT_LABELS = [
-    { name: 'NOURRITURE', color: '#FF6B6B' },
-    { name: 'TRANSPORT', color: '#4ECDC4' },
-    { name: 'LOISIRS', color: '#FFD93D' }
+    { 
+        name: 'NOURRITURE', 
+        color: '#FF6B6B',
+        iconRef: 'restaurant'  
+    },
+    { 
+        name: 'TRANSPORT', 
+        color: '#4ECDC4',
+        iconRef: 'directions-car' 
+    },
+    { 
+        name: 'LOISIRS', 
+        color: '#FFD93D',
+        iconRef: 'sports-esports'  
+    }
 ];
 
 export const COLOR_PALETTE = [
@@ -84,9 +97,9 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
 
     showArchiveModal: (accountId, id, name) => {
         console.log(' Affichage du modal pour:', name);
-        set({ 
-            modalVisible: true, 
-            modalData: { accountId, id, name } 
+        set({
+            modalVisible: true,
+            modalData: { accountId, id, name }
         });
     },
 
@@ -99,11 +112,11 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
         if (!modalData) return;
 
         const { accountId, id, name } = modalData;
-        
+
         console.log(' Confirmation archive pour:', name);
         set({ modalVisible: false });
 
-     
+
         set(state => ({
             labels: state.labels.map(l =>
                 l.id === id ? { ...l, _isArchiving: true } : l
@@ -127,7 +140,7 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
         } catch (error: any) {
             console.error(' Erreur archive:', error?.response?.data || error);
 
-     
+
             set(state => ({
                 labels: state.labels.map(l =>
                     l.id === id ? { ...l, _isArchiving: false } : l
@@ -135,7 +148,7 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
             }));
 
             const errorMessage = error?.response?.data?.message || "Impossible d'archiver";
-            
+
             if (Platform.OS === 'web') {
                 window.alert(` ${errorMessage}`);
             } else {
@@ -243,28 +256,33 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
         }
     },
 
-    checkDefaultLabels: async (accountId: string, currentLabels: Label[]) => {
-        const existingNames = currentLabels.map(l => l.name);
-        const missingDefaults = DEFAULT_LABELS.filter(d => !existingNames.includes(d.name));
+checkDefaultLabels: async (accountId: string, currentLabels: Label[]) => {
+    const existingNames = currentLabels.map(l => l.name);
+    const missingDefaults = DEFAULT_LABELS.filter(d => !existingNames.includes(d.name));
 
-        if (missingDefaults.length > 0) {
-            console.log(' Création des labels par défaut:', missingDefaults.map(d => d.name));
+    if (missingDefaults.length > 0) {
+        console.log('Création des labels par défaut avec icônes:', 
+            missingDefaults.map(d => ({ name: d.name, icon: d.iconRef })));
 
-            for (const defaultLabel of missingDefaults) {
-                try {
-                    await labelAPI.create(accountId, defaultLabel);
-                    console.log(` ${defaultLabel.name} créé`);
-                } catch (error) {
-                    console.error(`Erreur création ${defaultLabel.name}:`, error);
-                }
+        for (const defaultLabel of missingDefaults) {
+            try {
+                await labelAPI.create(accountId, {
+                    name: defaultLabel.name,
+                    color: defaultLabel.color,
+                    iconRef: defaultLabel.iconRef  
+                });
+                console.log(` ${defaultLabel.name} créé avec icône ${defaultLabel.iconRef}`);
+            } catch (error) {
+                console.error(` Erreur création ${defaultLabel.name}:`, error);
             }
-
-            await get().fetchLabels(accountId, 1);
         }
-    },
+
+        await get().fetchLabels(accountId, 1);
+    }
+},
 
     createLabel: async (accountId: string, name: string, color?: string, iconRef?: string) => {
-        console.log(' STORE - reçu:', { accountId, name, color });
+        console.log(' STORE - reçu:', { accountId, name, color, iconRef });
 
         if (!accountId) return null;
         if (!name.trim()) {
@@ -277,9 +295,10 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
         try {
             const finalColor = color || COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
 
-            console.log(' STORE - envoi à API:', {
+            console.log('STORE - envoi à API:', {
                 name: name.trim().toUpperCase(),
-                color: finalColor
+                color: finalColor,
+                iconRef: iconRef || undefined
             });
 
             const response = await labelAPI.create(accountId, {
@@ -288,12 +307,19 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
                 iconRef: iconRef || undefined
             });
 
+
             if (finalColor && response.data.color !== finalColor) {
-                console.log('API a ignoré la couleur, on force:', finalColor);
+                console.log('🎨 API a ignoré la couleur, on force:', finalColor);
                 response.data.color = finalColor;
             }
 
-            console.log('STORE - réponse API (corrigée):', response.data);
+           
+            if (iconRef && response.data.iconRef !== iconRef) {
+                console.log(' API a ignoré l\'icône, on force:', iconRef);
+                response.data.iconRef = iconRef;
+            }
+
+            console.log(' STORE - réponse API (corrigée):', response.data);
 
             set(state => ({
                 labels: [response.data, ...state.labels],
@@ -330,6 +356,8 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
 
             if (iconRef !== undefined) {
                 updateData.iconRef = iconRef;
+            } else {
+                updateData.iconRef = existingLabel.iconRef;
             }
 
             console.log(' Mise à jour avec:', updateData);
@@ -338,7 +366,8 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
 
             const updatedLabel = {
                 ...response.data,
-                color: response.data.color || existingLabel.color
+                color: response.data.color || existingLabel.color,
+                iconRef: response.data.iconRef !== undefined ? response.data.iconRef : existingLabel.iconRef
             };
 
             console.log(' Label modifié:', updatedLabel);
@@ -357,7 +386,7 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
             Alert.alert('Succès', 'Label modifié');
             return updatedLabel;
         } catch (error: any) {
-            console.error(' Erreur updateLabel:', error?.response?.data || error);
+            console.error('Erreur updateLabel:', error?.response?.data || error);
             set(state => {
                 const newIsUpdating = { ...state.isUpdating };
                 delete newIsUpdating[id];
@@ -367,8 +396,6 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
             return null;
         }
     },
-
-
     archiveLabel: (accountId: string, id: string, name: string) => {
         console.log(' Tentative d\'archive:', { accountId, id, name });
 

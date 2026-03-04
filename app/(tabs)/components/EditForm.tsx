@@ -4,16 +4,17 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { COLOR_PALETTE } from '@/types/label';
 import Animated, { FadeInUp, FadeInDown, SlideInDown } from 'react-native-reanimated';
+import { IconPicker, AVAILABLE_ICONS } from './IconPicker';
 
 interface Props {
     visible: boolean;
     initialName: string;
     initialColor: string;
-    onUpdate: (name: string, color: string) => Promise<void>;
+    initialIcon?: string | null;
+    onUpdate: (name: string, color: string, iconRef?: string) => Promise<void>;
     isUpdating: boolean;
     onCancel: () => void;
 }
-
 
 const ColorPicker = ({ selectedColor, onSelectColor }: { selectedColor: string; onSelectColor: (color: string) => void }) => {
     const { theme } = useTheme();
@@ -38,11 +39,10 @@ const ColorPicker = ({ selectedColor, onSelectColor }: { selectedColor: string; 
                             className="mr-3 items-center"
                         >
                             <View
-                                className={`w-12 h-12 rounded-full border-2 transition-all ${
-                                    selectedColor === color
-                                        ? 'border-cyan-500 scale-110 shadow-lg shadow-cyan-500/50'
-                                        : 'border-transparent'
-                                }`}
+                                className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color
+                                    ? 'border-purple-500 scale-110 shadow-lg shadow-purple-500/50'
+                                    : 'border-transparent'
+                                    }`}
                                 style={{ backgroundColor: color }}
                             >
                                 {selectedColor === color && (
@@ -62,30 +62,53 @@ const ColorPicker = ({ selectedColor, onSelectColor }: { selectedColor: string; 
     );
 };
 
-export const EditForm = ({ 
-    visible, 
-    initialName, 
-    initialColor, 
-    onUpdate, 
-    isUpdating, 
-    onCancel 
+export const EditForm = ({
+    visible,
+    initialName,
+    initialColor,
+    initialIcon,
+    onUpdate,
+    isUpdating,
+    onCancel
 }: Props) => {
     const { theme } = useTheme();
     const [name, setName] = useState(initialName);
     const [selectedColor, setSelectedColor] = useState(initialColor);
+    const [selectedIcon, setSelectedIcon] = useState<string | null>(initialIcon || null);
 
+    const DEFAULT_LABEL_NAMES = ['NOURRITURE', 'TRANSPORT', 'LOISIRS'];
+
+    const isDefault = DEFAULT_LABEL_NAMES.includes(initialName);
+
+    const getDefaultIcon = (name: string): string => {
+        switch(name) {
+            case 'NOURRITURE':
+                return 'restaurant';
+            case 'TRANSPORT':
+                return 'directions-car';
+            case 'LOISIRS':
+                return 'sports-esports';
+            default:
+                return 'label';
+        }
+    };
 
     useEffect(() => {
         if (visible) {
             setName(initialName);
             setSelectedColor(initialColor);
+            setSelectedIcon(initialIcon || null);
         }
-    }, [visible, initialName, initialColor]);
+    }, [visible, initialName, initialColor, initialIcon]);
 
     const handleSubmit = async () => {
         if (!name.trim()) return;
-        console.log('Modification:', { name: name.trim().toUpperCase(), color: selectedColor });
-        await onUpdate(name.trim().toUpperCase(), selectedColor);
+        console.log(' Modification:', {
+            name: name.trim().toUpperCase(),
+            color: selectedColor,
+            icon: selectedIcon
+        });
+        await onUpdate(name.trim().toUpperCase(), selectedColor, selectedIcon || undefined);
     };
 
     const handleClose = () => {
@@ -101,17 +124,14 @@ export const EditForm = ({
             animationType="slide"
             onRequestClose={handleClose}
         >
-
             <View className="flex-1 bg-black/90">
-
-                <TouchableOpacity 
-                    activeOpacity={1} 
+                <TouchableOpacity
+                    activeOpacity={1}
                     onPress={handleClose}
                     className="flex-1"
                 />
-                
 
-                <Animated.View 
+                <Animated.View
                     entering={SlideInDown.springify().damping(15)}
                     className={`rounded-t-3xl overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}
                     style={{
@@ -126,16 +146,14 @@ export const EditForm = ({
                         <View className={`w-12 h-1 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'}`} />
                     </View>
 
-
-                    <View className={`px-5 pt-4 pb-2 ${theme === 'dark' ? 'bg-gray-800' : 'bg-cyan-50'}`}>
+                    <View className={`px-5 pt-4 pb-2 ${theme === 'dark' ? 'bg-gray-800' : 'bg-purple-50'}`}>
                         <View className="flex-row items-center">
-                            <View className={`w-8 h-8 rounded-lg items-center justify-center mr-3 ${
-                                theme === 'dark' ? 'bg-purple-500/20' : 'bg-purple-100'
-                            }`}>
-                                <MaterialIcons 
-                                    name="edit" 
-                                    size={20} 
-                                    color={theme === 'dark' ? '#c084fc' : '#9333ea'} 
+                            <View className={`w-8 h-8 rounded-lg items-center justify-center mr-3 ${theme === 'dark' ? 'bg-purple-500/20' : 'bg-purple-100'
+                                }`}>
+                                <MaterialIcons
+                                    name="edit"
+                                    size={20}
+                                    color={theme === 'dark' ? '#c084fc' : '#9333ea'}
                                 />
                             </View>
                             <View className="flex-1">
@@ -143,44 +161,51 @@ export const EditForm = ({
                                     Modifier le label
                                 </Text>
                                 <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    Modifiez le nom ou la couleur
+                                    Modifiez le nom, la couleur ou l'icône
                                 </Text>
                             </View>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 onPress={handleClose}
                                 className={`p-2 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}
                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                             >
-                                <MaterialIcons 
-                                    name="close" 
-                                    size={18} 
-                                    color={theme === 'dark' ? '#9ca3af' : '#6b7280'} 
+                                <MaterialIcons
+                                    name="close"
+                                    size={18}
+                                    color={theme === 'dark' ? '#9ca3af' : '#6b7280'}
                                 />
                             </TouchableOpacity>
                         </View>
                     </View>
 
                     <View className="px-5 py-4">
-                        <View 
+                        <View
                             className="mb-4 p-3 rounded-xl border"
-                            style={{ 
+                            style={{
                                 backgroundColor: selectedColor + '15',
                                 borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
                             }}
                         >
                             <View className="flex-row items-center">
-                                <View 
+                                <View
                                     className="w-10 h-10 rounded-lg items-center justify-center mr-3"
                                     style={{ backgroundColor: selectedColor }}
                                 >
-                                    <MaterialIcons name="label" size={18} color="white" />
+                                    <MaterialIcons
+                                        name={
+                                            (selectedIcon as any) || 
+                                            (isDefault ? getDefaultIcon(initialName) : 'label')
+                                        }
+                                        size={18}
+                                        color="white"
+                                    />
                                 </View>
                                 <View className="flex-1">
                                     <Text className={`text-base font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                         {name.trim() || "Nom du label"}
                                     </Text>
                                     <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        Aperçu en temps réel
+                                        {selectedIcon ? `Icône: ${AVAILABLE_ICONS.find(i => i.name === selectedIcon)?.label || selectedIcon}` : 'Aperçu en temps réel'}
                                     </Text>
                                 </View>
                             </View>
@@ -204,45 +229,15 @@ export const EditForm = ({
                             />
                         </View>
 
-                        <View className="mb-4">
-                            <Text className={`text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Couleur
-                            </Text>
-                            <ScrollView 
-                                horizontal 
-                                showsHorizontalScrollIndicator={false}
-                                className="flex-row"
-                            >
-                                {COLOR_PALETTE.map((color, index) => (
-                                    <Animated.View
-                                        key={color}
-                                        entering={FadeInDown.delay(index * 30).springify()}
-                                    >
-                                        <TouchableOpacity
-                                            onPress={() => setSelectedColor(color)}
-                                            className="mr-2 items-center"
-                                            hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
-                                            disabled={isUpdating}
-                                        >
-                                            <View 
-                                                className={`w-9 h-9 rounded-full border-2 ${
-                                                    selectedColor === color 
-                                                        ? 'border-purple-500 scale-110 shadow-lg shadow-purple-500/50' 
-                                                        : 'border-transparent'
-                                                }`}
-                                                style={{ backgroundColor: color }}
-                                            >
-                                                {selectedColor === color && (
-                                                    <View className="absolute inset-0 items-center justify-center">
-                                                        <MaterialIcons name="check" size={16} color="white" />
-                                                    </View>
-                                                )}
-                                            </View>
-                                        </TouchableOpacity>
-                                    </Animated.View>
-                                ))}
-                            </ScrollView>
-                        </View>
+                        <ColorPicker
+                            selectedColor={selectedColor}
+                            onSelectColor={setSelectedColor}
+                        />
+
+                        <IconPicker
+                            selectedIcon={selectedIcon}
+                            onSelectIcon={setSelectedIcon}
+                        />
                     </View>
 
                     <View className={`px-5 py-3 flex-row justify-end border-t ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
@@ -260,11 +255,10 @@ export const EditForm = ({
                         <TouchableOpacity
                             onPress={handleSubmit}
                             disabled={isUpdating || !name.trim()}
-                            className={`px-4 py-2 rounded-lg flex-row items-center ${
-                                isUpdating || !name.trim()
-                                    ? 'bg-gray-400/20'
-                                    : 'bg-gradient-to-r from-purple-500 to-pink-500'
-                            }`}
+                            className={`px-4 py-2 rounded-lg flex-row items-center ${isUpdating || !name.trim()
+                                ? 'bg-gray-400/20'
+                                : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                                }`}
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                         >
                             {isUpdating ? (

@@ -4,10 +4,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { COLOR_PALETTE } from '@/types/label';
 import Animated, { FadeInUp, FadeInDown, SlideInDown } from 'react-native-reanimated';
+import { IconPicker, AVAILABLE_ICONS } from './IconPicker';
 
 interface Props {
     visible: boolean;
-    onCreate: (name: string, color: string) => Promise<void>;
+    onCreate: (name: string, color: string, iconRef?: string) => Promise<void>;
     isCreating: boolean;
     onCancel: () => void;
 }
@@ -35,11 +36,10 @@ const ColorPicker = ({ selectedColor, onSelectColor }: { selectedColor: string; 
                             className="mr-3 items-center"
                         >
                             <View
-                                className={`w-12 h-12 rounded-full border-2 transition-all ${
-                                    selectedColor === color
+                                className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color
                                         ? 'border-cyan-500 scale-110 shadow-lg shadow-cyan-500/50'
                                         : 'border-transparent'
-                                }`}
+                                    }`}
                                 style={{ backgroundColor: color }}
                             >
                                 {selectedColor === color && (
@@ -63,18 +63,25 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
     const { theme } = useTheme();
     const [name, setName] = useState('');
     const [selectedColor, setSelectedColor] = useState(COLOR_PALETTE[0]);
+    const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
     const handleSubmit = async () => {
         if (!name.trim()) return;
-        console.log(' Création:', { name: name.trim().toUpperCase(), color: selectedColor });
-        await onCreate(name.trim().toUpperCase(), selectedColor);
+        console.log(' Création:', {
+            name: name.trim().toUpperCase(),
+            color: selectedColor,
+            icon: selectedIcon
+        });
+        await onCreate(name.trim().toUpperCase(), selectedColor, selectedIcon || undefined);
         setName('');
         setSelectedColor(COLOR_PALETTE[0]);
+        setSelectedIcon(null);
     };
 
     const handleClose = () => {
         setName('');
         setSelectedColor(COLOR_PALETTE[0]);
+        setSelectedIcon(null);
         onCancel();
     };
 
@@ -88,13 +95,13 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
             onRequestClose={handleClose}
         >
             <View className="flex-1 bg-black/90">
-                <TouchableOpacity 
-                    activeOpacity={1} 
+                <TouchableOpacity
+                    activeOpacity={1}
                     onPress={handleClose}
                     className="flex-1"
                 />
-                
-                <Animated.View 
+
+                <Animated.View
                     entering={SlideInDown.springify().damping(15)}
                     className={`rounded-t-3xl overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}
                     style={{
@@ -111,13 +118,12 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
 
                     <View className={`px-5 pt-4 pb-2 ${theme === 'dark' ? 'bg-gray-800' : 'bg-cyan-50'}`}>
                         <View className="flex-row items-center">
-                            <View className={`w-8 h-8 rounded-lg items-center justify-center mr-3 ${
-                                theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-100'
-                            }`}>
-                                <MaterialIcons 
-                                    name="add-circle" 
-                                    size={20} 
-                                    color={theme === 'dark' ? '#06b6d4' : '#0891b2'} 
+                            <View className={`w-8 h-8 rounded-lg items-center justify-center mr-3 ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-100'
+                                }`}>
+                                <MaterialIcons
+                                    name="add-circle"
+                                    size={20}
+                                    color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
                                 />
                             </View>
                             <View className="flex-1">
@@ -125,44 +131,48 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
                                     Nouveau label
                                 </Text>
                                 <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    Créez un label pour organiser vos transactions
+                                    Créez un label avec une icône et une couleur
                                 </Text>
                             </View>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 onPress={handleClose}
                                 className={`p-2 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}
                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                             >
-                                <MaterialIcons 
-                                    name="close" 
-                                    size={18} 
-                                    color={theme === 'dark' ? '#9ca3af' : '#6b7280'} 
+                                <MaterialIcons
+                                    name="close"
+                                    size={18}
+                                    color={theme === 'dark' ? '#9ca3af' : '#6b7280'}
                                 />
                             </TouchableOpacity>
                         </View>
                     </View>
 
                     <View className="px-5 py-4">
-                        <View 
+                        <View
                             className="mb-4 p-3 rounded-xl border"
-                            style={{ 
+                            style={{
                                 backgroundColor: selectedColor + '15',
                                 borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
                             }}
                         >
                             <View className="flex-row items-center">
-                                <View 
+                                <View
                                     className="w-10 h-10 rounded-lg items-center justify-center mr-3"
                                     style={{ backgroundColor: selectedColor }}
                                 >
-                                    <MaterialIcons name="label" size={18} color="white" />
+                                    <MaterialIcons
+                                        name={selectedIcon as any || 'label'}
+                                        size={18}
+                                        color="white"
+                                    />
                                 </View>
                                 <View className="flex-1">
                                     <Text className={`text-base font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                         {name.trim() || "Nouveau label"}
                                     </Text>
                                     <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        Aperçu en temps réel
+                                        {selectedIcon ? `Icône: ${AVAILABLE_ICONS.find(i => i.name === selectedIcon)?.label || selectedIcon}` : 'Aperçu en temps réel'}
                                     </Text>
                                 </View>
                             </View>
@@ -186,44 +196,15 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
                             />
                         </View>
 
-                        <View className="mb-4">
-                            <Text className={`text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Couleur
-                            </Text>
-                            <ScrollView 
-                                horizontal 
-                                showsHorizontalScrollIndicator={false}
-                                className="flex-row"
-                            >
-                                {COLOR_PALETTE.map((color, index) => (
-                                    <Animated.View
-                                        key={color}
-                                        entering={FadeInDown.delay(index * 30).springify()}
-                                    >
-                                        <TouchableOpacity
-                                            onPress={() => setSelectedColor(color)}
-                                            className="mr-2 items-center"
-                                            hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
-                                        >
-                                            <View 
-                                                className={`w-9 h-9 rounded-full border-2 ${
-                                                    selectedColor === color 
-                                                        ? 'border-cyan-500 scale-110' 
-                                                        : 'border-transparent'
-                                                }`}
-                                                style={{ backgroundColor: color }}
-                                            >
-                                                {selectedColor === color && (
-                                                    <View className="absolute inset-0 items-center justify-center">
-                                                        <MaterialIcons name="check" size={16} color="white" />
-                                                    </View>
-                                                )}
-                                            </View>
-                                        </TouchableOpacity>
-                                    </Animated.View>
-                                ))}
-                            </ScrollView>
-                        </View>
+                        <ColorPicker
+                            selectedColor={selectedColor}
+                            onSelectColor={setSelectedColor}
+                        />
+
+                        <IconPicker
+                            selectedIcon={selectedIcon}
+                            onSelectIcon={setSelectedIcon}
+                        />
                     </View>
 
                     <View className={`px-5 py-3 flex-row justify-end border-t ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
@@ -241,11 +222,10 @@ export const CreateForm = ({ visible, onCreate, isCreating, onCancel }: Props) =
                         <TouchableOpacity
                             onPress={handleSubmit}
                             disabled={isCreating || !name.trim()}
-                            className={`px-4 py-2 rounded-lg flex-row items-center ${
-                                isCreating || !name.trim()
+                            className={`px-4 py-2 rounded-lg flex-row items-center ${isCreating || !name.trim()
                                     ? 'bg-gray-400/20'
                                     : 'bg-gradient-to-r from-cyan-500 to-purple-500'
-                            }`}
+                                }`}
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                         >
                             {isCreating ? (
