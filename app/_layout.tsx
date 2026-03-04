@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
@@ -23,9 +23,12 @@ function RootLayoutContent() {
     <Stack screenOptions={{ headerShown: false }}>
       {!user ? (
         <>
-          <Stack.Screen name="index" options={{ animation: 'fade' }} />
-          <Stack.Screen name="login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="register" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="index" options={{ animation: "fade" }} />
+          <Stack.Screen name="login" options={{ animation: "fade" }} />
+          <Stack.Screen
+            name="register"
+            options={{ animation: "slide_from_right" }}
+          />
           <Stack.Screen name="(tabs)" redirect={true} />
         </>
       ) : (
@@ -42,23 +45,23 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
- 
-      <AuthProvider>
-        <CurrencyProvider>
-          <NotificationProvider>
-            <ThemeProvider> 
+
+    <AuthProvider>
+      <CurrencyProvider>
+        <NotificationProvider>
+          <ThemeProvider>
             <ThemeWrapper>
               <ActionSheetProvider>
                 <>
-                <RootLayoutContent />
-                <Toast />
+                  <RootLayoutContent />
+                  <Toast />
                 </>
               </ActionSheetProvider>
             </ThemeWrapper>
-            </ThemeProvider> 
-          </NotificationProvider>
-        </CurrencyProvider>
-      </AuthProvider>
+          </ThemeProvider>
+        </NotificationProvider>
+      </CurrencyProvider>
+    </AuthProvider>
 
   );
 }
