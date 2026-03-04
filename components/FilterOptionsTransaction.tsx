@@ -6,15 +6,14 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
   FlatList,
-  KeyboardAvoidingView,
   LayoutAnimation,
-  Platform,
   Pressable,
   ScrollView,
   Text,
-  TextInput,
-  View,
+  TouchableOpacity,
+  View
 } from "react-native";
+import Dialog from "react-native-dialog";
 
 const transactionTypeSelected = [
   { id: "IN", name: "Ajouter" },
@@ -59,9 +58,11 @@ export default function FilterOptionsTransaction({
   const [amountMax, setAmountMax] = useState<number | undefined>(
     filter.maxAmount,
   );
+  const [amountMaxShow, setAmountMaxShow] = useState(false);
   const [amountMin, setAmountMin] = useState<number | undefined>(
     filter.minAmount,
   );
+  const [amountMinShow, setAmountMinShow] = useState(false);
   const [dateStart, setDateStart] = useState<Date | undefined>(undefined);
   const [showDateStart, setShowDateStart] = useState(false);
   const [dateEnd, setDateEnd] = useState<Date | undefined>(undefined);
@@ -130,10 +131,7 @@ export default function FilterOptionsTransaction({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, backgroundColor: colors.background }}
-    >
+    <>
       <View
         style={{
           position: "absolute",
@@ -320,34 +318,80 @@ export default function FilterOptionsTransaction({
             - Par Montant (Ar) :
           </Text>
           <View style={{ flexDirection: "row", gap: 8 }}>
-            <TextInput
+            <TouchableOpacity
               style={{
                 flex: 1,
                 backgroundColor: colors.card,
                 borderRadius: 12,
                 padding: 12,
-                color: colors.text,
               }}
-              keyboardType="numeric"
-              placeholderTextColor={colors.textSecondary}
-              onChangeText={handleChangeNumberMin}
-              value={amountMin?.toString() || ""}
-              placeholder="Minimum"
-            />
-            <TextInput
+              onPress={() => setAmountMinShow(true)}
+            >
+              <Text style={{ color: colors.text }}>
+                {amountMin || "Minimum"}
+              </Text>
+            </TouchableOpacity>
+            <Dialog.Container
+              contentStyle={{ backgroundColor: colors.card, borderRadius: 12 }}
+              visible={amountMinShow}
+            >
+              <Dialog.Title>Saisir le nombre</Dialog.Title>
+              <Dialog.Input
+                keyboardType="numeric"
+                onChangeText={handleChangeNumberMin}
+                value={amountMin?.toString() || ""}
+              />
+              <Dialog.Button
+                label="Annuler"
+                onPress={() => setAmountMinShow(false)}
+                color={"red"}
+              />
+              <Dialog.Button
+                label="OK"
+                onPress={() => {
+                  setAmountMinShow(false);
+                }}
+                color={"white"}
+                style={{ backgroundColor: "#A74BCA", borderRadius: 5 }}
+              />
+            </Dialog.Container>
+            <TouchableOpacity
               style={{
                 flex: 1,
                 backgroundColor: colors.card,
                 borderRadius: 12,
                 padding: 12,
-                color: colors.text,
               }}
-              keyboardType="numeric"
-              placeholderTextColor={colors.textSecondary}
-              onChangeText={handleChangeNumberMax}
-              value={amountMax?.toString() || ""}
-              placeholder="Maximum"
-            />
+              onPress={() => setAmountMaxShow(true)}
+            >
+              <Text style={{ color: colors.text }}>
+                {amountMax || "Maximum"}
+              </Text>
+            </TouchableOpacity>
+            <Dialog.Container
+              contentStyle={{ backgroundColor: colors.card, borderRadius: 12 }}
+              visible={amountMaxShow}
+            >
+              <Dialog.Title>Saisir le nombre</Dialog.Title>
+              <Dialog.Input
+                keyboardType="numeric"
+                onChangeText={handleChangeNumberMax}
+                value={amountMax?.toString() || ""}
+              />
+              <Dialog.Button
+                label="Annuler"
+                onPress={() => setAmountMaxShow(false)}
+                color={"red"}
+              />
+              <Dialog.Button
+                label="OK"
+                onPress={() => {
+                  setAmountMaxShow(false);
+                }}
+                color={"white"}
+                style={{ backgroundColor: "#A74BCA", borderRadius: 5 }}
+              />
+            </Dialog.Container>
           </View>
         </View>
 
@@ -469,6 +513,6 @@ export default function FilterOptionsTransaction({
           />
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </>
   );
 }

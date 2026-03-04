@@ -4,7 +4,12 @@ import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome6, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { Provider } from "react-native-paper";
 import Animated, {
   Easing,
@@ -14,14 +19,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const { height } = Dimensions.get("window");
-const FILTER_HEIGHT = Math.min(height * 0.8, 500); // 80% max 500px
-
 export default function Layout() {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [showFilter, setShowFilter] = useState(false);
+
+  const { height } = useWindowDimensions();
+  const FILTER_HEIGHT = height * 0.9;
 
   // valeur partagée pour l'animation
   const translateY = useSharedValue(height);
