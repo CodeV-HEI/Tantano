@@ -19,9 +19,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-// const API_URL = process.env.API_BASE_URL || 'https://tantano-api.onrender.com';
-
-const API_URL = "http://192.168.0.29:8080";
+const API_URL = process.env.API_BASE_URL || "https://tantano-api.onrender.com";
+// const API_URL = "http://192.168.0.29:8080";
 
 const api = axios.create({
   baseURL: API_URL,
