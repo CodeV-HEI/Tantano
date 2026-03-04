@@ -30,28 +30,29 @@ const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
 export default function SettingsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { currency, isLoading, updateCurrency, currencies } = useCurrency();
-    const { 
-            recurrence,
-            calculePeriod,
-            setRecurrence,
-            setCalculePeriod,
-            setFreshAmount
+    const {
+        recurrence,
+        calculePeriod,
+        setRecurrence,
+        setCalculePeriod,
+        setFreshAmount
     } = useNotification();
 
-   useFocusEffect(
-    useCallback(() => {
-        setFreshAmount();
-        return () => {
+    useFocusEffect(
+        useCallback(() => {
             setFreshAmount();
-        };
-    }, [setFreshAmount])
-);
+            return () => {
+                setFreshAmount();
+            };
+        }, [setFreshAmount])
+    );
 
-    
-    
- 
-  const handleCurrencyChange = async (currency: Currency) => {
+
+
+
+    const handleCurrencyChange = async (currency: Currency) => {
         try {
             await updateCurrency(currency);
             setIsCurrencyModalVisible(false);
@@ -66,6 +67,7 @@ export default function SettingsScreen() {
 
     // States for Notifications
     const [isRecurrenceModalVisible, setIsRecurrenceModalVisible] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [daysCount, setDaysCount] = useState('30');
 
     // States for Biometrics
@@ -76,11 +78,11 @@ export default function SettingsScreen() {
     }, [theme]);
 
     const filteredCurrencies = currencies
-    ? currencies.filter(c => 
-        c?.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c?.value?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
+        ? currencies.filter(c =>
+            c?.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            c?.value?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : [];
 
 
     return (
@@ -90,7 +92,7 @@ export default function SettingsScreen() {
             <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
             {/* Back Button */}
-            <TouchableOpacity 
+            <TouchableOpacity
                 onPress={() => router.push('/profile')}
                 className="absolute top-12 left-4 z-10 w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800"
             >
@@ -99,11 +101,11 @@ export default function SettingsScreen() {
 
             <ScrollView className="flex-1 pt-24 px-4">
                 <Animated.View entering={FadeInUp.duration(600)}>
-                    
+
                     {/* Section: Devise */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>DEVISE</Text>
-                        
+
                         <TouchableOpacity onPress={() => setIsCurrencyModalVisible(true)}>
                             <SettingItem
                                 icon="attach-money"
@@ -124,7 +126,7 @@ export default function SettingsScreen() {
                     {/* Section: Notifications */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>NOTIFICATIONS</Text>
-                        
+
                         <TouchableOpacity onPress={() => setIsRecurrenceModalVisible(true)}>
                             <SettingItem
                                 icon="repeat"
@@ -147,7 +149,7 @@ export default function SettingsScreen() {
                             description="Nombre de jours pour les dépenses"
                             rightComponent={
                                 <TextInput
-                                    value={calculePeriod.toString()}            
+                                    value={calculePeriod.toString()}
                                     onChangeText={(text) => setCalculePeriod(parseInt(text) || 1)}
                                     keyboardType="numeric"
                                     className={`w-16 h-8 text-right font-medium ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}
@@ -160,7 +162,7 @@ export default function SettingsScreen() {
                     {/* Section: Biométrie */}
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>SÉCURITÉ</Text>
-                        
+
                         <SettingItem
                             icon="fingerprint"
                             title="Biométrie"
@@ -189,7 +191,7 @@ export default function SettingsScreen() {
                                 <MaterialIcons name="close" size={24} color={theme === 'dark' ? 'white' : 'black'} />
                             </TouchableOpacity>
                         </View>
-                        
+
                         <View className={`flex-row items-center px-4 py-2 rounded-xl mb-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                             <MaterialIcons name="search" size={20} color="#9ca3af" />
                             <TextInput
@@ -205,7 +207,7 @@ export default function SettingsScreen() {
                             data={filteredCurrencies}
                             keyExtractor={(item) => item?.value}
                             renderItem={({ item }) => (
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     onPress={() => {
                                         handleCurrencyChange(item);
                                         setIsCurrencyModalVisible(false);
@@ -224,8 +226,8 @@ export default function SettingsScreen() {
 
             {/* Modal: Recurrence Selection */}
             <Modal visible={isRecurrenceModalVisible} animationType="fade" transparent={true}>
-                <TouchableOpacity 
-                    activeOpacity={1} 
+                <TouchableOpacity
+                    activeOpacity={1}
                     onPress={() => setIsRecurrenceModalVisible(false)}
                     className="flex-1 justify-center items-center bg-black/50 px-6"
                 >
@@ -241,11 +243,11 @@ export default function SettingsScreen() {
                                 className="py-4 border-b border-gray-100 dark:border-gray-800"
                             >
                                 <Text className={`text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                        { label}
+                                    {label}
                                 </Text>
                             </TouchableOpacity>
                         ))}
-                     </View>
+                    </View>
                 </TouchableOpacity>
             </Modal>
         </View>

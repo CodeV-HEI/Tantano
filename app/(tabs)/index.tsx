@@ -18,6 +18,7 @@ import Toast from 'react-native-toast-message';
 export default function DashboardScreen() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [labels, setLabels] = useState<Label[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -34,6 +35,7 @@ export default function DashboardScreen() {
     if (user) {
       fetchData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchData = async () => {
@@ -51,15 +53,15 @@ export default function DashboardScreen() {
       setLabels(labelsData);
 
       // Récupérer les transactions pour tous les portefeuilles
-            let allTransactions: Transaction[] = [];
-            for (const wallet of walletsData) {
-                try {
-                    const transactionsRes = await transactionAPI.getAll(user.id, { walletId: wallet.id });
-                    allTransactions = [...allTransactions, ...transactionsRes.data];
-                } catch (error) {
-                    console.error(`Failed to fetch transactions for wallet ${wallet.id}:`, error);
-                }
-            }
+      let allTransactions: Transaction[] = [];
+      for (const wallet of walletsData) {
+        try {
+          const transactionsRes = await transactionAPI.getAll(user.id, { walletId: wallet.id });
+          allTransactions = [...allTransactions, ...transactionsRes.data];
+        } catch (error) {
+          console.error(`Failed to fetch transactions for wallet ${wallet.id}:`, error);
+        }
+      }
 
       // Trier les transactions par date (plus récentes en premier)
       allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -219,7 +221,7 @@ export default function DashboardScreen() {
           <Animated.View entering={FadeInUp.delay(400)} className="mt-10">
             <View className="flex-row justify-between items-center mb-4">
               <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>PORTEFEUILLES</Text>
-              <TouchableOpacity onPress={() => router.push('/')}> {/** /Wallet */}
+              <TouchableOpacity onPress={() => router.push('/wallets')}>
                 <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
               </TouchableOpacity>
             </View>
@@ -241,7 +243,7 @@ export default function DashboardScreen() {
                     entering={FadeInUp.delay(500 + index * 100)}
                     className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
                   >
-                    <TouchableOpacity onPress={() => router.push('/')}> {/** /Wallet */}
+                    <TouchableOpacity onPress={() => router.push(`/wallets/${wallet.id}`)}>
                       <View className="flex-row justify-between items-center">
                         <View className="flex-1">
                           <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-lg`}>{wallet.name}</Text>
@@ -268,7 +270,7 @@ export default function DashboardScreen() {
           <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
             <View className="flex-row justify-between items-center mb-4">
               <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>TRANSACTIONS RÉCENTES</Text>
-              <TouchableOpacity onPress={() => router.push('/')}> {/** /Transaction */}
+              <TouchableOpacity onPress={() => router.push('/transactions')}>
                 <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium tracking-wide ${theme === 'dark' ? 'neon-text' : ''}`}>VOIR TOUT</Text>
               </TouchableOpacity>
             </View>
@@ -288,7 +290,7 @@ export default function DashboardScreen() {
                   entering={FadeInUp.delay(700 + index * 100)}
                   className={`${theme === 'dark' ? 'bg-black/50 border-cyan-500/20' : 'bg-cyan-50/50 border-cyan-300/30'} rounded-xl p-4 mb-3 border shadow-sm`}
                 >
-                  <TouchableOpacity onPress={() => router.push('/')}> {/** /Transaction */}
+                  <TouchableOpacity onPress={() => router.push(`/transactions/${transaction.walletId}/transaction/${transaction.id}`)}>
                     <View className="flex-row justify-between items-start">
                       <View className="flex-1">
                         <Text className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>

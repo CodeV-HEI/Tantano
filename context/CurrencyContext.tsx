@@ -17,19 +17,19 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
     const [currency, setCurrency] = useState<Currency | null>(null);
     const [currencies, setCurrencies] = useState<Currency[]>([]);
 
-        useEffect(() => {
+    useEffect(() => {
         const fetchCurrencies = async () => {
-          try {
-            const data = await getCurrencies(); // base = MGA par défaut
-            setCurrencies(data);
-          } catch (error) {
-            console.error(error);
-          } 
+            try {
+                const data = await getCurrencies(); // base = MGA par défaut
+                setCurrencies(data);
+            } catch (error) {
+                console.error(error);
+            }
         };
         fetchCurrencies();
-      }, []); 
+    }, []);
 
-     useEffect(() => {
+    useEffect(() => {
         const loadSettings = async () => {
             try {
                 const savedCurrency = await AsyncStorage.getItem('@app_currency');
@@ -58,19 +58,19 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const formatCurrency = (amount: number): string => {
-    if (!currency) return amount.toString();
-    const convertedAmount = amount * currency.rate;
-    const formattedNumber = new Intl.NumberFormat('fr-FR').format(convertedAmount);
-    return `${formattedNumber} ${currency.value}`;
+        if (!currency) return amount.toString();
+        const convertedAmount = amount * currency.rate;
+        const formattedNumber = new Intl.NumberFormat('fr-FR').format(convertedAmount);
+        return `${formattedNumber} ${currency.value}`;
     };
 
-    
+
     return (
         <CurrencyContext.Provider value={{ currency, isLoading, updateCurrency, formatCurrency, currencies }}>
             {children}
         </CurrencyContext.Provider>
     );
-    
+
 }
 
 export const useCurrency = () => {

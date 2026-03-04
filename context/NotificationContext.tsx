@@ -39,16 +39,16 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const { formatCurrency } = useCurrency();
     const { user } = useAuth();
 
-    
+
     const setFreshAmount = useCallback(async () => {
-    if (!user?.id || !enabled) return;
-    try {
-        const amount = await fetchExpenseAmount(user.id, calculePeriod);
-        setFreshAmountState(amount);
-    } catch (e) {
-        console.error('Failed to refresh amount', e);
-    }
-    }, [user?.id, calculePeriod, enabled]); 
+        if (!user?.id || !enabled) return;
+        try {
+            const amount = await fetchExpenseAmount(user.id, calculePeriod);
+            setFreshAmountState(amount);
+        } catch (e) {
+            console.error('Failed to refresh amount', e);
+        }
+    }, [user?.id, calculePeriod, enabled]);
 
     useEffect(() => {
         const loadSettings = async () => {
@@ -73,22 +73,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (!enabled || freshAmount === 0) return;
         scheduleNotificationExpense(freshAmount, recurrence, calculePeriod, enabled, formatCurrency);
-    }, [freshAmount, enabled, recurrence, calculePeriod]);
+    }, [freshAmount, enabled, recurrence, calculePeriod, formatCurrency]);
 
     const toggle = async () => {
         try {
-             if (Platform.OS === 'web') {
-            const newValue = !enabled;
-            setEnabled(newValue);
-            await AsyncStorage.setItem(STORAGE_KEYS.enabled, JSON.stringify(newValue));
-            Toast.show({
-                type: newValue ? 'success' : 'info',
-                text1: newValue ? 'Notifications activées' : 'Notifications désactivées',
-                position: 'top',
-                visibilityTime: 2000,
-            });
-            return;
-             }
+            if (Platform.OS === 'web') {
+                const newValue = !enabled;
+                setEnabled(newValue);
+                await AsyncStorage.setItem(STORAGE_KEYS.enabled, JSON.stringify(newValue));
+                Toast.show({
+                    type: newValue ? 'success' : 'info',
+                    text1: newValue ? 'Notifications activées' : 'Notifications désactivées',
+                    position: 'top',
+                    visibilityTime: 2000,
+                });
+                return;
+            }
             if (!Device.isDevice) {
                 alert('Les notifications push nécessitent un appareil physique');
                 return;
@@ -103,8 +103,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                 await Notifications.cancelAllScheduledNotificationsAsync();
             }
             const newValue = !enabled;
-            if(newValue == true){
-                 await InstantNotification(recurrence, calculePeriod);
+            if (newValue === true) {
+                await InstantNotification(recurrence, calculePeriod);
             }
             setEnabled(newValue);
             await AsyncStorage.setItem(STORAGE_KEYS.enabled, JSON.stringify(newValue));
@@ -122,7 +122,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const setCalculePeriod = async (period: number) => {
         setCalculePeriodState(period);
         await AsyncStorage.setItem(STORAGE_KEYS.period, period.toString());
-        const amount = await fetchExpenseAmount(user!.id, period); 
+        const amount = await fetchExpenseAmount(user!.id, period);
         setFreshAmountState(amount);
         scheduleNotificationExpense(amount, recurrence, period, enabled, formatCurrency);
     };
