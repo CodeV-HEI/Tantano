@@ -3,6 +3,7 @@ import { useTransactionStore } from "@/store/useTransactionStore";
 import { TransactionType } from "@/types";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -11,7 +12,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Dialog from "react-native-dialog";
 
@@ -232,6 +233,19 @@ export default function FilterOptionsTransaction({
                 </Text>
               </Pressable>
             )}
+            ListEmptyComponent={
+              <View className="items-center">
+                <Text className="text-gray-400 text-base">
+                  Aucune Portefeille trouvée
+                </Text>
+                <Link
+                  href="/transactions/create"
+                  className="text-blue-500 mt-1"
+                >
+                  Ajouter une Portefeuille
+                </Link>
+              </View>
+            }
           />
         </View>
 
@@ -309,6 +323,19 @@ export default function FilterOptionsTransaction({
                 </Text>
               </Pressable>
             )}
+            ListEmptyComponent={
+              <View className="items-center">
+                <Text className="text-gray-400 text-base">
+                  Aucune Etiquette trouvée
+                </Text>
+                <Link
+                  href="/transactions/create"
+                  className="text-blue-500 mt-1"
+                >
+                  Ajouter une Etiquette
+                </Link>
+              </View>
+            }
           />
         </View>
 

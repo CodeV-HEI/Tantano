@@ -184,7 +184,12 @@ export default function FormTrasansction() {
             data={wallets}
             labelField="name"
             valueField="id"
-            placeholder="Choisir une portefeuille"
+            disable={wallets.length === 0}
+            placeholder={
+              wallets.length === 0
+                ? "Aucune portefeuille pour le moment"
+                : "Choisir une portefeuille"
+            }
             value={valueWallet?.id}
             placeholderStyle={{ color: "#A78BFA" }}
             selectedTextStyle={[
@@ -276,7 +281,12 @@ export default function FormTrasansction() {
             data={labels}
             labelField="name"
             valueField="id"
-            placeholder="Choisir des étiquettes"
+            disable={labels.length === 0}
+            placeholder={
+              labels.length === 0
+                ? "Aucune Etiquette pour le moment"
+                : "Choisir des étiquettes"
+            }
             value={selectedLabels}
             onChange={(items: string[]) => setSelectedLabels(items)}
             renderSelectedItem={(item) => (
