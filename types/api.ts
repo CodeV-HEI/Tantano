@@ -204,3 +204,15 @@ export interface ProjectStatistics {
   remainingBudget: number;
   transactionCount: number;
 }
+
+export interface TransactionFilter {
+  walletId: string | undefined;
+  startingDate: string | undefined;
+  endingDate: string | undefined;
+  type: TransactionType | undefined;
+  label: string[];
+  minAmount: number | undefined;
+  maxAmount: number | undefined;
+  sortBy: "date" | "amount";
+  sort: "asc" | "desc";
+}
