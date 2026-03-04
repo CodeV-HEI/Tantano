@@ -1,9 +1,3 @@
-import Background3D from "@/components/Background";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { Eye, EyeOff } from "lucide-react-native";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
@@ -16,15 +10,23 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
-} from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
-import Toast from "react-native-toast-message";
+    View
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { Eye, EyeOff } from 'lucide-react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import Background3D from '@/components/Background';
+import Toast from 'react-native-toast-message';
+import GoogleButton from "@/components/GoogleButton";
 
 export default function RegisterScreen() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isPressed, setIsPressed] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +58,7 @@ export default function RegisterScreen() {
 
     const handleRegister = async () => {
         if (!username || !password) {
-            Alert.alert("Erreur", "Veuillez remplir tous les champs");
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
 
@@ -167,6 +169,20 @@ export default function RegisterScreen() {
                                 autoCapitalize="none"
                                 returnKeyType="next"
                                 blurOnSubmit={false}
+                            />
+                        </Animated.View>
+
+                        <Animated.View entering={FadeInUp.delay(300)} className="space-y-3">
+                            <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>EMAIL</Text>
+                            <TextInput
+                                className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400`}
+                                placeholder="jack.sparrow@gmail.com"
+                                placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                returnKeyType="next"
                             />
                         </Animated.View>
 
@@ -281,6 +297,8 @@ export default function RegisterScreen() {
                                 )}
                             </TouchableOpacity>
                         </Animated.View>
+
+                        <GoogleButton mode="register" />
 
                         <Animated.View entering={FadeInUp.delay(700)} className="pt-12">
                             <TouchableOpacity onPress={() => router.back()} className="py-3">

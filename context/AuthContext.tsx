@@ -1,8 +1,9 @@
-import { authAPI } from '@/services/api';
-import { User } from '@/types/api';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
+import * as SecureStore from 'expo-secure-store';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { User } from '@/types/api';
+import { authAPI } from '@/services/api';
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
@@ -10,6 +11,9 @@ interface AuthContextType {
     register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     updateToken: (token: string) => Promise<void>;
+    loginWithBiometrics: () => Promise<boolean>;
+    biometricsAvailable: boolean;
+    googleSignIn: (idToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,10 +21,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [biometricsAvailable, setBiometricsAvailable] = useState(false);
 
     useEffect(() => {
+        checkBiometrics();
         loadUser();
     }, []);
+
+    const checkBiometrics = async () => {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        setBiometricsAvailable(compatible && enrolled);
+    };
 
     const loadUser = async () => {
         try {
@@ -48,6 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             setUser(account);
             console.log('Connexion réussie');
+
+            try {
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+            } catch (e) {
+                console.error('Failed to save credentials for biometrics', e);
+            }
         } catch (error: any) {
             console.error('Login failed:', error);
 
@@ -80,6 +98,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             setUser(account);
             console.log('Inscription et connexion réussies');
+
+            try {
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+            } catch (e) {
+                console.error('Failed to save credentials for biometrics', e);
+            }
         } catch (error: any) {
             console.error('Registration failed:', error);
 
@@ -114,8 +138,64 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const loginWithBiometrics = async (): Promise<boolean> => {
+        try {
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Authentifiez-vous pour vous connecter',
+                cancelLabel: 'Annuler',
+            });
+            if (result.success) {
+                const creds = await SecureStore.getItemAsync('credentials');
+                if (creds) {
+                    const { username, password } = JSON.parse(creds);
+                    await login(username, password);
+                    return true;
+                }
+            }
+            return false;
+        } catch (error) {
+            console.error('Biometric login failed:', error);
+            return false;
+        }
+    };
+
+    const googleSignIn = async (idToken: string) => {
+        try {
+            // On simule une réponse
+            const response = await fetch(`${process.env.API_BASE_URL}/auth/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                const { account, token } = data;
+                await AsyncStorage.setItem('user', JSON.stringify(account));
+                await AsyncStorage.setItem('token', token);
+                setUser(account);
+            } else {
+                throw new Error(data.message || 'Erreur Google Sign-In');
+            }
+        } catch (error) {
+            console.error('Google sign-in failed:', error);
+            throw error;
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateToken }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isLoading,
+                login,
+                register,
+                logout,
+                updateToken,
+                loginWithBiometrics,
+                biometricsAvailable,
+                googleSignIn,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

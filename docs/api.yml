@@ -1280,10 +1280,13 @@ components:
           type: number
           format: int64
           example: 520000
+<<<<<<< HEAD
+=======
         walletId:
           type: string
           format: uuid
           description: "ID du wallet pour déduire le coût réel"
+>>>>>>> main
 
     ProjectTransaction:
       type: object
@@ -1299,9 +1302,12 @@ components:
         accountId:
           type: string
           format: uuid
+<<<<<<< HEAD
+=======
         walletId:
           type: string
           format: uuid
+>>>>>>> main
         createdAt:
           type: string
           format: date-time
