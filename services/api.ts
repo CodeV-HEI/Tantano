@@ -1,20 +1,25 @@
 import {
-    CreationLabel,
-    CreationTransaction,
-    CreationWallet,
-    Label,
-    LoginRequest,
-    PaginatedLabels,
-    PaginatedWallets,
-    RegisterRequest,
-    Transaction,
-    TransactionFilters,
-    UpdateWallet,
-    User,
-    UserWithToken,
-    Wallet,
-    WalletAutomaticIncome,
-    WalletType
+  CreationLabel,
+  CreationProject,
+  CreationProjectTransaction,
+  CreationTransaction,
+  CreationWallet,
+  Label,
+  LoginRequest,
+  PaginatedLabels,
+  PaginatedWallets,
+  Project,
+  ProjectStatistics,
+  ProjectTransaction,
+  RegisterRequest,
+  Transaction,
+  TransactionFilters,
+  UpdateWallet,
+  User,
+  UserWithToken,
+  Wallet,
+  WalletAutomaticIncome,
+  WalletType
 } from '@/types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -36,6 +41,8 @@ api.interceptors.request.use(
         const token = await AsyncStorage.getItem('token');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
+            console.log('token', token);
+            
         }
         console.log(`API Request: ${config.method} ${config.url}`);
         return config;
@@ -133,6 +140,52 @@ export const labelAPI = {
 
     update: (accountId: string, labelId: string, data: Label) =>
         apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
+};
+
+export const projectAPI = {
+  getAll: (accountId: string) =>
+    apiWithRetry(() => api.get<Project[]>(`/account/${accountId}/project`)),
+
+  getOne: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get<Project>(`/account/${accountId}/project/${projectId}`)),
+
+  create: (accountId: string, data: CreationProject) =>
+    apiWithRetry(() => api.post<Project>(`/account/${accountId}/project`, data)),
+
+  update: (accountId: string, projectId: string, data: CreationProject) =>
+    apiWithRetry(() => api.put<Project>(`/account/${accountId}/project/${projectId}`, data)),
+
+  delete: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.delete<Project>(`/account/${accountId}/project/${projectId}`)),
+
+  archive: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.post<Project>(`/account/${accountId}/project/${projectId}/archive`)),
+
+  // Transactions du projet
+  getAllTransactions: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get<ProjectTransaction[]>(`/account/${accountId}/project/${projectId}/transaction`)),
+
+  createTransaction: (accountId: string, projectId: string, data: CreationProjectTransaction) =>
+    apiWithRetry(() => api.post<ProjectTransaction>(`/account/${accountId}/project/${projectId}/transaction`, data)),
+
+  updateTransaction: (accountId: string, projectId: string, transactionId: string, data: CreationProjectTransaction) =>
+    apiWithRetry(() => api.put<ProjectTransaction>(`/account/${accountId}/project/${projectId}/transaction/${transactionId}`, data)),
+
+  deleteTransaction: (accountId: string, projectId: string, transactionId: string) =>
+    apiWithRetry(() => api.delete<ProjectTransaction>(`/account/${accountId}/project/${projectId}/transaction/${transactionId}`)),
+
+  getStatistics: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get<ProjectStatistics>(`/account/${accountId}/project/${projectId}/statistics`)),
+
+   // PDF Downloads
+  downloadStatisticsPDF: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get(`/account/${accountId}/project/${projectId}/pdf/statistics`, { responseType: 'blob' })),
+
+  downloadInvoicePDF: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get(`/account/${accountId}/project/${projectId}/pdf/invoice`, { responseType: 'blob' })),
+
+  downloadSummaryPDF: (accountId: string, projectId: string) =>
+    apiWithRetry(() => api.get(`/account/${accountId}/project/${projectId}/pdf/summary`, { responseType: 'blob' })),
 };
 
 export type CurrencyRates = {

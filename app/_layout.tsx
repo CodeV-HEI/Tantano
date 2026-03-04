@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
@@ -47,8 +48,12 @@ export default function RootLayout() {
           <NotificationProvider>
             <ThemeProvider> 
             <ThemeWrapper>
-              <RootLayoutContent />
-              <Toast />
+              <ActionSheetProvider>
+                <>
+                <RootLayoutContent />
+                <Toast />
+                </>
+              </ActionSheetProvider>
             </ThemeWrapper>
             </ThemeProvider> 
           </NotificationProvider>

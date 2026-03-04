@@ -24,7 +24,7 @@ export default function DashboardScreen() {
     const { user } = useAuth();
     const { theme } = useTheme();
     const router = useRouter();
-    const { formatCurrency } = useCurrency();   
+    const { formatCurrency } = useCurrency();  
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
