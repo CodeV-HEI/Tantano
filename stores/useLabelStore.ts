@@ -124,7 +124,7 @@ export const useLabelStore = create<LabelStore>((set, get) => ({
         }));
 
         try {
-            console.log('📡 Appel API archive...');
+            console.log(' Appel API archive...');
             const response = await labelAPI.archive(accountId, id);
             console.log(' Réponse API archive:', response.data);
 
@@ -309,7 +309,7 @@ checkDefaultLabels: async (accountId: string, currentLabels: Label[]) => {
 
 
             if (finalColor && response.data.color !== finalColor) {
-                console.log('🎨 API a ignoré la couleur, on force:', finalColor);
+                console.log(' API a ignoré la couleur, on force:', finalColor);
                 response.data.color = finalColor;
             }
 
