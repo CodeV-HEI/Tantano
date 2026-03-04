@@ -3,6 +3,19 @@ export interface Credentials {
   password: string;
 }
 
+export type Recurrence = "daily" | "weekly" | "monthly";
+export interface Pagination {
+    totalPage: number;
+    page: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}
+
+export interface PaginatedResponse<T> {
+    pagination: Pagination;
+    values: T[];
+}
+
 export interface User {
   id: string;
   username: string;
@@ -76,6 +89,18 @@ export interface Wallet extends UpdateWallet {
   walletAutomaticIncome?: WalletAutomaticIncome;
 }
 
+export interface TransactionFilters {
+    walletId?: string;
+    startingDate?: string;       // ISO 8601 : "2024-01-01T00:00:00.000Z"
+    endingDate?: string;         // ISO 8601 : "2024-01-31T23:59:59.999Z"
+    type?: "IN" | "OUT";
+    label?: string[];
+    minAmount?: number;
+    maxAmount?: number;
+    sortBy?: "date" | "amount";
+    sort?: "asc" | "desc";
+}
+
 export interface PaginatedWallets {
   pagination: PaginationResult;
   values: Wallet[];
@@ -136,7 +161,48 @@ export interface TransactionUpdateInfo {
 }
 
 export interface LabelUpdateInfo {
-  name?: string;
+    name?: string;
+}
+
+// types/project.ts
+
+export interface CreationProject {
+  name: string;
+  description?: string;
+  initialBudget: number;
+  color?: string;
+  iconRef?: string;
+}
+
+export interface Project extends CreationProject {
+  id: string;
+  accountId: string;
+  createdAt: string;
+  updatedAt: string;
+  isArchived: boolean;
+}
+
+export interface CreationProjectTransaction {
+  name: string;
+  description?: string;
+  estimatedCost: number;
+  realCost?: number;
+}
+
+export interface ProjectTransaction extends CreationProjectTransaction {
+  id: string;
+  projectId: string;
+  accountId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectStatistics {
+  project: Project;
+  totalEstimatedCost: number;
+  totalRealCost: number;
+  remainingBudget: number;
+  transactionCount: number;
 }
 
 export interface TransactionFilter {

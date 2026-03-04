@@ -1,6 +1,9 @@
 import ThemeWrapper from "@/components/ThemeWrapper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -42,13 +45,23 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ThemeWrapper>
-          <RootLayoutContent />
-          <Toast />
-        </ThemeWrapper>
-      </AuthProvider>
-    </ThemeProvider>
+
+    <AuthProvider>
+      <CurrencyProvider>
+        <NotificationProvider>
+          <ThemeProvider>
+            <ThemeWrapper>
+              <ActionSheetProvider>
+                <>
+                  <RootLayoutContent />
+                  <Toast />
+                </>
+              </ActionSheetProvider>
+            </ThemeWrapper>
+          </ThemeProvider>
+        </NotificationProvider>
+      </CurrencyProvider>
+    </AuthProvider>
+
   );
 }
