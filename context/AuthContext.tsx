@@ -4,7 +4,6 @@ import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { User } from '@/types/api';
 import { authAPI } from '@/services/api';
-
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;

@@ -119,11 +119,56 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="projects"
+                options={{
+                    title: 'PROJETS',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialIcons name="folder" size={size} color={color} />
+                    ),
+                    headerTitleStyle: {
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowOffset: { width: 0, height: 0 },
+                        textShadowRadius: 10,
+                    },
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'PROFIL',
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="person" size={size} color={color} />
+                    ),
+                    headerTitleStyle: {
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowOffset: { width: 0, height: 0 },
+                        textShadowRadius: 10,
+                    },
+                }}
+            />
+            <Tabs.Screen
+                name="project"
+                options={{
+                    title: 'PROJET',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialIcons name="folder" size={size} color={color} />
+                    ),
+                    headerTitleStyle: {
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowOffset: { width: 0, height: 0 },
+                        textShadowRadius: 10,
+                    },
+                }}
+            />
+            <Tabs.Screen
+                name="settings"
+                options={{
+                    title: 'PARAMÈTRES',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialIcons name="settings" size={size} color={color} />
                     ),
                     headerTitleStyle: {
                         color: theme === 'dark' ? '#06b6d4' : '#0891b2',
