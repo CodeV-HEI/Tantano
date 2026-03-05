@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StatusBar } from 'react-native';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ThemeWrapper({ children }: { children: React.ReactNode }) {
     const { theme } = useTheme();

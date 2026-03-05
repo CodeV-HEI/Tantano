@@ -1,5 +1,5 @@
 // SettingItem.tsx
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Text, View } from "react-native";

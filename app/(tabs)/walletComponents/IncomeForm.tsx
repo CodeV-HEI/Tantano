@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Props {
     onSubmit: (amount: number, day: number) => Promise<void>;

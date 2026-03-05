@@ -1,8 +1,8 @@
 import Background from "@/components/Background";
 import ListTransaction from "@/components/ListTransaction";
 import Loader from "@/components/Loader";
-import { useAuth } from "@/context/AuthContext";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";

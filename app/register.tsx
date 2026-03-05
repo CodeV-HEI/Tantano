@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Background3D from '@/components/Background';

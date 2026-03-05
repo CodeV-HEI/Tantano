@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { WalletType } from '@/types/api';
 import { WALLET_COLOR_PALETTE } from '@/types/wallet';
 import { IconPicker, AVAILABLE_WALLET_ICONS } from './IconPIcker';

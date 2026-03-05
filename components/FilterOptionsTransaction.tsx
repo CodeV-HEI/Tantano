@@ -1,5 +1,5 @@
-import { useTheme } from "@/context/ThemeContext"; // récupère le thème
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTheme } from "@/contexts/ThemeContext"; // récupère le thème
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { TransactionType } from "@/types";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";

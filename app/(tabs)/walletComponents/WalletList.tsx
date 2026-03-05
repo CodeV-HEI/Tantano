@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Wallet } from '@/types/wallet';
 import { WalletCard } from './WalletCard';
 import { IncomeForm } from './IncomeForm';

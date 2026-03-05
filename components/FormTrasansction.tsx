@@ -1,7 +1,7 @@
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";

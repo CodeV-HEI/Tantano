@@ -1,8 +1,8 @@
 import ThemeWrapper from "@/components/ThemeWrapper";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { CurrencyProvider } from "@/context/CurrencyContext";
-import { NotificationProvider } from "@/context/NotificationContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";

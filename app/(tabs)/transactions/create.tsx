@@ -1,7 +1,7 @@
 import Background from "@/components/Background";
 import FormTrasansction from "@/components/FormTrasansction";
-import { useAuth } from "@/context/AuthContext";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";

@@ -1,4 +1,4 @@
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 

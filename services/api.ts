@@ -43,7 +43,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
       console.log('token', token);
-
     }
     console.log(`API Request: ${config.method} ${config.url}`);
     return config;
@@ -83,6 +82,7 @@ export const authAPI = {
 
   healthCheck: () => api.get("/health"),
 };
+
 export const walletAPI = {
   getAll: (
     accountId: string,
@@ -120,11 +120,11 @@ export const walletAPI = {
         data,
       ),
     ),
+
+  archive: (accountId: string, walletId: string) =>
+    apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet/${walletId}/archive`)),
 };
 
-    archive: (accountId: string, walletId: string) =>
-        apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet/${walletId}/archive`)),
-};
 export const transactionAPI = {
   getALLTransactions: (accountId: string, filters?: TransactionFilters) =>
     apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/transaction`, {
@@ -212,6 +212,11 @@ export const labelAPI = {
     apiWithRetry(() =>
       api.put<Label>(`/account/${accountId}/label/${labelId}`, data),
     ),
+
+  archive: (accountId: string, labelId: string) =>
+    apiWithRetry(() =>
+      api.post<Label>(`/account/${accountId}/label/${labelId}/archive`)
+    ),
 };
 
 export const projectAPI = {
@@ -297,11 +302,6 @@ export const getCurrencies = async (
 
     console.log("Devises récupérées:", currencies);
 
-    update: (accountId: string, labelId: string, data: Label) =>
-        apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
-
-    archive: (accountId: string, labelId: string) =>
-        apiWithRetry(() => api.post<Label>(`/account/${accountId}/label/${labelId}/archive`)),
     return currencies;
   } catch (error) {
     console.error(error);

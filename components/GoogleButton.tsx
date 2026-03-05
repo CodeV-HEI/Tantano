@@ -2,8 +2,8 @@ import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface GoogleButtonProps {
     mode: 'login' | 'register';

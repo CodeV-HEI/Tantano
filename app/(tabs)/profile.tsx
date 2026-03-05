@@ -1,7 +1,7 @@
 import SettingItem from '@/components/SettingItem';
-import { useAuth } from '@/context/AuthContext';
-import { useNotification } from '@/context/NotificationContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotification } from '@/contexts/NotificationContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';

@@ -1,7 +1,7 @@
 import Background3D from '@/components/DashboardBackground';
-import { useAuth } from '@/context/AuthContext';
-import { useCurrency } from '@/context/CurrencyContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { labelAPI, transactionAPI, walletAPI } from '@/services/api';
 import { Label, Transaction, Wallet, WalletType } from '@/types/api';
 import { MaterialIcons } from '@expo/vector-icons';

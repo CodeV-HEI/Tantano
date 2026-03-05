@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useRouter, Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { TouchableOpacity, View, StatusBar } from 'react-native';
 
 export default function TabLayout() {

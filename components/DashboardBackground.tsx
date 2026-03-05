@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber/native';
 import { Mesh, Color, Group } from 'three';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function Particles({ theme }: { theme: 'dark' | 'light' }) {
     const groupRef = useRef<Group>(null);

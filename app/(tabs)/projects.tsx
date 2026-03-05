@@ -1,6 +1,6 @@
 import Background from "@/components/Background";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { projectAPI } from "@/services/api";
 import { CreationProject, Project } from "@/types";
 import { useActionSheet } from "@expo/react-native-action-sheet";

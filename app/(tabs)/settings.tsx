@@ -1,7 +1,7 @@
 import SettingItem from '@/components/SettingItem';
-import { useCurrency } from '@/context/CurrencyContext';
-import { useNotification } from '@/context/NotificationContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { useNotification } from '@/contexts/NotificationContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Currency } from '@/services/api';
 import { Recurrence } from '@/types';
 import { MaterialIcons } from '@expo/vector-icons';

@@ -1,10 +1,10 @@
 import Background from "@/components/Background";
 import Loader from "@/components/Loader";
 import UpdateTransaction from "@/components/UpdateTransaction";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { Transaction } from "@/types";
 import {
   AntDesign,

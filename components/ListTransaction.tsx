@@ -1,4 +1,4 @@
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { Link } from "expo-router";
 import { FlatList, Text, View } from "react-native";
 import CardTransaction from "./CardTransaction";

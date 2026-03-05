@@ -1,6 +1,6 @@
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import { Transaction, TransactionType } from "@/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";

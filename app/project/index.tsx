@@ -1,6 +1,6 @@
 import Loader from "@/components/Loader";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { projectAPI } from "@/services/api";
 import { Project } from "@/types";
 import { MaterialIcons } from "@expo/vector-icons";

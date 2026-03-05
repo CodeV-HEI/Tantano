@@ -1,5 +1,5 @@
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useWalletStore } from '@/stores/useWalletStore';
 import { WalletType } from '@/types/api';
 import { useRouter } from 'expo-router';
@@ -23,6 +23,7 @@ import { ConfirmationModal } from './walletComponents/ConfirmationModal';
 export default function WalletsScreen() {
     const { theme } = useTheme();
     const { user } = useAuth();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const router = useRouter();
 
     const {
@@ -40,9 +41,10 @@ export default function WalletsScreen() {
         updateAutomaticIncome,
         toggleWalletDetails,
         archiveWallet,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getTotalBalance,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getActiveCount,
-        getInactiveCount,
         archiveModalVisible,
         archiveModalData,
         hideArchiveModal,
@@ -71,7 +73,7 @@ export default function WalletsScreen() {
             console.log(' Chargement initial des wallets');
             fetchWallets(user.id, 1);
         }
-    }, [user?.id]);
+    }, [fetchWallets, user?.id]);
 
 
     useEffect(() => {
@@ -107,7 +109,7 @@ export default function WalletsScreen() {
         }, 500);
 
         return () => clearTimeout(searchTimeout);
-    }, [searchQuery, filterType, showInactive, user?.id]);
+    }, [searchQuery, filterType, showInactive, user?.id, fetchWallets]);
 
     useEffect(() => {
         if (wallets.length > 0) {
@@ -116,7 +118,7 @@ export default function WalletsScreen() {
             }, 1000);
             return () => clearTimeout(timer);
         }
-    }, [filterType, showInactive]); 
+    }, [filterType, showInactive, wallets.length]); 
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -254,7 +256,7 @@ export default function WalletsScreen() {
             showInactive,
             filteredCount: filteredWallets.length
         });
-    }, [wallets, totalBalance, activeCount, inactiveCount, pagination, searchQuery, filterType, showInactive]);
+    }, [wallets, totalBalance, activeCount, inactiveCount, pagination, searchQuery, filterType, showInactive, filteredWallets.length]);
 
     return (
         <View className="flex-1">
@@ -380,7 +382,7 @@ export default function WalletsScreen() {
                     {searchQuery && wallets.length === 0 && !isLoading && (
                         <View className="py-10 items-center">
                             <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                Aucun portefeuille trouvé pour "{searchQuery}"
+                                Aucun portefeuille trouvé pour &quot;{searchQuery}&quot;
                             </Text>
                         </View>
                     )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { COLOR_PALETTE } from '@/types/label';
 import Animated, { FadeInUp, FadeInDown, SlideInDown } from 'react-native-reanimated';
 import { IconPicker, AVAILABLE_ICONS } from './IconPicker';

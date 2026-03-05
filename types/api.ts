@@ -6,15 +6,15 @@ export interface Credentials {
 
 export type Recurrence = "daily" | "weekly" | "monthly";
 export interface Pagination {
-    totalPage: number;
-    page: number;
-    hasNext: boolean;
-    hasPrev: boolean;
+  totalPage: number;
+  page: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export interface PaginatedResponse<T> {
-    pagination: Pagination;
-    values: T[];
+  pagination: Pagination;
+  values: T[];
 }
 
 export interface User {
@@ -40,9 +40,9 @@ export interface PaginationResult {
 
 
 export interface CreationLabel {
-    name: string;
-    color?: string;         
-    iconRef?: string;      
+  name: string;
+  color?: string;
+  iconRef?: string;
 }
 
 export interface Label extends CreationLabel {
@@ -66,16 +66,16 @@ export enum WalletType {
 export type AutomaticIncomeType = 'NOT_SPECIFIED' | 'MENSUAL';
 
 export interface WalletAutomaticIncome {
-    type: AutomaticIncomeType;
-    amount?: number;       
+  type: AutomaticIncomeType;
+  amount?: number;
 }
 
 export interface CreationWallet {
-    name: string;
-    description?: string;
-    type: WalletType;
-    color?: string;       
-    iconRef?: string;      
+  name: string;
+  description?: string;
+  type: WalletType;
+  color?: string;
+  iconRef?: string;
 }
 
 export interface UpdateWallet extends CreationWallet {
@@ -90,23 +90,21 @@ export interface Wallet extends UpdateWallet {
 }
 
 export interface TransactionFilters {
-    walletId?: string;
-    startingDate?: string;       // ISO 8601 : "2024-01-01T00:00:00.000Z"
-    endingDate?: string;         // ISO 8601 : "2024-01-31T23:59:59.999Z"
-    type?: "IN" | "OUT";
-    label?: string[];
-    minAmount?: number;
-    maxAmount?: number;
-    sortBy?: "date" | "amount";
-    sort?: "asc" | "desc";
+  walletId?: string;
+  startingDate?: string;       // ISO 8601 : "2024-01-01T00:00:00.000Z"
+  endingDate?: string;         // ISO 8601 : "2024-01-31T23:59:59.999Z"
+  type?: "IN" | "OUT";
+  label?: string[];
+  minAmount?: number;
+  maxAmount?: number;
+  sortBy?: "date" | "amount";
+  sort?: "asc" | "desc";
 }
 
 export interface PaginatedWallets {
   pagination: PaginationResult;
   values: Wallet[];
 }
-
-
 
 export enum TransactionType {
   IN = "IN",
@@ -127,32 +125,12 @@ export interface Transaction extends CreationTransaction {
   id: string;
 }
 
-
-
 export interface WalletMinimalInfo {
-    name: string;
-    description?: string;
-    type: WalletType;
-    color?: string;        
-    iconRef?: string;      
-}
-
-export interface TransactionMinimalInfo {
-    date: string;
-    type: TransactionType;
-    walletId: string;
-    amount: number;
-    labels: Label[];
-    description: string;
-}
-
-export interface LabelMinimalInfo {
-    name: string;
-    color?: string;        
-    iconRef?: string;      
   name: string;
   description?: string;
   type: WalletType;
+  color?: string;
+  iconRef?: string;
 }
 
 export interface TransactionMinimalInfo {
@@ -160,23 +138,25 @@ export interface TransactionMinimalInfo {
   type: TransactionType;
   walletId: string;
   amount: number;
-  labels: Label[]; // Utilise le type Label complet comme dans l'OpenAPI
+  labels: Label[];
   description: string;
 }
 
 export interface LabelMinimalInfo {
   name: string;
+  description?: string;
+  type: WalletType;
+  color?: string;
+  iconRef?: string;
 }
 
-
-
 export interface WalletUpdateInfo {
-    name?: string;
-    description?: string;
-    type?: WalletType;
-    isActive?: boolean;
-    color?: string;        
-    iconRef?: string;      
+  name?: string;
+  description?: string;
+  type?: WalletType;
+  isActive?: boolean;
+  color?: string;
+  iconRef?: string;
 }
 
 export interface TransactionUpdateInfo {
@@ -189,9 +169,9 @@ export interface TransactionUpdateInfo {
 }
 
 export interface LabelUpdateInfo {
-    name?: string;
-    color?: string;        
-    iconRef?: string;      
+  name?: string;
+  color?: string;
+  iconRef?: string;
 }
 
 // types/project.ts
