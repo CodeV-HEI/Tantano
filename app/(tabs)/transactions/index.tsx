@@ -53,7 +53,7 @@ export default function Index() {
       getWallets(accountId);
       getAllTransactions(accountId, filter);
     }
-  }, [accountId, filter, isCheckingToken]);
+  }, [accountId, filter, getAllLables, getAllTransactions, getWallets, isCheckingToken, user]);
 
   if (isCheckingToken) {
     return <Loader />;
