@@ -9,10 +9,6 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 
-export const options = {
-  headerShown: false,
-};
-
 export default function Index() {
   const { user } = useAuth();
   const { filter, getAllTransactions, getAllLables, getWallets } =
