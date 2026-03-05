@@ -26,7 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const API_URL = process.env.API_BASE_URL || "https://tantano-api.onrender.com";
-// const API_URL = "http://192.168.0.29:8080";
+// const API_URL = "http://localhost:8080";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -83,7 +83,6 @@ export const authAPI = {
 
   healthCheck: () => api.get("/health"),
 };
-
 export const walletAPI = {
   getAll: (
     accountId: string,
@@ -123,6 +122,9 @@ export const walletAPI = {
     ),
 };
 
+    archive: (accountId: string, walletId: string) =>
+        apiWithRetry(() => api.post<Wallet>(`/account/${accountId}/wallet/${walletId}/archive`)),
+};
 export const transactionAPI = {
   getALLTransactions: (accountId: string, filters?: TransactionFilters) =>
     apiWithRetry(() => api.get<Transaction[]>(`/account/${accountId}/transaction`, {
@@ -295,6 +297,11 @@ export const getCurrencies = async (
 
     console.log("Devises récupérées:", currencies);
 
+    update: (accountId: string, labelId: string, data: Label) =>
+        apiWithRetry(() => api.put<Label>(`/account/${accountId}/label/${labelId}`, data)),
+
+    archive: (accountId: string, labelId: string) =>
+        apiWithRetry(() => api.post<Label>(`/account/${accountId}/label/${labelId}/archive`)),
     return currencies;
   } catch (error) {
     console.error(error);
