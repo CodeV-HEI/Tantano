@@ -92,6 +92,7 @@ export default function TabLayout() {
                 name="transactions"
                 options={{
                     title: 'TRANSACTIONS',
+                    headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="receipt" size={size} color={color} />
                     ),
