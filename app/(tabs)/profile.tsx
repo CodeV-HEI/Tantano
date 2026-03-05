@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, StatusBar } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import SettingItem from '@/components/SettingItem';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { useTheme } from '@/context/ThemeContext';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Alert, Pressable, ScrollView, StatusBar, Switch, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 
 export default function ProfileScreen() {
     const { user, logout } = useAuth();
     const { theme, mode, setMode, toggleTheme } = useTheme();
     const router = useRouter();
+    const { enabled, toggle } = useNotification();
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
@@ -25,44 +29,35 @@ export default function ProfileScreen() {
                     text: 'Déconnexion',
                     style: 'destructive',
                     onPress: async () => {
-                        await logout();
-                        router.replace('/login');
+                        try {
+                            await logout();
+                            Toast.show({
+                                type: 'success',
+                                text1: 'Déconnexion réussie',
+                                text2: 'À bientôt !',
+                                position: 'top',
+                                visibilityTime: 2000,
+                            });
+                            router.replace('/login');
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Erreur',
+                                text2: 'Impossible de se déconnecter',
+                                position: 'top',
+                                visibilityTime: 3000,
+                            });
+                        }
                     }
                 }
             ]
         );
     };
 
-    const SettingItem = ({ 
-        icon, 
-        title, 
-        description, 
-        rightComponent 
-    }: {
-        icon: keyof typeof MaterialIcons.glyphMap;
-        title: string;
-        description?: string;
-        rightComponent?: React.ReactNode;
-    }) => (
-        <View className="flex-row items-center justify-between py-4 px-2 border-b border-gray-200 dark:border-gray-800">
-            <View className="flex-row items-center flex-1">
-                <View className={`w-10 h-10 rounded-lg ${theme === 'dark' ? 'bg-cyan-500/10' : 'bg-cyan-400/10'} items-center justify-center mr-3`}>
-                    <MaterialIcons name={icon} size={22} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
-                </View>
-                <View className="flex-1">
-                    <Text className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-base`}>{title}</Text>
-                    {description && (
-                        <Text className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-0.5`}>{description}</Text>
-                    )}
-                </View>
-            </View>
-            {rightComponent}
-        </View>
-    );
-
-    return (
+ return (
         <>
-            <ScrollView className="flex-1 bg-white dark:bg-black">
+            <ScrollView  className={`flex-1 ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
                 <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
                 <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
@@ -77,17 +72,17 @@ export default function ProfileScreen() {
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>PRÉFÉRENCES D&apos;AFFICHAGE</Text>
-                        
+
                         <SettingItem
                             icon="palette"
                             title="Thème"
                             description="Personnalisez l'apparence de l'application"
                             rightComponent={
                                 <TouchableOpacity onPress={toggleTheme} className="flex-row items-center">
-                                    <MaterialIcons 
-                                        name={theme === 'dark' ? 'dark-mode' : 'light-mode'} 
-                                        size={24} 
-                                        color={theme === 'dark' ? '#06b6d4' : '#0891b2'} 
+                                    <MaterialIcons
+                                        name={theme === 'dark' ? 'dark-mode' : 'light-mode'}
+                                        size={24}
+                                        color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
                                     />
                                     <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
                                         {theme === 'dark' ? 'Sombre' : 'Clair'}
@@ -109,11 +104,21 @@ export default function ProfileScreen() {
                                 />
                             }
                         />
+
+                        <Pressable onPress={() => router.push('/settings')}>
+                            <SettingItem
+                                icon="settings"
+                                title="Paramètres avancés"
+                                description="Configurer les paramétres avancés"
+                                    // rightComponent peut être vide ou un chevron si tu veux
+                                rightComponent={null} 
+                            />
+                        </Pressable>
                     </View>
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>COMPTE ET SÉCURITÉ</Text>
-                        
+
                         <SettingItem
                             icon="security"
                             title="Sécurité"
@@ -129,8 +134,8 @@ export default function ProfileScreen() {
                             description="Gérer les notifications"
                             rightComponent={
                                 <Switch
-                                    value={true}
-                                    onValueChange={() => {}}
+                                    value={enabled}          
+                                    onValueChange={toggle} 
                                     trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />
@@ -140,7 +145,7 @@ export default function ProfileScreen() {
 
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>AIDE ET SUPPORT</Text>
-                        
+
                         <SettingItem
                             icon="help"
                             title="Centre d'aide"

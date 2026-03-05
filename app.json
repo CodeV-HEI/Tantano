@@ -42,7 +42,8 @@
           }
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -52,7 +53,10 @@
       "router": {},
       "eas": {
         "projectId": "8dab63c1-f5e2-4063-bf07-d9e064405647"
-      }
+      },
+      "googleClientIdAndroid": "958515738736-lb263rpmibvd5gilare7am5h0vhmjle4.apps.googleusercontent.com",
+      "googleWebClientId": "958515738736-d0c1qspl2u38a566s6vogbve9oor11h3.apps.googleusercontent.com"
     }
   }
 }
+
