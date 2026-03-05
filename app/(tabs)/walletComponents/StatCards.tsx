@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
@@ -13,41 +13,55 @@ interface Props {
 export const StatCards = ({ totalBalance, activeCount, inactiveCount }: Props) => {
     const { theme } = useTheme();
 
-
-    useEffect(() => {
-        console.log('📊 StatCards reçoit:', { totalBalance, activeCount, inactiveCount });
-    }, [totalBalance, activeCount, inactiveCount]);
-
-    const StatCard = ({ title, value, icon, color }: { title: string; value: string; icon: keyof typeof MaterialIcons.glyphMap; color: string }) => (
-        <View className={`flex-1 ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mx-1`}>
-        <View className="flex-row items-center mb-2">
-        <MaterialIcons name={icon} size={20} color={color} />
-        <Text className={`ml-2 text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{title}</Text>
-        </View>
-        <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{value}</Text>
-        </View>
-    );
-
     return (
-        <Animated.View entering={FadeInUp.delay(100)} className="flex-row mb-6">
-        <StatCard
-        title="SOLDE TOTAL"
-        value={`${totalBalance.toLocaleString('fr-FR')} Ar`}
-        icon="account-balance"
-        color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-        />
-        <StatCard
-        title="ACTIFS"
-        value={`${activeCount}`}
-        icon="check-circle"
-        color={theme === 'dark' ? '#4ade80' : '#16a34a'}
-        />
-        <StatCard
-        title="INACTIFS"
-        value={`${inactiveCount}`}
-        icon="remove-circle"
-        color={theme === 'dark' ? '#f87171' : '#dc2626'}
-        />
+        <Animated.View 
+            entering={FadeInUp.delay(100)} 
+            className="flex-row items-center justify-between mb-4 px-2 py-2 rounded-xl"
+            style={{ 
+                backgroundColor: theme === 'dark' ? '#1f2937' : '#f3f4f6',
+            }}
+        >
+            <View className="flex-row items-center">
+                <View className={`w-8 h-8 rounded-full items-center justify-center mr-2 ${
+                    theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-100'
+                }`}>
+                    <MaterialIcons name="account-balance" size={16} color={theme === 'dark' ? '#06b6d4' : '#0891b2'} />
+                </View>
+                <View>
+                    <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Solde</Text>
+                    <Text className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {totalBalance.toLocaleString('fr-FR')} Ar
+                    </Text>
+                </View>
+            </View>
+
+            <View className="flex-row items-center">
+                <View className={`w-8 h-8 rounded-full items-center justify-center mr-2 ${
+                    theme === 'dark' ? 'bg-green-500/20' : 'bg-green-100'
+                }`}>
+                    <MaterialIcons name="check-circle" size={16} color={theme === 'dark' ? '#4ade80' : '#16a34a'} />
+                </View>
+                <View>
+                    <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Actifs</Text>
+                    <Text className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {activeCount}
+                    </Text>
+                </View>
+            </View>
+
+            <View className="flex-row items-center">
+                <View className={`w-8 h-8 rounded-full items-center justify-center mr-2 ${
+                    theme === 'dark' ? 'bg-red-500/20' : 'bg-red-100'
+                }`}>
+                    <MaterialIcons name="remove-circle" size={16} color={theme === 'dark' ? '#f87171' : '#dc2626'} />
+                </View>
+                <View>
+                    <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Inactifs</Text>
+                    <Text className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {inactiveCount}
+                    </Text>
+                </View>
+            </View>
         </Animated.View>
     );
 };

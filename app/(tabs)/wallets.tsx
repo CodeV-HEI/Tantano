@@ -3,7 +3,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useWalletStore } from '@/stores/useWalletStore';
 import { WalletType } from '@/types/api';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     RefreshControl,
@@ -18,6 +18,7 @@ import { Header } from './walletComponents/Header';
 import { SearchBar } from './walletComponents/SearchBar';
 import { StatCards } from './walletComponents/StatCards';
 import { WalletList } from './walletComponents/WalletList';
+import { ConfirmationModal } from './walletComponents/ConfirmationModal';
 
 export default function WalletsScreen() {
     const { theme } = useTheme();
@@ -41,7 +42,11 @@ export default function WalletsScreen() {
         archiveWallet,
         getTotalBalance,
         getActiveCount,
-        getInactiveCount
+        getInactiveCount,
+        archiveModalVisible,
+        archiveModalData,
+        hideArchiveModal,
+        confirmArchive
     } = useWalletStore();
 
     const [refreshing, setRefreshing] = useState(false);
@@ -50,6 +55,12 @@ export default function WalletsScreen() {
     const [filterType, setFilterType] = useState<'ALL' | WalletType>('ALL');
     const [showInactive, setShowInactive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+
+    const lastFilters = useRef({
+        name: '',
+        type: 'ALL',
+        isActive: true
+    });
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
@@ -62,16 +73,30 @@ export default function WalletsScreen() {
         }
     }, [user?.id]);
 
+
     useEffect(() => {
+        const isActiveValue = !showInactive ? true : false;
+
+        const filtersChanged =
+            lastFilters.current.name !== searchQuery ||
+            lastFilters.current.type !== filterType ||
+            lastFilters.current.isActive !== isActiveValue;
+
+        if (!filtersChanged) return;
+
         const searchTimeout = setTimeout(() => {
             if (user?.id) {
-                const isActiveValue = !showInactive ? true : false;
-
-                console.log(' Appel API avec filtres:', {
+                console.log('🔍 Appel API avec filtres:', {
                     name: searchQuery || undefined,
                     type: filterType !== 'ALL' ? filterType : undefined,
                     isActive: isActiveValue
                 });
+
+                lastFilters.current = {
+                    name: searchQuery,
+                    type: filterType,
+                    isActive: isActiveValue
+                };
 
                 fetchWallets(user.id, 1, {
                     name: searchQuery || undefined,
@@ -83,6 +108,15 @@ export default function WalletsScreen() {
 
         return () => clearTimeout(searchTimeout);
     }, [searchQuery, filterType, showInactive, user?.id]);
+
+    useEffect(() => {
+        if (wallets.length > 0) {
+            const timer = setTimeout(() => {
+                useWalletStore.getState().removeDuplicates();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [filterType, showInactive]); 
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -97,10 +131,12 @@ export default function WalletsScreen() {
         setRefreshing(false);
     };
 
-    const handleCreateWallet = async (name: string, description: string, type: WalletType, color: string) => {
+
+    const handleCreateWallet = async (name: string, description: string, type: WalletType, color: string, iconRef?: string) => {
         if (!user?.id) return;
-        console.log('Création wallet avec couleur:', color);
-        const created = await createWallet(user.id, { name, description, type, color });
+        console.log(' Création wallet avec icône:', { name, description, type, color, iconRef });
+
+        const created = await createWallet(user.id, { name, description, type, color, iconRef });
         if (created) {
             setShowAddForm(false);
         }
@@ -221,20 +257,21 @@ export default function WalletsScreen() {
     }, [wallets, totalBalance, activeCount, inactiveCount, pagination, searchQuery, filterType, showInactive]);
 
     return (
-        <ScrollView
-            className="flex-1 bg-white dark:bg-black"
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-                    colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
-                />
-            }
-            onScroll={handleScroll}
-            scrollEventThrottle={400}
-            showsVerticalScrollIndicator={false}
-        >
+        <View className="flex-1">
+            <ScrollView
+                className="flex-1 bg-white dark:bg-black"
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                        colors={[theme === 'dark' ? '#06b6d4' : '#0891b2']}
+                    />
+                }
+                onScroll={handleScroll}
+                scrollEventThrottle={400}
+                showsVerticalScrollIndicator={false}
+            >
             <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'}
                 rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
             <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'}
@@ -275,8 +312,11 @@ export default function WalletsScreen() {
                     getWalletTypeStyle={getWalletTypeStyle}
                 />
 
+                
+
                 {showAddForm && (
                     <CreateForm
+                        visible={showAddForm}
                         onCreate={handleCreateWallet}
                         isCreating={isCreating}
                         onCancel={() => setShowAddForm(false)}
@@ -352,6 +392,18 @@ export default function WalletsScreen() {
                     </Text>
                 </View>
             </View>
-        </ScrollView>
+            </ScrollView>
+
+            <ConfirmationModal
+                        visible={archiveModalVisible}
+                        title="Archiver le portefeuille"
+                        message={`Voulez-vous vraiment archiver "${archiveModalData?.name}" ?\nCette action est réversible.`}
+                        onConfirm={confirmArchive}
+                        onCancel={hideArchiveModal}
+                        confirmText="Archiver"
+                        cancelText="Annuler"
+                        confirmColor="red"
+                    />
+        </View>
     );
 }

@@ -65,20 +65,19 @@ export const WalletCard = ({
             )}
 
             <TouchableOpacity onPress={onToggleDetails} activeOpacity={0.7}>
-                <View className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-2xl p-4 border ${
-                    wallet.isActive
+                <View className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-2xl p-4 border ${wallet.isActive
                         ? theme === 'dark' ? 'border-cyan-500/30' : 'border-cyan-300/30'
                         : theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-                }`}>
+                    }`}>
                     <View className="flex-row items-center">
-                        <View 
+                        <View
                             className="w-12 h-12 rounded-xl items-center justify-center mr-3"
                             style={{ backgroundColor: wallet.color || '#cccccc' }}
                         >
-                            <MaterialIcons 
-                                name={style.icon} 
-                                size={24} 
-                                color="white" 
+                            <MaterialIcons
+                                name={wallet.iconRef as any || style.icon}
+                                size={24}
+                                color="white"
                             />
                         </View>
 
@@ -133,11 +132,10 @@ export const WalletCard = ({
                     <View className="flex-row mb-4">
                         <TouchableOpacity
                             onPress={onToggleActive}
-                            className={`flex-1 flex-row items-center justify-center p-3 mr-2 rounded-xl ${
-                                wallet.isActive
+                            className={`flex-1 flex-row items-center justify-center p-3 mr-2 rounded-xl ${wallet.isActive
                                     ? theme === 'dark' ? 'bg-red-500/20' : 'bg-red-100'
                                     : theme === 'dark' ? 'bg-green-500/20' : 'bg-green-100'
-                            }`}
+                                }`}
                         >
                             <MaterialIcons
                                 name={wallet.isActive ? 'visibility-off' : 'visibility'}
@@ -147,29 +145,26 @@ export const WalletCard = ({
                                     : (theme === 'dark' ? '#4ade80' : '#16a34a')
                                 }
                             />
-                            <Text className={`ml-2 font-medium ${
-                                wallet.isActive
+                            <Text className={`ml-2 font-medium ${wallet.isActive
                                     ? theme === 'dark' ? 'text-red-400' : 'text-red-600'
                                     : theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                            }`}>
+                                }`}>
                                 {wallet.isActive ? 'Désactiver' : 'Activer'}
                             </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={onToggleIncomeForm}
-                            className={`flex-1 flex-row items-center justify-center p-3 rounded-xl ${
-                                theme === 'dark' ? 'bg-purple-500/20' : 'bg-purple-100'
-                            }`}
+                            className={`flex-1 flex-row items-center justify-center p-3 rounded-xl ${theme === 'dark' ? 'bg-purple-500/20' : 'bg-purple-100'
+                                }`}
                         >
                             <MaterialIcons
                                 name="auto-awesome"
                                 size={20}
                                 color={theme === 'dark' ? '#c084fc' : '#9333ea'}
                             />
-                            <Text className={`ml-2 font-medium ${
-                                theme === 'dark' ? 'text-purple-400' : 'text-purple-600'
-                            }`}>
+                            <Text className={`ml-2 font-medium ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'
+                                }`}>
                                 {isPremium ? 'Modifier' : 'Revenu auto'}
                             </Text>
                         </TouchableOpacity>

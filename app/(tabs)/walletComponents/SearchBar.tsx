@@ -1,4 +1,3 @@
-// 📁 app/(tabs)/walletComponents/SearchBar.tsx (version premium)
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
