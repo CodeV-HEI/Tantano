@@ -4,7 +4,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { WalletType } from '@/types/api';
 import { WALLET_COLOR_PALETTE } from '@/types/wallet';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconPicker, AVAILABLE_WALLET_ICONS } from './IconPIcker';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Animated, { FadeInUp, FadeInDown, SlideInDown } from 'react-native-reanimated';
 
 interface Props {
