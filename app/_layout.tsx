@@ -23,19 +23,12 @@ function RootLayoutContent() {
     <Stack screenOptions={{ headerShown: false }}>
       {!user ? (
         <>
-<<<<<<< HEAD
           <Stack.Screen name="index" options={{ animation: "fade" }} />
           <Stack.Screen name="login" options={{ animation: "fade" }} />
           <Stack.Screen
             name="register"
             options={{ animation: "slide_from_right" }}
           />
-=======
-          <Stack.Screen name="index" options={{ animation: 'fade' }} />
-          <Stack.Screen name="login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="register" options={{ animation: 'slide_from_right' }} />
-          <Stack.Screen name="forgot-password" options={{ animation: 'slide_from_bottom' }} />
->>>>>>> 44342cc (feat: Add forgot password component and update login, register and also _layout component)
           <Stack.Screen name="(tabs)" redirect={true} />
         </>
       ) : (

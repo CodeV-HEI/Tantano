@@ -8,14 +8,12 @@ import {
     Platform,
     Alert,
     ActivityIndicator,
-    ScrollView,
-    StatusBar
+    ScrollView
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
-import { MaterialIcons } from '@expo/vector-icons';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import Background3D from '@/components/Background';
 import Toast from 'react-native-toast-message';
 
@@ -43,6 +41,7 @@ export default function ForgotPasswordScreen() {
             });
             router.back();
         } catch (error) {
+            console.error('Forgot password error:', error);
             Toast.show({
                 type: 'error',
                 text1: 'Erreur',
