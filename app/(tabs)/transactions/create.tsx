@@ -7,9 +7,16 @@ import { useEffect } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 
-export default function create() {
+export default function Create() {
   const { user } = useAuth();
   const { getWallets, getAllLables } = useTransactionStore();
+
+  useEffect(() => {
+    if (user?.id) {
+      getWallets(user.id);
+      getAllLables(user.id);
+    }
+  }, [getAllLables, getWallets, user?.id]);
 
   if (!user?.id) {
     Toast.show({
@@ -18,13 +25,8 @@ export default function create() {
       text2: "Veuillez vous reconnecter.",
     });
     router.replace("/login");
-    return;
+    return null;
   }
-
-  useEffect(() => {
-    getWallets(user.id);
-    getAllLables(user.id);
-  }, [user?.id]);
 
   return (
     <>

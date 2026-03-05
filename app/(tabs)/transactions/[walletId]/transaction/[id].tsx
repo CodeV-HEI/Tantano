@@ -79,7 +79,7 @@ export default function TransactionDetails() {
     fetched();
     getAllLables(user.id);
     getWallets(user.id);
-  }, [id, walletId, user?.id]);
+  }, [id, walletId, user?.id, getAllLables, getWallets]);
 
   return (
     <>
@@ -89,15 +89,14 @@ export default function TransactionDetails() {
         <View className="w-full items-end mb-6">
           <Pressable
             onPress={() => setEdited(!edited)}
-            className={`p-3 rounded-full ${
-              edited
-                ? isDark
-                  ? "bg-red-900/40"
-                  : "bg-red-100"
-                : isDark
-                  ? "bg-blue-900/40"
-                  : "bg-blue-100"
-            } ${shadow}`}
+            className={`p-3 rounded-full ${edited
+              ? isDark
+                ? "bg-red-900/40"
+                : "bg-red-100"
+              : isDark
+                ? "bg-blue-900/40"
+                : "bg-blue-100"
+              } ${shadow}`}
           >
             {edited ? (
               <AntDesign name="close" size={20} color="#ef4444" />
@@ -115,9 +114,8 @@ export default function TransactionDetails() {
             <View className={`${cardBg} rounded-3xl p-7 mb-6 ${shadow}`}>
               <View className="items-center">
                 <View
-                  className={`p-4 rounded-2xl mb-4 ${
-                    isDark ? "bg-blue-900/30" : "bg-blue-100"
-                  }`}
+                  className={`p-4 rounded-2xl mb-4 ${isDark ? "bg-blue-900/30" : "bg-blue-100"
+                    }`}
                 >
                   <FontAwesome name="exchange" size={28} color="#3b82f6" />
                 </View>
@@ -127,15 +125,14 @@ export default function TransactionDetails() {
                 </Text>
 
                 <Text
-                  className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${
-                    transactionOne.type === "IN"
-                      ? isDark
-                        ? "bg-emerald-900/30 text-emerald-400"
-                        : "bg-emerald-100 text-emerald-700"
-                      : isDark
-                        ? "bg-rose-900/30 text-rose-400"
-                        : "bg-rose-100 text-rose-700"
-                  }`}
+                  className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${transactionOne.type === "IN"
+                    ? isDark
+                      ? "bg-emerald-900/30 text-emerald-400"
+                      : "bg-emerald-100 text-emerald-700"
+                    : isDark
+                      ? "bg-rose-900/30 text-rose-400"
+                      : "bg-rose-100 text-rose-700"
+                    }`}
                 >
                   {transactionOne.type === "IN" ? "ENTRÉE" : "SORTIE"}
                 </Text>
