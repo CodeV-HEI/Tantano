@@ -12,13 +12,13 @@ import {
     Text,
     View
 } from 'react-native';
-import { CreateForm } from './walletComponents/CreateForm';
-import { FilterBar } from './walletComponents/FilterBar';
-import { Header } from './walletComponents/Header';
-import { SearchBar } from './walletComponents/SearchBar';
-import { StatCards } from './walletComponents/StatCards';
-import { WalletList } from './walletComponents/WalletList';
-import { ConfirmationModal } from './walletComponents/ConfirmationModal';
+import { CreateForm } from '@/components/walletComponents/CreateForm';
+import { FilterBar } from '@/components/walletComponents/FilterBar';
+import { Header } from '@/components/walletComponents/Header';
+import { SearchBar } from '@/components/walletComponents/SearchBar';
+import { StatCards } from '@/components/walletComponents/StatCards';
+import { WalletList } from '@/components/walletComponents/WalletList';
+import { ConfirmationModal } from '@/components/walletComponents/ConfirmationModal';
 
 export default function WalletsScreen() {
     const { theme } = useTheme();

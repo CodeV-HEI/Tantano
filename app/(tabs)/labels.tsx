@@ -13,13 +13,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLabelStore } from '@/stores/useLabelStore';
 import { useRouter } from 'expo-router';
-import { Header } from './components/Header';
-import { SearchBar } from './components/SearchBar';
-import { CreateForm } from './components/CreateForm';
-import { EditForm } from './components/EditForm';
-import { LabelList } from './components/LabelList';
-import { EmptyState } from './components/EmptyState';
-import { ConfirmationModal } from './components/ConfirmationModal';
+import { Header } from '@/components/components/Header';
+import { SearchBar } from '@/components/components/SearchBar';
+import { CreateForm } from '@/components/components/CreateForm';
+import { EditForm } from '@/components/components/EditForm';
+import { LabelList } from '@/components/components/LabelList';
+import { EmptyState } from '@/components/components/EmptyState';
+import { ConfirmationModal } from '@/components/components/ConfirmationModal';
 
 export default function LabelsScreen() {
     const { theme } = useTheme();
