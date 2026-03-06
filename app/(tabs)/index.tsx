@@ -6,14 +6,25 @@ import { labelAPI, transactionAPI, walletAPI } from '@/services/api';
 import { Label, Transaction, Wallet, WalletType } from '@/types/api';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { LineChart, PieChart } from 'react-native-chart-kit';
 import Animated, {
   FadeInUp,
   Layout,
   SlideInRight
 } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function DashboardScreen() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -27,32 +38,30 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { formatCurrency } = useCurrency();
 
+  const [lineChartData, setLineChartData] = useState({
+    labels: [] as string[],
+    datasets: [{ data: [] as number[] }]
+  });
+  const [pieChartData, setPieChartData] = useState<any[]>([]);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
   useEffect(() => {
     StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
   }, [theme]);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
 
     try {
-      // Récupérer les portefeuilles
       const walletsRes = await walletAPI.getAll(user.id);
       const walletsData: Wallet[] = walletsRes.data.values;
       setWallets(walletsData);
 
-      // Récupérer les labels
       const labelsRes = await labelAPI.getAll(user.id);
       const labelsData = labelsRes.data.values;
       setLabels(labelsData);
 
-      // Récupérer les transactions pour tous les portefeuilles
       let allTransactions: Transaction[] = [];
       for (const wallet of walletsData) {
         try {
@@ -63,11 +72,9 @@ export default function DashboardScreen() {
         }
       }
 
-      // Trier les transactions par date (plus récentes en premier)
       allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setTransactions(allTransactions);
 
-      // Calculer le solde total (somme des montants des portefeuilles)
       const balance = walletsData.reduce((acc, wallet) => acc + wallet.amount, 0);
       setTotalBalance(balance);
     } catch (error) {
@@ -80,7 +87,72 @@ export default function DashboardScreen() {
         visibilityTime: 3000,
       });
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user, fetchData]);
+
+  // Mise à jour des graphiques quand les données changent
+  useEffect(() => {
+    const computeLineChartData = () => {
+      const days = 7;
+      const today = new Date();
+      const dates = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().split('T')[0]);
+      }
+
+      const balances = dates.map(date => {
+        // Transactions après cette date
+        const txsAfterDate = transactions.filter(tx => new Date(tx.date) > new Date(date));
+        let balanceAtDate = wallets.reduce((sum, w) => sum + w.amount, 0);
+        for (const tx of txsAfterDate) {
+          if (tx.type === 'IN') {
+            balanceAtDate -= tx.amount;
+          } else {
+            balanceAtDate += tx.amount;
+          }
+        }
+        return balanceAtDate;
+      });
+
+      return {
+        labels: dates.map(d => d.slice(5)), // MM-DD
+        datasets: [{ data: balances }]
+      };
+    };
+
+    const computePieChartData = () => {
+      const types = ['CASH', 'MOBILE_MONEY', 'BANK', 'DEBT'] as const;
+      const colors = {
+        CASH: '#FFD700',
+        MOBILE_MONEY: '#4CAF50',
+        BANK: '#2196F3',
+        DEBT: '#F44336'
+      };
+      const data = types.map(type => {
+        const total = wallets.filter(w => w.type === type).reduce((sum, w) => sum + w.amount, 0);
+        return {
+          name: type,
+          amount: total,
+          color: colors[type],
+          legendFontColor: theme === 'dark' ? '#FFF' : '#333',
+          legendFontSize: 12
+        };
+      }).filter(item => item.amount > 0);
+      return data;
+    };
+
+    if (wallets.length > 0 || transactions.length > 0) {
+      setLineChartData(computeLineChartData());
+      setPieChartData(computePieChartData());
+    }
+  }, [wallets, transactions, theme]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -99,10 +171,7 @@ export default function DashboardScreen() {
     color: string;
     onPress: () => void;
   }) => (
-    <TouchableOpacity
-      className="items-center"
-      onPress={onPress}
-    >
+    <TouchableOpacity className="items-center" onPress={onPress}>
       <View className={`w-16 h-16 rounded-2xl ${color} items-center justify-center mb-2 ${theme === 'dark' ? 'shadow-lg shadow-cyan-500/50' : 'shadow-lg shadow-cyan-400/30'}`}>
         <MaterialIcons name={icon} size={28} color="white" />
       </View>
@@ -150,10 +219,9 @@ export default function DashboardScreen() {
 
   return (
     <>
-      {/* Background 3D */}
       <Background3D />
-
       <ScrollView
+        ref={scrollViewRef}
         className="flex-1"
         refreshControl={
           <RefreshControl
@@ -188,10 +256,7 @@ export default function DashboardScreen() {
             </Text>
           </Animated.View>
 
-          <Animated.View
-            entering={SlideInRight.delay(300)}
-            className="flex-row justify-between mt-8"
-          >
+          <Animated.View entering={SlideInRight.delay(300)} className="flex-row justify-between mt-8">
             <QuickAction
               icon="add"
               title="TRANSACTION"
@@ -214,7 +279,10 @@ export default function DashboardScreen() {
               icon="analytics"
               title="RAPPORT"
               color="bg-gradient-to-br from-indigo-500 to-indigo-700"
-              onPress={() => Alert.alert('Rapports', 'Les rapports seront disponibles dans une prochaine mise à jour')}
+              onPress={() => {
+                // Faire défiler vers la section statistiques
+                scrollViewRef.current?.scrollTo({ y: 1000, animated: true });
+              }}
             />
           </Animated.View>
 
@@ -267,7 +335,7 @@ export default function DashboardScreen() {
             )}
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(600)} className="mt-8 mb-10">
+          <Animated.View entering={FadeInUp.delay(600)} className="mt-8">
             <View className="flex-row justify-between items-center mb-4">
               <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide ${theme === 'dark' ? 'neon-text' : 'neon-text-light'}`}>TRANSACTIONS RÉCENTES</Text>
               <TouchableOpacity onPress={() => router.push('/transactions')}>
@@ -316,6 +384,60 @@ export default function DashboardScreen() {
                   </TouchableOpacity>
                 </Animated.View>
               ))
+            )}
+          </Animated.View>
+
+          {/* Section Statistiques */}
+          <Animated.View entering={FadeInUp.delay(800)} className="mt-8 mb-10">
+            <Text className={`text-xl font-bold ${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} tracking-wide mb-4`}>
+              STATISTIQUES
+            </Text>
+
+            {/* Line Chart */}
+            {lineChartData.datasets[0].data.length > 0 && (
+              <View className="mb-6">
+                <Text className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>Évolution du solde (7 derniers jours)</Text>
+                <LineChart
+                  data={lineChartData}
+                  width={screenWidth - 32}
+                  height={220}
+                  chartConfig={{
+                    backgroundColor: theme === 'dark' ? '#1e1e2f' : '#ffffff',
+                    backgroundGradientFrom: theme === 'dark' ? '#1e1e2f' : '#f0f0ff',
+                    backgroundGradientTo: theme === 'dark' ? '#2d2d44' : '#e0e0ff',
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
+                    labelColor: (opacity = 1) => theme === 'dark' ? `rgba(255,255,255,${opacity})` : `rgba(0,0,0,${opacity})`,
+                    style: { borderRadius: 16 },
+                    propsForDots: {
+                      r: "6",
+                      strokeWidth: "2",
+                      stroke: "#06b6d4"
+                    }
+                  }}
+                  bezier
+                  style={{ marginVertical: 8, borderRadius: 16 }}
+                />
+              </View>
+            )}
+
+            {/* Pie Chart */}
+            {pieChartData.length > 0 && (
+              <View>
+                <Text className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>Répartition par type de portefeuille</Text>
+                <PieChart
+                  data={pieChartData}
+                  width={screenWidth - 32}
+                  height={200}
+                  chartConfig={{
+                    color: (opacity = 1) => `rgba(255,255,255,${opacity})`,
+                  }}
+                  accessor="amount"
+                  backgroundColor="transparent"
+                  paddingLeft="15"
+                  absolute
+                />
+              </View>
             )}
           </Animated.View>
         </View>
