@@ -1,4 +1,4 @@
-import { Goal } from '@/types';
+import { Goal } from '@/clients';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { LayoutAnimation, Platform, Text, TouchableOpacity, UIManager, View } from 'react-native';
@@ -20,7 +20,7 @@ const GoalDropdown = ({ goals }: { goals: Goal }) => {
     'neon-red': '#ef4444',
   };
 
-  const activeColor = neonColors[goals.color] || goals.color || '#06b6d4';
+  const activeColor = neonColors[goals.color || '#06b6d4'] || goals.color || '#06b6d4';
 
   const toggleDropdown = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -68,9 +68,9 @@ const GoalDropdown = ({ goals }: { goals: Goal }) => {
         <View className="bg-white/50 border-x border-b border-gray-100 rounded-b-2xl p-5 mx-1 pt-2">
           <View className="space-y-4">
             <DetailRow label="Objectif Total" value={`${goals.amount} €`} color={activeColor} icon="cash-outline" />
-            <DetailRow label="Échéance" value={goals.endingDate} icon="calendar-outline" />
-            <DetailRow label="Portefeuille" value={goals.walletId} icon="wallet-outline" />
-            <DetailRow label="Date de début" value={goals.startingDate} icon="time-outline" />
+            <DetailRow label="Échéance" value={goals.endingDate?.toString() || new Date().toString()} icon="calendar-outline" />
+            <DetailRow label="Portefeuille" value={goals.walletId || ""} icon="wallet-outline" />
+            <DetailRow label="Date de début" value={goals.startingDate?.toDateString() || new Date().toDateString()} icon="time-outline" />
           </View>
           
           <TouchableOpacity 
