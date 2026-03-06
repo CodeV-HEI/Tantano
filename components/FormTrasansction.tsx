@@ -138,11 +138,12 @@ export default function FormTrasansction() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      // style={{ flex: 1 }}
+      style={{ flex: 1 }}
     >
       <ScrollView
-        contentContainerStyle={{ padding: 10, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: 10, paddingBottom: 100, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* ===== HEADER ===== */}
         <View className="mb-8">
@@ -150,7 +151,7 @@ export default function FormTrasansction() {
             Nouvelle Transaction
           </Text>
           <Text className={`mt-1 ${textSecondary}`}>
-            Ajoute une entrée ou une sortie d'argent
+            Ajoute une entrée ou une sortie d&apos;argent
           </Text>
         </View>
 

@@ -21,7 +21,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.rajharit77.tantano"
+      "package": "com.rajharit77.tantano",
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "web": {
       "output": "static",
@@ -54,11 +58,10 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "8dab63c1-f5e2-4063-bf07-d9e064405647"
+        "projectId": "b187a9d1-05aa-4138-8f0c-a333bdbda4c3"
       },
       "googleClientIdAndroid": "958515738736-lb263rpmibvd5gilare7am5h0vhmjle4.apps.googleusercontent.com",
       "googleWebClientId": "958515738736-d0c1qspl2u38a566s6vogbve9oor11h3.apps.googleusercontent.com"
     }
   }
 }
-
