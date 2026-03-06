@@ -157,43 +157,59 @@ The project consists of a mobile application that allows users to manage and tra
 ```
 app/
 ├── (tabs)/                   # Tab navigation screens
+│   ├── transactions/         # Transaction tracking
 |   ├── _layout.tsx           # Tab layout configuration
 │   ├── index.tsx             # Dashboard screen
 |   ├── profile.tsx           # Profile screen
+|   ├── projects.tsx          # Projects screen
 │   ├── labels.tsx            # Label management
-│   ├── transactions.tsx      # Transaction tracking
+│   ├── settings.tsx          # Settings screen
 │   └── wallets.tsx           # Wallet management
+├── project/                  # Project component
+├── _layout.tsx               # Root layout configuration
+├── forgot-password.tsx       # Forgot password screen
+├── index.tsx                 # Entry point
 ├── login.tsx                 # Authentication screen
 ├── register.tsx              # Registration screen
-├── _layout.tsx               # Root layout configuration
-├── index.tsx                 # Entry point
 
 components/                   # All components
 
-context/
-└── AuthContext.tsx         # Authentication context
-├── ThemeContext.tsxa       # Theme context
+context/                      # All contexts  
+└── AuthContext.tsx           # Authentication context
+├── ThemeContext.tsxa         # Theme context
+├──...
 
-docs/                       # API docs
+docs/                         # API docs
 └── api.yml                   
 ├── openapi.json
 
-services/
-└── api.ts                   # API service layer
+services/                     # All services   
+└── api.ts                    # API service layer
+└── ...
 
-style/                   # Global styles
-    └── global.css       # Tailwind CSS styles
+stores/                       # All stores with zustand
 
-types/
-└── api.ts                  # TypeScript type definitions
+style/                        # Global styles
+    └── global.css            # Tailwind CSS styles
 
-assets/                     # Images and icons
+types/                        # All TypeScript types definitions
+
+utils/                        # All utils
+
+assets/                       # Images and icons
 └── images/
 
 ├── app.json
 ├── babel.config.js
-├── tailwind.config.js
+├── eas.json
+├── eslint.config.js
+├── LICENSE
 ├── metro.config.js
+├── nativewind-env.d.ts
+├── package-lock.json
+├── package.json
+├── README.md
+├── tailwind.config.js
 └── tsconfig.json
 ```
 

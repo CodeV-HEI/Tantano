@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { User } from '@/types/api';
 import { authAPI } from '@/services/api';
+
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
@@ -13,6 +14,7 @@ interface AuthContextType {
     updateToken: (token: string) => Promise<void>;
     loginWithBiometrics: () => Promise<boolean>;
     biometricsAvailable: boolean;
+    forgotPassword: (email: string) => Promise<void>;
     googleSignIn: (idToken: string) => Promise<void>;
 }
 
@@ -49,10 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const login = async (username: string, password: string) => {
+    const login = async (email: string, password: string) => {
         try {
             console.log('Tentative de connexion...');
-            const response = await authAPI.login({ username, password });
+            const response = await authAPI.login({ email, password });
             const { account, token } = response.data;
 
             await AsyncStorage.setItem('user', JSON.stringify(account));
@@ -62,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('Connexion réussie');
 
             try {
-                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ email, password }));
             } catch (e) {
                 console.error('Failed to save credentials for biometrics', e);
             }
@@ -82,15 +84,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const register = async (username: string, password: string) => {
+    const register = async (email: string, password: string) => {
         try {
             console.log('Tentative d\'inscription...');
 
-            await authAPI.register({ username, password });
+            await authAPI.register({ email, password });
 
             console.log('Inscription réussie, connexion automatique...');
 
-            const loginResponse = await authAPI.login({ username, password });
+            const loginResponse = await authAPI.login({ email, password });
             const { account, token } = loginResponse.data;
 
             await AsyncStorage.setItem('user', JSON.stringify(account));
@@ -100,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('Inscription et connexion réussies');
 
             try {
-                await SecureStore.setItemAsync('credentials', JSON.stringify({ username, password }));
+                await SecureStore.setItemAsync('credentials', JSON.stringify({ email, password }));
             } catch (e) {
                 console.error('Failed to save credentials for biometrics', e);
             }
@@ -159,6 +161,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const forgotPassword = async (email: string) => {
+        /*try {
+            await authAPI.forgotPassword({ email });
+        } catch (error) {
+            console.error('Forgot password failed:', error);
+            throw new Error('Impossible d\'envoyer l\'email de réinitialisation');
+        }*/
+    };
+
     const googleSignIn = async (idToken: string) => {
         try {
             // On simule une réponse
@@ -193,6 +204,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 updateToken,
                 loginWithBiometrics,
                 biometricsAvailable,
+                forgotPassword,
                 googleSignIn,
             }}
         >

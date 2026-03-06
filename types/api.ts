@@ -1,6 +1,6 @@
 
 export interface Credentials {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -20,6 +20,8 @@ export interface PaginatedResponse<T> {
 export interface User {
   id: string;
   username: string;
+  email: string;
+  password: string;
   createdAt?: string;
 }
 
