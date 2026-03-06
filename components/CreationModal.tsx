@@ -1,6 +1,6 @@
+import { CreationGoal, Wallet } from '@/clients';
 import { useAuth } from '@/context/AuthContext';
 import { goalAPI, walletAPI } from '@/services/api';
-import { CreationGoal, Goal, Wallet } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -25,18 +25,13 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
+    // Fetch des wallets pour le Picker
     const { data: wallets } = useQuery({
         queryKey: ["wallets"],
         queryFn: async () => {
-            try {
-                if (!user) return [];
-                const response = await walletAPI.getAll(user.id);
-                const data: Wallet[] = response?.data?.values || [];
-                return data;
-            } catch (error) {
-                console.error('Error fetching wallets:', error);
-                return [];
-            }
+            if (!user?.id) return [];
+            const response = await walletAPI.getAll(user.id);
+            return response?.data?.values || [];
         }
     });
 
@@ -51,10 +46,22 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
-    const { mutate, isPending } = useMutation<Goal, Error, CreationGoal>({
+    const { mutate, isPending } = useMutation({
         mutationFn: async (goalData: CreationGoal) => {
-            const res = await goalAPI.create(user?.id || "", goalData);
-            return res.values as Goal;
+            if (!user?.id) throw new Error("Utilisateur non connecté");
+
+            // Adaptation à l'interface CreateOneGoalRequest
+            const res = await goalAPI.createOneGoal({
+                accountId: user.id,
+                walletId: goalData.walletId || "",
+                creationGoal: {
+                    ...goalData,
+                    // S'assurer que les dates sont bien des objets Date pour l'API
+                    startingDate: goalData.startingDate ? new Date(goalData.startingDate) : new Date(),
+                    endingDate: goalData.endingDate ? new Date(goalData.endingDate) : new Date(),
+                }
+            });
+            return res;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['goals'] });
@@ -71,10 +78,10 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
         onclose();
     };
 
-    // Validation logic (added walletId check)
+    // Validation stricte (évite les undefined)
     const isValid = 
-        form.name.trim().length > 0 && 
-        form.amount > 0 && 
+        (form.name?.trim()?.length ?? 0) > 0 && 
+        (form.amount ?? 0) > 0 && 
         form.walletId !== "" && 
         !isPending;
 
@@ -85,7 +92,6 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                 
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <View className="bg-white rounded-t-[40px] p-8 min-h-[70vh]">
-                        
                         <View className="w-12 h-1.5 bg-gray-100 rounded-full self-center mb-8" />
 
                         <ScrollView showsVerticalScrollIndicator={false}>
@@ -102,81 +108,57 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                             </View>
 
                             <View className="gap-y-8">
-                                {/* SECTION NOM ET MONTANT */}
-                                <View>
+                                {/* NOM */}
+                                <TextInput
+                                    className="text-xl font-bold text-gray-800 p-4 bg-gray-50 rounded-2xl border border-gray-100"
+                                    placeholder="Nom de l'objectif"
+                                    value={form.name}
+                                    onChangeText={(val) => updateForm('name', val)}
+                                />
+
+                                {/* MONTANT */}
+                                <View className="flex-row items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                    <Text className="text-xl font-bold mr-2" style={{ color: form.color }}>€</Text>
                                     <TextInput
-                                        className="text-xl font-bold text-gray-800 p-4 bg-gray-50 rounded-2xl border border-gray-100"
-                                        placeholder="Nom de l'objectif"
-                                        placeholderTextColor="#9ca3af"
-                                        value={form.name}
-                                        onChangeText={(val) => updateForm('name', val)}
+                                        className="text-xl font-black text-gray-900 flex-1"
+                                        placeholder="0"
+                                        keyboardType="numeric"
+                                        value={form.amount === 0 ? "" : form.amount?.toString()}
+                                        onChangeText={(val) => updateForm('amount', Number(val) || 0)}
                                     />
-                                    <View className="mt-4 flex-row items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                        <Text className="text-xl font-bold mr-2" style={{ color: form.color }}>€</Text>
-                                        <TextInput
-                                            className="text-xl font-black text-gray-900 flex-1"
-                                            placeholder="Montant cible"
-                                            keyboardType="numeric"
-                                            value={form.amount === 0 ? "" : form.amount.toString()}
-                                            onChangeText={(val) => updateForm('amount', +val)}
-                                        />
-                                    </View>
                                 </View>
 
-                                {/* SECTION DATES */}
+                                {/* DATES (Simple Strings pour l'instant) */}
                                 <View className="flex-row gap-x-4">
                                     <TextInput
-                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
-                                        placeholder="Début (JJ/MM/AA)"
-                                        value={form.startingDate}
+                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100"
+                                        placeholder="Début (YYYY-MM-DD)"
+                                        value={form.startingDate?.toString()}
                                         onChangeText={(val) => updateForm('startingDate', val)}
                                     />
                                     <TextInput
-                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
-                                        placeholder="Fin (JJ/MM/AA)"
-                                        value={form.endingDate}
+                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100"
+                                        placeholder="Fin (YYYY-MM-DD)"
+                                        value={form.endingDate?.toString()}
                                         onChangeText={(val) => updateForm('endingDate', val)}
                                     />
                                 </View>
 
-                                {/* CHOIX COULEUR NÉON */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Palette Néon</Text>
-                                    <CustomColorPicker 
-                                        value={form.color} 
-                                        onChange={(c) => updateForm('color', c)} 
-                                    />
-                                </View>
-                              
-                                {/* CHOIX ICÔNE */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Icône</Text>
-                                    <IconPicker 
-                                        color={form.color} 
-                                        value={form.iconRef} 
-                                        onChange={(i: string) => updateForm('iconRef', i)}
-                                    />
-                                </View>
+                                {/* PICKERS */}
+                                <CustomColorPicker value={form.color || "#06b6d4"} onChange={(c) => updateForm('color', c)} />
+                                <IconPicker color={form.color || "#06b6d4"} value={form.iconRef || "flag"} onChange={(i: string) => updateForm('iconRef', i)} />
 
-                                {/* CHOIX PORTEFEUILLE (PICKER) */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Portefeuille Associé</Text>
-                                    <View className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
-                                        <Picker
-                                            selectedValue={form.walletId}
-                                            onValueChange={(itemValue) => updateForm('walletId', itemValue)}
-                                            dropdownIconColor={form.color}
-                                        >
-                                            <Picker.Item label="Sélectionner un compte..." value="" color="#9ca3af" />
-                                            {wallets?.map((wallet) => (
-                                                <Picker.Item 
-                                                    key={wallet.id} 
-                                                    label={wallet.name} 
-                                                    value={wallet.id} 
-                                                />
-                                            ))}
-                                        </Picker>
-                                    </View>
+                                {/* PORTEFEUILLE */}
+                                <View className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                                    <Picker
+                                        selectedValue={form.walletId}
+                                        onValueChange={(itemValue) => updateForm('walletId', itemValue)}
+                                    >
+                                        <Picker.Item label="Sélectionner un compte..." value="" color="#9ca3af" />
+                                        {wallets?.map((wallet : Wallet) => (
+                                            <Picker.Item key={wallet.id} label={wallet.name} value={wallet.id} />
+                                        ))}
+                                    </Picker>
                                 </View>
                             </View>
 
@@ -188,13 +170,7 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                                 <TouchableOpacity
                                     onPress={() => mutate(form)}
                                     disabled={!isValid}
-                                    style={{ 
-                                        backgroundColor: isValid ? form.color : '#f3f4f6',
-                                        shadowColor: isValid ? form.color : '#000',
-                                        shadowOffset: { width: 0, height: 8 },
-                                        shadowOpacity: isValid ? 0.3 : 0,
-                                        shadowRadius: 12,
-                                    }}
+                                    style={{ backgroundColor: isValid ? form.color : '#f3f4f6' }}
                                     className="flex-[2] py-5 rounded-[24px]"
                                 >
                                     <Text className={`font-black text-center text-lg ${isValid ? 'text-white' : 'text-gray-300'}`}>
@@ -206,7 +182,6 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                     </View>
                 </KeyboardAvoidingView>
             </View>
-            <Toast />
         </Modal>
     );
 };

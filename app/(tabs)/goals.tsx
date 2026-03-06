@@ -1,4 +1,4 @@
-import { CreationGoal, Goal } from "@/clients";
+import { CreationGoal } from "@/clients";
 import CreationGoalModal from "@/components/CreationModal";
 import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
@@ -6,43 +6,55 @@ import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
-
 
 export default function GoalsScreen() {
   const { user } = useAuth();
   const [isVisible, setVisible] = useState(false);
+  
+  // États pour la recherche et pagination
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const [totalPages, setTotalPages] = useState(1);
-
   const [searchInput, setSearchInput] = useState('');
-  const [name, setName] = useState('');
+  const [debouncedName, setDebouncedName] = useState('');
 
+  // Debounce pour la recherche (évite de spammer l'API à chaque lettre)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setName(searchInput);
-      setPage(1); 
+      setDebouncedName(searchInput);
+      setPage(1); // Reset à la page 1 lors d'une recherche
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data, isLoading } = useQuery<Goal[], Error>({
-    queryKey: ["goals", page, name], // refetch automatique si page ou name change
-    queryFn: async (criterias) => {
-      try {
-        if (!user) return [];
-        const response = await goalAPI.getAllGoals(criterias);
-        const total = response.values?.length || 0
-        setTotalPages(Math.max(1, Math.ceil(total / pageSize)));
-        return response?.values || [];
-      } catch (error) {
-        console.error("Erreur Query Goals:", error);
-        return [];
-      }
+  // Requête API
+  const { data: allGoals, isLoading } = useQuery({
+    queryKey: ["goals", debouncedName],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      // On respecte l'interface GetAllGoalsRequest de ton API
+      const response = await goalAPI.getAllGoals({
+        accountId: user.id,
+        name: debouncedName || undefined,
+      });
+
+      // L'API renvoie un GetAllGoals200Response qui contient .values
+      return response?.values || [];
     },
+    enabled: !!user?.id
   });
+
+  // Pagination locale (calculée à partir des résultats de l'API)
+  const { paginatedData, totalPages } = useMemo(() => {
+    const data = allGoals || [];
+    const total = Math.max(1, Math.ceil(data.length / pageSize));
+    const start = (page - 1) * pageSize;
+    const paginated = data.slice(start, start + pageSize);
+    
+    return { paginatedData: paginated, totalPages: total };
+  }, [allGoals, page]);
 
   const initialGoal: CreationGoal = {
     name: "",
@@ -80,72 +92,55 @@ export default function GoalsScreen() {
           />
         </View>
 
-        {data && data.length > 0 ? (
+        {paginatedData.length > 0 ? (
           <>
             <View className="gap-y-4">
-              {data.map((item) => (
+              {paginatedData.map((item) => (
                 <GoalItem key={item.id} goals={item} />
               ))}
             </View>
 
-            {/* Pagination */}
-            <View className="flex-row items-center justify-center gap-x-3 mt-8">
-              <TouchableOpacity
-                onPress={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                style={{
-                  backgroundColor: page === 1 ? undefined : '#06b6d4',
-                  opacity: page === 1 ? 0.4 : 1,
-                }}
-                className="w-10 h-10 rounded-full items-center justify-center border border-slate-200 dark:border-slate-700"
-              >
-                <Ionicons name="chevron-back" size={18} color={page === 1 ? '#94a3b8' : 'white'} />
-              </TouchableOpacity>
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+              <View className="flex-row items-center justify-center gap-x-3 mt-8">
+                <TouchableOpacity
+                  onPress={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className={`w-10 h-10 rounded-full items-center justify-center border ${
+                    page === 1 ? 'opacity-30 border-slate-200' : 'bg-cyan-500 border-transparent'
+                  }`}
+                >
+                  <Ionicons name="chevron-back" size={18} color={page === 1 ? '#94a3b8' : 'white'} />
+                </TouchableOpacity>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-                const isActive = p === page;
-                return (
-                  <TouchableOpacity
-                    key={p}
-                    onPress={() => setPage(p)}
-                    style={isActive ? { backgroundColor: '#06b6d4' } : undefined}
-                    className={`w-10 h-10 rounded-full items-center justify-center ${
-                      isActive ? '' : 'border border-slate-200 dark:border-slate-700'
-                    }`}
-                  >
-                    <Text className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                      {p}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                <View className="bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
+                  <Text className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    {page} / {totalPages}
+                  </Text>
+                </View>
 
-              <TouchableOpacity
-                onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                style={{
-                  backgroundColor: page === totalPages ? undefined : '#06b6d4',
-                  opacity: page === totalPages ? 0.4 : 1,
-                }}
-                className="w-10 h-10 rounded-full items-center justify-center border border-slate-200 dark:border-slate-700"
-              >
-                <Ionicons name="chevron-forward" size={18} color={page === totalPages ? '#94a3b8' : 'white'} />
-              </TouchableOpacity>
-            </View>
-
-            <Text className="text-center text-slate-400 text-xs mt-2">
-              Page {page} sur {totalPages}
-            </Text>
+                <TouchableOpacity
+                  onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className={`w-10 h-10 rounded-full items-center justify-center border ${
+                    page === totalPages ? 'opacity-30 border-slate-200' : 'bg-cyan-500 border-transparent'
+                  }`}
+                >
+                  <Ionicons name="chevron-forward" size={18} color={page === totalPages ? '#94a3b8' : 'white'} />
+                </TouchableOpacity>
+              </View>
+            )}
           </>
         ) : (
+          /* Vue Vide */
           <View className="mt-32 items-center justify-center">
             <Ionicons name="sparkles-outline" size={48} color="#cbd5e1" />
-            <Text className="text-slate-400 text-lg mt-4">
+            <Text className="text-slate-400 text-lg mt-4 text-center">
               {searchInput ? `Aucun résultat pour "${searchInput}"` : 'Rien ici pour le moment'}
             </Text>
             {!searchInput && (
               <TouchableOpacity onPress={() => setVisible(true)} className="mt-4">
-                <Text style={{ color: '#06b6d4' }} className="font-bold">
+                <Text className="text-cyan-500 font-bold text-lg">
                   Créer votre premier objectif
                 </Text>
               </TouchableOpacity>
@@ -156,8 +151,10 @@ export default function GoalsScreen() {
         <View className="h-32" />
       </ScrollView>
 
+      {/* FAB (Floating Action Button) */}
       <TouchableOpacity
         activeOpacity={0.8}
+        onPress={() => setVisible(true)}
         style={{
           backgroundColor: '#06b6d4',
           shadowColor: '#06b6d4',
@@ -166,7 +163,6 @@ export default function GoalsScreen() {
           shadowRadius: 12,
           elevation: 10,
         }}
-        onPress={() => setVisible(true)}
         className="absolute bottom-10 right-8 w-16 h-16 rounded-full items-center justify-center border-2 border-white/20"
       >
         <Ionicons name="add" size={36} color="white" />
