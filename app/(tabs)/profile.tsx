@@ -55,9 +55,9 @@ export default function ProfileScreen() {
         );
     };
 
- return (
+    return (
         <>
-            <ScrollView  className={`flex-1 ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
+            <ScrollView className={`flex-1 ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
                 <View className={`absolute top-10 -left-20 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500' : 'bg-purple-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
                 <View className={`absolute bottom-40 -right-20 w-80 h-80 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-300'} rounded-full ${theme === 'dark' ? 'opacity-10' : 'opacity-5'} blur-3xl`} />
 
@@ -110,8 +110,7 @@ export default function ProfileScreen() {
                                 icon="settings"
                                 title="Paramètres avancés"
                                 description="Configurer les paramétres avancés"
-                                    // rightComponent peut être vide ou un chevron si tu veux
-                                rightComponent={null} 
+                                rightComponent={null}
                             />
                         </Pressable>
                     </View>
@@ -134,8 +133,8 @@ export default function ProfileScreen() {
                             description="Gérer les notifications"
                             rightComponent={
                                 <Switch
-                                    value={enabled}          
-                                    onValueChange={toggle} 
+                                    value={enabled}
+                                    onValueChange={toggle}
                                     trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />

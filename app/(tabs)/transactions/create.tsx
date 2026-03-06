@@ -31,7 +31,7 @@ export default function Create() {
   return (
     <>
       <Background />
-      <View>
+      <View className="flex-1">
         <FormTrasansction />
       </View>
     </>
