@@ -54,7 +54,7 @@ export default function Index() {
       getGoals(accountId);
       getAllTransactions(accountId, filter);
     }
-  }, [accountId, filter, getAllLables, getAllTransactions, getWallets, isCheckingToken, user]);
+  }, [accountId, filter, getAllLables, getAllTransactions, getWallets, isCheckingToken, user, getGoals]);
 
   if (isCheckingToken) {
     return <Loader />;
