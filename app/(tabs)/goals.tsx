@@ -4,8 +4,13 @@ import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
 import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
+import {
+  scheduleGoalNotification,
+  useNotificationListener
+} from "@/services/notifications"; // Assure-toi du chemin
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
+import * as Notifications from 'expo-notifications';
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -19,41 +24,65 @@ export default function GoalsScreen() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedName, setDebouncedName] = useState('');
 
-  // Debounce pour la recherche (évite de spammer l'API à chaque lettre)
+  // 1. Activer l'écouteur de notifications pour la redirection (Deep Linking)
+  useNotificationListener();
+
+  // Debounce pour la recherche
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedName(searchInput);
-      setPage(1); // Reset à la page 1 lors d'une recherche
+      setPage(1); 
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Requête API
+  // 2. Requête API
   const { data: allGoals, isLoading } = useQuery({
     queryKey: ["goals", debouncedName],
     queryFn: async () => {
       if (!user?.id) return [];
-      
-      // On respecte l'interface GetAllGoalsRequest de ton API
       const response = await goalAPI.getAllGoals({
         accountId: user.id,
         name: debouncedName || undefined,
       });
-
-      // L'API renvoie un GetAllGoals200Response qui contient .values
       return response?.values || [];
     },
     enabled: !!user?.id
   });
 
-  // Pagination locale (calculée à partir des résultats de l'API)
+  // 3. Synchronisation des notifications quand les goals sont chargés
+  useEffect(() => {
+    const syncNotifs = async () => {
+      if (allGoals && allGoals.length > 0) {
+        // Optionnel : Nettoyer les anciennes pour éviter les doublons
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        
+        for (const goal of allGoals) {
+          if (goal.endingDate) {
+            const end = new Date(goal.endingDate).getTime();
+            const now = Date.now();
+            const secondsUntilEnd = (end - now) / 1000;
+
+            // On planifie si c'est dans le futur (ex: max 1 mois d'intervalle pour iOS)
+            if (secondsUntilEnd > 0 && secondsUntilEnd < 2592000) {
+              await scheduleGoalNotification(goal, secondsUntilEnd);
+            }
+          }
+        }
+      }
+    };
+    syncNotifs();
+  }, [allGoals]);
+
+  // 4. Pagination locale
   const { paginatedData, totalPages } = useMemo(() => {
     const data = allGoals || [];
     const total = Math.max(1, Math.ceil(data.length / pageSize));
     const start = (page - 1) * pageSize;
-    const paginated = data.slice(start, start + pageSize);
-    
-    return { paginatedData: paginated, totalPages: total };
+    return { 
+      paginatedData: data.slice(start, start + pageSize), 
+      totalPages: total 
+    };
   }, [allGoals, page]);
 
   const initialGoal: CreationGoal = {
@@ -84,12 +113,8 @@ export default function GoalsScreen() {
           <Text className="text-slate-500 text-sm">Gérez vos projets et votre épargne</Text>
         </View>
 
-        {/* Barre de recherche */}
         <View className="mb-6">
-          <SearchBar
-            value={searchInput}
-            onChangeText={setSearchInput}
-          />
+          <SearchBar value={searchInput} onChangeText={setSearchInput} />
         </View>
 
         {paginatedData.length > 0 ? (
@@ -100,7 +125,6 @@ export default function GoalsScreen() {
               ))}
             </View>
 
-            {/* Pagination UI */}
             {totalPages > 1 && (
               <View className="flex-row items-center justify-center gap-x-3 mt-8">
                 <TouchableOpacity
@@ -132,7 +156,6 @@ export default function GoalsScreen() {
             )}
           </>
         ) : (
-          /* Vue Vide */
           <View className="mt-32 items-center justify-center">
             <Ionicons name="sparkles-outline" size={48} color="#cbd5e1" />
             <Text className="text-slate-400 text-lg mt-4 text-center">
@@ -147,11 +170,9 @@ export default function GoalsScreen() {
             )}
           </View>
         )}
-
         <View className="h-32" />
       </ScrollView>
 
-      {/* FAB (Floating Action Button) */}
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setVisible(true)}
