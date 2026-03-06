@@ -1,5 +1,5 @@
 {
-  "name": "posu",
+  "name": "tantano",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -39,12 +39,8 @@
     "expo-linking": "~8.0.11",
     "expo-local-authentication": "~17.0.8",
     "expo-notifications": "~0.32.16",
-<<<<<<< HEAD
-=======
     "expo-random": "^14.0.1",
->>>>>>> 320f576 (style: restructuring transaction code and add new dependencies)
     "expo-router": "~6.0.23",
-    "expo-random": "^14.0.1",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
