@@ -165,7 +165,7 @@ export default function LoginScreen() {
               <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Email</Text>
               <TextInput
                 className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30`}
-                placeholder="exemple@email.com"
+                placeholder="jack.sparrow@gmail.com"
                 placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
                 value={email}
                 onChangeText={setEmail}
