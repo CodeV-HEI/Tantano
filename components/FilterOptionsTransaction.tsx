@@ -239,7 +239,7 @@ export default function FilterOptionsTransaction({
                   Aucune Portefeille trouvée
                 </Text>
                 <Link
-                  href="/transactions/create"
+                  href="/(tabs)/wallets"
                   className="text-blue-500 mt-1"
                 >
                   Ajouter une Portefeuille
@@ -329,7 +329,7 @@ export default function FilterOptionsTransaction({
                   Aucune Etiquette trouvée
                 </Text>
                 <Link
-                  href="/transactions/create"
+                  href="/(tabs)/labels"
                   className="text-blue-500 mt-1"
                 >
                   Ajouter une Etiquette
