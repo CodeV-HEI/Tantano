@@ -1,10 +1,10 @@
+import { Goal, Wallet } from '@/clients';
 import { useAuth } from '@/context/AuthContext';
-import { goalAPI, walletAPI } from '@/services/api';
-import { CreationGoal, Goal, Wallet } from '@/types';
+import { goalAPI, walletAPI } from '@/services/api'; // Assure-toi que goalAPI pointe vers une instance de GoalApi
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
     KeyboardAvoidingView,
@@ -25,72 +25,62 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean, 
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
+    const [form, setForm] = useState<Goal>(newGoal);
+
+    useEffect(() => {
+        if (newGoal) setForm(newGoal);
+    }, [newGoal]);
+
     const { data: wallets } = useQuery({
         queryKey: ["wallets"],
         queryFn: async () => {
-            try {
-                if (!user) return [];
-                const response = await walletAPI.getAll(user.id);
-                const data: Wallet[] = response?.data?.values || [];
-                return data;
-            } catch (error) {
-                console.error('Error fetching wallets:', error);
-                return [];
-            }
+            if (!user) return [];
+            const response = await walletAPI.getAll(user.id);
+            return response?.data?.values || [];
         }
     });
 
-    const [form, setForm] = useState<Goal>({
-        ...newGoal,
-        color: "#06b6d4", 
-        iconRef: "flag",
-        walletId: "" 
-    });
-
-    const updateForm = (key: keyof CreationGoal, value: any) => {
+    const updateForm = (key: keyof Goal, value: any) => {
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
-    const { mutate, isPending } = useMutation<Goal, Error, Goal>({
+    const { mutate, isPending } = useMutation({
         mutationFn: async (goalData: Goal) => {
-            const res = await goalAPI.update(user?.id || "",goalData.id, goalData);
-            return res.values as Goal;
+            return await goalAPI.updateOneGoal({
+                accountId: user?.id || "",
+                walletId: goalData.walletId || "", 
+                goalId: goalData.id || "",
+                goal: goalData
+            });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['goals'] });
-            Toast.show({ type: 'success', text1: "Objectif créé ! 🎉" });
-            resetAndClose();
+            Toast.show({ type: 'success', text1: "Objectif mis à jour ! 🚀" });
+            onclose();
         },
         onError: (error: any) => {
-            Toast.show({ type: 'error', text1: "Erreur", text2: error.message });
+            Toast.show({ type: 'error', text1: "Erreur de mise à jour", text2: error.message });
         }
     });
 
-    const resetAndClose = () => {
-        setForm({ ...newGoal, color: "#06b6d4", iconRef: "flag", walletId: "" });
-        onclose();
-    };
-
-    const isValid = 
-        form.name.trim().length > 0 && 
-        form.amount > 0 && 
-        form.walletId !== "" && 
-        !isPending;
-
+const isValid = 
+    (form.name?.trim()?.length ?? 0) > 0 && 
+    (form.amount ?? 0) > 0 && 
+    form.walletId !== "" && 
+    !isPending;
     return (
-        <Modal animationType="slide" transparent visible={isVisible} onRequestClose={resetAndClose}>
+        <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onclose}>
             <View className="flex-1 bg-black/60 justify-end"> 
-                <Pressable className="absolute inset-0" onPress={resetAndClose} />
+                <Pressable className="absolute inset-0" onPress={onclose} />
                 
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <View className="bg-white rounded-t-[40px] p-8 min-h-[70vh]">
-                        
                         <View className="w-12 h-1.5 bg-gray-100 rounded-full self-center mb-8" />
 
                         <ScrollView showsVerticalScrollIndicator={false}>
                             <View className="mb-8">
                                 <View className='flex flex-row justify-between items-center'>
-                                    <Text className="text-3xl font-black text-gray-900 italic">NEW GOAL</Text>             
+                                    <Text className="text-3xl font-black text-gray-900 italic">MODIFIER</Text>             
                                     <Ionicons
                                         name={form.iconRef as any}
                                         size={50}
@@ -100,87 +90,53 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean, 
                                 <View className="h-1 w-12 rounded-full mt-1" style={{ backgroundColor: form.color }} />
                             </View>
 
-                            <View className="gap-y-8">
-                                {/* SECTION NOM ET MONTANT */}
-                                <View>
-                                    <TextInput
-                                        className="text-xl font-bold text-gray-800 p-4 bg-gray-50 rounded-2xl border border-gray-100"
-                                        placeholder="Nom de l'objectif"
-                                        placeholderTextColor="#9ca3af"
-                                        value={form.name}
-                                        onChangeText={(val) => updateForm('name', val)}
-                                    />
-                                    <View className="mt-4 flex-row items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                        <Text className="text-xl font-bold mr-2" style={{ color: form.color }}>€</Text>
-                                        <TextInput
-                                            className="text-xl font-black text-gray-900 flex-1"
-                                            placeholder="Montant cible"
-                                            keyboardType="numeric"
-                                            value={form.amount === 0 ? "" : form.amount.toString()}
-                                            onChangeText={(val) => updateForm('amount', +val)}
-                                        />
-                                    </View>
-                                </View>
+                            <View className="gap-y-6">
+                                {/* NOM */}
+                                <TextInput
+                                    className="text-xl font-bold text-gray-800 p-4 bg-gray-50 rounded-2xl border border-gray-100"
+                                    placeholder="Nom de l'objectif"
+                                    value={form.name}
+                                    onChangeText={(val) => updateForm('name', val)}
+                                />
 
-                                {/* SECTION DATES */}
-                                <View className="flex-row gap-x-4">
+                                {/* MONTANT */}
+                                <View className="flex-row items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                    <Text className="text-xl font-bold mr-2" style={{ color: form.color }}>€</Text>
                                     <TextInput
-                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
-                                        placeholder="Début (JJ/MM/AA)"
-                                        value={form.startingDate}
-                                        onChangeText={(val) => updateForm('startingDate', val)}
-                                    />
-                                    <TextInput
-                                        className="flex-1 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-gray-700"
-                                        placeholder="Fin (JJ/MM/AA)"
-                                        value={form.endingDate}
-                                        onChangeText={(val) => updateForm('endingDate', val)}
+                                        className="text-xl font-black text-gray-900 flex-1"
+                                        keyboardType="numeric"
+                                        value={form.amount?.toString()}
+                                        onChangeText={(val) => updateForm('amount', Number(val))}
                                     />
                                 </View>
 
-                                {/* CHOIX COULEUR NÉON */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Palette Néon</Text>
-                                    <CustomColorPicker 
-                                        value={form.color} 
-                                        onChange={(c) => updateForm('color', c)} 
-                                    />
-                                </View>
-                              
-                                {/* CHOIX ICÔNE */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Icône</Text>
-                                    <IconPicker 
-                                        color={form.color} 
-                                        value={form.iconRef} 
-                                        onChange={(i: string) => updateForm('iconRef', i)}
-                                    />
-                                </View>
+                                {/* COULEUR & ICÔNE */}
+                                <CustomColorPicker 
+                                    value={form.color || "#06b6d4"} 
+                                    onChange={(c) => updateForm('color', c)} 
+                                />
+                                <IconPicker 
+                                    color={form.color || "#06b6d4"} 
+                                    value={form.iconRef || 'flag'} 
+                                    onChange={(i: string) => updateForm('iconRef', i)}
+                                />
 
-                                {/* CHOIX PORTEFEUILLE (PICKER) */}
-                                <View>
-                                    <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-[3px] mb-4 ml-1">Portefeuille Associé</Text>
-                                    <View className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
-                                        <Picker
-                                            selectedValue={form.walletId}
-                                            onValueChange={(itemValue) => updateForm('walletId', itemValue)}
-                                            dropdownIconColor={form.color}
-                                        >
-                                            <Picker.Item label="Sélectionner un compte..." value="" color="#9ca3af" />
-                                            {wallets?.map((wallet) => (
-                                                <Picker.Item 
-                                                    key={wallet.id} 
-                                                    label={wallet.name} 
-                                                    value={wallet.id} 
-                                                />
-                                            ))}
-                                        </Picker>
-                                    </View>
+                                {/* WALLET SELECTION */}
+                                <View className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                                    <Picker
+                                        selectedValue={form.walletId}
+                                        onValueChange={(itemValue) => updateForm('walletId', itemValue)}
+                                    >
+                                        <Picker.Item label="Changer de portefeuille..." value="" color="#9ca3af" />
+                                        {wallets?.map((wallet: Wallet) => (
+                                            <Picker.Item key={wallet.id} label={wallet.name} value={wallet.id} />
+                                        ))}
+                                    </Picker>
                                 </View>
                             </View>
 
                             <View className="flex-row items-center mt-12 mb-6 gap-x-4">
-                                <TouchableOpacity onPress={resetAndClose} className="flex-1 py-4">
+                                <TouchableOpacity onPress={onclose} className="flex-1 py-4">
                                     <Text className="text-gray-400 font-bold text-center">ANNULER</Text>
                                 </TouchableOpacity>
 
@@ -189,15 +145,12 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean, 
                                     disabled={!isValid}
                                     style={{ 
                                         backgroundColor: isValid ? form.color : '#f3f4f6',
-                                        shadowColor: isValid ? form.color : '#000',
-                                        shadowOffset: { width: 0, height: 8 },
-                                        shadowOpacity: isValid ? 0.3 : 0,
-                                        shadowRadius: 12,
+                                        opacity: isValid ? 1 : 0.6
                                     }}
                                     className="flex-[2] py-5 rounded-[24px]"
                                 >
                                     <Text className={`font-black text-center text-lg ${isValid ? 'text-white' : 'text-gray-300'}`}>
-                                        {isPending ? "..." : "CRÉER"}
+                                        {isPending ? "CHARGEMENT..." : "MODIFIER"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -205,7 +158,6 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean, 
                     </View>
                 </KeyboardAvoidingView>
             </View>
-            <Toast />
         </Modal>
     );
 };

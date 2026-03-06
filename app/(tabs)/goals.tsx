@@ -1,9 +1,9 @@
+import { CreationGoal, Goal } from "@/clients";
 import CreationGoalModal from "@/components/CreationModal";
 import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
 import { useAuth } from "@/context/AuthContext";
 import { goalAPI } from "@/services/api";
-import { CreationGoal, Goal } from "@/types";
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
@@ -28,15 +28,15 @@ export default function GoalsScreen() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data, isLoading } = useQuery<Goal[]>({
+  const { data, isLoading } = useQuery<Goal[], Error>({
     queryKey: ["goals", page, name], // refetch automatique si page ou name change
-    queryFn: async () => {
+    queryFn: async (criterias) => {
       try {
         if (!user) return [];
-        const response = await goalAPI.getAll(user.id, { page, pageSize, name });
-        const total = response?.data?.total ?? 0;
+        const response = await goalAPI.getAllGoals(criterias);
+        const total = response.values?.length || 0
         setTotalPages(Math.max(1, Math.ceil(total / pageSize)));
-        return response?.data?.values || [];
+        return response?.values || [];
       } catch (error) {
         console.error("Erreur Query Goals:", error);
         return [];
@@ -48,8 +48,8 @@ export default function GoalsScreen() {
     name: "",
     amount: 0,
     walletId: "",
-    startingDate: "",
-    endingDate: "",
+    startingDate: new Date(),
+    endingDate: new Date(),
     color: "#06b6d4",
     iconRef: "flag",
   };
