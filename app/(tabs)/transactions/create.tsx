@@ -9,12 +9,13 @@ import Toast from "react-native-toast-message";
 
 export default function Create() {
   const { user } = useAuth();
-  const { getWallets, getAllLables } = useTransactionStore();
+  const { getWallets, getAllLables, getGoals } = useTransactionStore();
 
   useEffect(() => {
     if (user?.id) {
       getWallets(user.id);
       getAllLables(user.id);
+      getGoals(user.id)
     }
   }, [getAllLables, getWallets, user?.id]);
 

@@ -119,6 +119,7 @@ export interface CreationTransaction {
   amount: number;
   walletId: string;
   accountId: string;
+  goalId: string,
 }
 
 export interface Transaction extends CreationTransaction {

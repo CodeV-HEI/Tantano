@@ -11,7 +11,7 @@ import Toast from "react-native-toast-message";
 
 export default function Index() {
   const { user } = useAuth();
-  const { filter, getAllTransactions, getAllLables, getWallets } =
+  const { filter, getAllTransactions, getAllLables, getWallets, getGoals } =
     useTransactionStore();
   const accountId = user?.id;
 
@@ -51,6 +51,7 @@ export default function Index() {
     if (!isCheckingToken) {
       getAllLables(accountId);
       getWallets(accountId);
+      getGoals(accountId);
       getAllTransactions(accountId, filter);
     }
   }, [accountId, filter, getAllLables, getAllTransactions, getWallets, isCheckingToken, user]);

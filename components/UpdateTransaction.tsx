@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { useTransactionStore } from "@/stores/useTransactionStore";
+import { GoalExemple, useTransactionStore } from "@/stores/useTransactionStore";
 import {
   CreationTransaction,
   Label,
@@ -9,7 +9,7 @@ import {
   TransactionType,
   Wallet,
 } from "@/types";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -43,11 +43,14 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const labelIds = data.labels?.map((label) => label.id) || [];
   const [selectedLabels, setSelectedLabels] = useState<string[]>(labelIds);
 
-  const { wallets, labels } = useTransactionStore();
+  const { wallets, labels, goals } = useTransactionStore();
   const walletForThis = wallets.find((wallet) => wallet.id === data.walletId);
   const [valueWallet, setValueWallet] = useState<Wallet | undefined>(
     walletForThis,
   );
+  const goalForThis = goals.find((goal) => goal.id === data.goalId)
+  const [valueGoal, setValueGoal] = useState<GoalExemple | undefined>(goalForThis);
+
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -72,6 +75,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const handleSubmit = async () => {
     if (
       !valueWallet ||
+      !valueGoal ||
       selectedLabels === null ||
       selectedLabels.length === 0 ||
       type === undefined
@@ -108,6 +112,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
       amount: amount,
       walletId: valueWallet.id,
       accountId: acountId,
+      goalId: valueGoal?.id,
     };
 
     try {
@@ -166,7 +171,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
           className={`${cardBg} rounded-3xl p-5 shadow-sm border border-gray-100 ${shadow}`}
         >
           {/* Wallet */}
-          <Text className={`text-lg mb-2 ${textSecondary}`}>Wallet</Text>
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Portefeuille</Text>
           <Dropdown
             style={[
               styles.dropdown,
@@ -240,6 +245,91 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                 </View>
 
                 {valueWallet?.id === item.id && (
+                  <MaterialIcons
+                    name="check-circle"
+                    size={20}
+                    color="#A78BFA"
+                  />
+                )}
+              </View>
+            )}
+          />
+
+          {/* Gaol */}
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Objectif</Text>
+          <Dropdown
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: dropdownBg,
+                borderColor: "#A78BFA",
+              },
+            ]}
+            iconColor="#A78BFA"
+            placeholderStyle={{ color: "#A78BFA" }}
+            selectedTextStyle={[
+              styles.itemTextStyle,
+              {
+                color: "#A78BFA",
+              },
+            ]}
+            containerStyle={{
+              borderWidth: 1.5,
+              borderColor: valueGoal ? "#7C3AED" : dropdownBorder,
+              borderRadius: 20,
+              padding: 8,
+              backgroundColor: isDark ? "#171717" : "#FFFFFF",
+            }}
+            data={goals}
+            labelField="name"
+            valueField="id"
+            placeholder="Choisir un Objectif"
+            value={valueGoal?.id}
+            onChange={(item: GoalExemple) => setValueGoal(item)}
+            renderItem={(item) => (
+              <View
+                style={{
+                  backgroundColor: isDark ? "#171717" : "#FFFFFF",
+                }}
+                className={`flex flex-row py-4 px-2`}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    flex: 1,
+                  }}
+                >
+                  {item.iconRef ? (
+                    <Image
+                      source={{ uri: item.iconRef }}
+                      style={{ width: 22, height: 22, marginRight: 14 }}
+                    />
+                  ) : (
+                   <Octicons
+                      name="goal"
+                      size={22}
+                      color={
+                        valueGoal?.id === item.id ? "#A78BFA" : "#6B7280"
+                      }
+                    />
+                  )}
+
+                  <Text
+                    style={[
+                      styles.itemTextStyle,
+                      {
+                        color:
+                          valueGoal?.id === item.id ? "#A78BFA" : "#6B7280",
+                        fontWeight: valueGoal?.id === item.id ? "600" : "500",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+
+                {valueGoal?.id === item.id && (
                   <MaterialIcons
                     name="check-circle"
                     size={20}

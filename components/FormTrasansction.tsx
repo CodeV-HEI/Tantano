@@ -1,9 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { useTransactionStore } from "@/stores/useTransactionStore";
+import { GoalExemple, useTransactionStore } from "@/stores/useTransactionStore";
 import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -34,11 +34,13 @@ export default function FormTrasansction() {
   const [type, setType] = useState<TransactionType>(TransactionType.IN);
   const [description, setDescription] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);
-  const { wallets, labels } = useTransactionStore();
+  const { wallets, labels, goals } = useTransactionStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const dateToday = new Date();
   const [date, setDate] = useState(dateToday);
   const [showDate, setShowDate] = useState(false);
+  const [valueGoal, setValueGoal] = useState<GoalExemple | null>(null);
+
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -66,6 +68,7 @@ export default function FormTrasansction() {
   const handleSubmit = async () => {
     if (
       !valueWallet ||
+      !valueGoal ||
       selectedLabels === null ||
       selectedLabels.length === 0
     ) {
@@ -99,6 +102,7 @@ export default function FormTrasansction() {
       amount: amount,
       walletId: valueWallet.id,
       accountId: acountId,
+      goalId: valueGoal?.id,
     };
 
     try {
@@ -250,6 +254,96 @@ export default function FormTrasansction() {
                 </View>
 
                 {valueWallet?.id === item.id && (
+                  <MaterialIcons
+                    name="check-circle"
+                    size={20}
+                    color="#A78BFA"
+                  />
+                )}
+              </View>
+            )}
+          />
+
+          {/* Gaol */}
+          <Text className={`text-lg mb-2 ${textSecondary}`}>Objectif</Text>
+          <Dropdown
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: dropdownBg,
+                borderColor: "#A78BFA",
+              },
+            ]}
+            iconColor="#A78BFA"
+            data={goals}
+            labelField="name"
+            valueField="id"
+            disable={goals.length === 0}
+            placeholder={
+              goals.length === 0
+                ? "Aucune objectif pour le moment"
+                : "Choisir une objectif"
+            }
+            value={valueGoal?.id}
+            placeholderStyle={{ color: "#A78BFA" }}
+            selectedTextStyle={[
+              styles.itemTextStyle,
+              {
+                color: "#A78BFA",
+              },
+            ]}
+            onChange={(item: GoalExemple) => setValueGoal(item)}
+            containerStyle={{
+              borderWidth: 1.5,
+              borderColor: valueGoal ? "#7C3AED" : dropdownBorder,
+              borderRadius: 20,
+              padding: 8,
+              backgroundColor: isDark ? "#171717" : "#FFFFFF",
+            }}
+            renderItem={(item) => (
+              <View
+                style={{
+                  backgroundColor: isDark ? "#171717" : "#FFFFFF",
+                }}
+                className={`flex flex-row py-4 px-2`}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    flex: 1,
+                  }}
+                >
+                  {item.iconRef ? (
+                    <Image
+                      source={{ uri: item.iconRef }}
+                      style={{ width: 22, height: 22, marginRight: 14 }}
+                    />
+                  ) : (
+                    <Octicons
+                      name="goal"
+                      size={22}
+                      color={
+                        valueGoal?.id === item.id ? "#A78BFA" : "#6B7280"
+                      }
+                    />
+                  )}
+
+                  <Text
+                    style={[
+                      styles.itemTextStyle,
+                      {
+                        color:
+                          valueGoal?.id === item.id ? "#A78BFA" : "#6B7280",
+                        fontWeight: valueGoal?.id === item.id ? "600" : "500",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+
+                {valueGoal?.id === item.id && (
                   <MaterialIcons
                     name="check-circle"
                     size={20}
