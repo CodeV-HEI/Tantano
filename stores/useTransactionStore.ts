@@ -1,5 +1,6 @@
 import { goalAPI, labelAPI, transactionAPI, walletAPI } from "@/services/api";
 import {
+  Goal,
   Label,
   Transaction,
   TransactionFilter,
@@ -8,18 +9,6 @@ import {
 } from "@/types";
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
-
-export interface GoalExemple {
-  id: string,
-  accounId: string,
-  name:string,
-  amount: number,
-  walletId: string,
-  startingDate:string,
-  endingDate: string,
-  color: string,
-  iconRef: string,
-}
 
 interface TransactionStore {
   transactions: Transaction[];
@@ -53,8 +42,8 @@ interface TransactionStore {
   labels: Label[];
   setLabels: (labels: Label[]) => void;
   getAllLables: (accountId: string) => Promise<void>;
-  goals: GoalExemple[],
-  setGoals: (goals: GoalExemple[]) => void;
+  goals: Goal[],
+  setGoals: (goals: Goal[]) => void;
   getGoals: (accountID: string) => Promise<void>;
 }
 

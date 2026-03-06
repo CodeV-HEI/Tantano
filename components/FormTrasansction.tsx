@@ -1,8 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { GoalExemple, useTransactionStore } from "@/stores/useTransactionStore";
-import { CreationTransaction, Label, TransactionType, Wallet } from "@/types";
+import { useTransactionStore } from "@/stores/useTransactionStore";
+import { CreationTransaction, Goal, Label, TransactionType, Wallet } from "@/types";
 import { MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
@@ -39,7 +39,7 @@ export default function FormTrasansction() {
   const dateToday = new Date();
   const [date, setDate] = useState(dateToday);
   const [showDate, setShowDate] = useState(false);
-  const [valueGoal, setValueGoal] = useState<GoalExemple | null>(null);
+  const [valueGoal, setValueGoal] = useState<Goal | null>(null);
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -293,7 +293,7 @@ export default function FormTrasansction() {
                 color: "#A78BFA",
               },
             ]}
-            onChange={(item: GoalExemple) => setValueGoal(item)}
+            onChange={(item: Goal) => setValueGoal(item)}
             containerStyle={{
               borderWidth: 1.5,
               borderColor: valueGoal ? "#7C3AED" : dropdownBorder,

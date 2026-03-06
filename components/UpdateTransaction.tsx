@@ -1,9 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { transactionAPI } from "@/services/api";
-import { GoalExemple, useTransactionStore } from "@/stores/useTransactionStore";
+import { useTransactionStore } from "@/stores/useTransactionStore";
 import {
   CreationTransaction,
+  Goal,
   Label,
   Transaction,
   TransactionType,
@@ -49,7 +50,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
     walletForThis,
   );
   const goalForThis = goals.find((goal) => goal.id === data.goalId)
-  const [valueGoal, setValueGoal] = useState<GoalExemple | undefined>(goalForThis);
+  const [valueGoal, setValueGoal] = useState<Goal | undefined>(goalForThis);
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -285,7 +286,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             valueField="id"
             placeholder="Choisir un Objectif"
             value={valueGoal?.id}
-            onChange={(item: GoalExemple) => setValueGoal(item)}
+            onChange={(item: Goal) => setValueGoal(item)}
             renderItem={(item) => (
               <View
                 style={{

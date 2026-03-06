@@ -229,3 +229,24 @@ export interface TransactionFilter {
   sortBy: "date" | "amount";
   sort: "asc" | "desc";
 }
+
+export interface CreationGoal {
+  name: string;
+  amount: number;
+  walletId: string;
+  startingDate: string; 
+  endingDate: string;
+  color: string;
+  iconRef: string;
+}
+
+export interface Goal{
+    id: string;
+      name: string;
+  amount: number;
+  walletId: string;
+  startingDate: string; 
+  endingDate: string;
+  color: string;
+  iconRef: string;
+}
