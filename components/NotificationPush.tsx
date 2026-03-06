@@ -1,130 +1,87 @@
 import { Goal } from '@/types';
-import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { Redirect } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldPlaySound: false,
+    shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
     shouldShowList: true,
   }),
 });
 
-export default function Notification({data , goal} :{data: boolean,goal: Goal }) {
-  const [expoPushToken, setExpoPushToken] = useState('');
-  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
-
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
+async function requestPermissions(): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('goals-channel', {
+      name: 'Objectifs',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#06b6d4',
     });
+  }
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+  if (!Device.isDevice) {
+    console.warn('Les notifications nécessitent un appareil physique.');
+    return false;
+  }
 
-    if(data) {schedulePushNotification(goal)}
+  const { status: existing } = await Notifications.getPermissionsAsync();
+  if (existing === 'granted') return true;
 
-    return () => {
-      notificationListener.remove();
-      responseListener.remove();
-    };
-  }, [data]);
-
-  return (
-    
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-around',
-      }}>
-          
-          <Pressable onPress={
-            ()=>    <Redirect href="/(tabs)/goals" />
-            
-          }>
-       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Title: {notification && notification.request.content.title} </Text>
-        <Text>Body: {notification && notification.request.content.body}</Text>
-        <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
-      </View>
-      </Pressable>
-
-    </View>
-  );
+  const { status } = await Notifications.requestPermissionsAsync();
+  return status === 'granted';
 }
 
-async function schedulePushNotification(goal: Goal) {
+export async function scheduleGoalNotification(goal: Goal, secondsUntilEnd: number) {
+  const granted = await requestPermissions();
+  if (!granted) return;
+
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: "You have failed to accomplish a goal !",
-      body: goal.name ,
-      data: { data: 'goes here', test: { test1: 'more data' } },
+      title: '⏰ Objectif bientôt terminé !',
+      body: `Ton objectif "${goal.name}" arrive à échéance.`,
+      data: { goalId: goal.id },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 2,
+      seconds: secondsUntilEnd,
     },
   });
 }
 
-// need to get the token from the back end
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('myNotificationChannel', {
-      name: 'A channel is needed for the permissions prompt to appear',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
+export async function cancelGoalNotification(goalId: string) {
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  for (const notif of scheduled) {
+    if (notif.content.data?.goalId === goalId) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
   }
+}
 
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    // Learn more about projectId:
-    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-    // EAS projectId is used here.
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-      if (!projectId) {
-        throw new Error('Project ID not found');
+export function useNotificationListener(goal: Goal) {
+  useEffect(() => {
+    const receivedListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log('Notif reçue :', notification.request.content.title);
       }
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
+    );
 
-// post /token here
+    const responseListener = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const goalId = response.notification.request.content.data?.goalId;
+        if (goalId) {
+          router.push(`/(tabs)/goals/${goalId}/${goal.walletId}` );
+        }
+      }
+    );
 
-    } catch (e) {
-      token = `${e}`;
-    }
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
-  return token;
+    return () => {
+      receivedListener.remove();
+      responseListener.remove();
+    };
+  }, []);
 }
