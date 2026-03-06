@@ -57,27 +57,27 @@ export default function RegisterScreen() {
     }, []);
 
     const handleRegister = async () => {
-        if (!username || !password) {
+        if (!username || !email || !password) {
             Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
+            Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
             return;
         }
 
         setIsLoading(true);
         try {
-            await register(username, password);
+            await register(email, password);
             Toast.show({
-                type: "success",
-                text1: "Inscription réussie",
-                text2: "Vous êtes maintenant connecté",
-                position: "top",
+                type: 'success',
+                text1: 'Inscription réussie',
+                text2: 'Vous êtes maintenant connecté',
+                position: 'top',
                 visibilityTime: 2000,
             });
-            router.replace("/(tabs)");
+            router.replace('/(tabs)');
         } catch (error: any) {
             const message =
                 error.response?.data?.message || "Une erreur est survenue";

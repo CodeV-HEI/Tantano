@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ import Toast from 'react-native-toast-message';
 import GoogleButton from '@/components/GoogleButton';
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -40,7 +40,7 @@ export default function LoginScreen() {
   const { settings } = useSettings();
 
   React.useEffect(() => {
-    StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
+    StatusBar.setBarStyle(theme === "dark" ? "light-content" : "dark-content");
   }, [theme]);
 
   React.useEffect(() => {
@@ -52,7 +52,6 @@ export default function LoginScreen() {
       'keyboardDidHide',
       () => setKeyboardVisible(false)
     );
-
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
@@ -60,14 +59,14 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = async () => {
-    if (!username || !password) {
+    if (!email || !password) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
     setIsLoading(true);
     try {
-      await login(username, password);
+      await login(email, password);
       Toast.show({
         type: 'success',
         text1: 'Connexion réussie',
@@ -77,11 +76,10 @@ export default function LoginScreen() {
       });
       router.replace('/(tabs)');
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Vérifiez vos identifiants';
       Toast.show({
         type: 'error',
         text1: 'Échec de connexion',
-        text2: message,
+        text2: error.message,
         position: 'top',
         visibilityTime: 3000,
       });
@@ -105,12 +103,12 @@ export default function LoginScreen() {
     }
   };
 
-  const goToRegister = () => {
-    router.push('/register');
+  const handleForgotPassword = () => {
+    router.push('/forgot-password');
   };
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+  const goToRegister = () => {
+    router.push('/register');
   };
 
   return (
@@ -119,9 +117,7 @@ export default function LoginScreen() {
       className="flex-1"
       keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
     >
-
       <Background3D />
-
       <TouchableOpacity
         onPress={toggleTheme}
         className={`absolute top-12 right-6 z-50 p-3 rounded-full ${theme === 'dark' ? 'bg-black/10 backdrop-blur-sm border border-cyan-500/20' : 'bg-cyan-50/80 backdrop-blur-sm border border-cyan-200'}`}
@@ -137,7 +133,7 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: keyboardVisible ? 100 : 40
+          paddingBottom: keyboardVisible ? 100 : 40,
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -148,10 +144,14 @@ export default function LoginScreen() {
               entering={FadeInDown.duration(1000).springify()}
               className="items-center mb-12"
             >
-              <Text className={`text-7xl font-bold text-transparent bg-clip-text ${theme === 'dark' ? 'bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500' : 'bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300'} ${theme === 'dark' ? 'neon-text' : 'neon-text-light'} mb-3`}>
+              <Text
+                className={`text-7xl font-bold text-transparent bg-clip-text ${theme === "dark" ? "bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" : "bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300"} ${theme === "dark" ? "neon-text" : "neon-text-light"} mb-3`}
+              >
                 Tantano
               </Text>
-              <Text className={`text-lg ${theme === 'dark' ? 'text-cyan-300/80' : 'text-cyan-600/80'} font-light tracking-widest`}>
+              <Text
+                className={`text-lg ${theme === "dark" ? "text-cyan-300/80" : "text-cyan-600/80"} font-light tracking-widest`}
+              >
                 Financial event recording
               </Text>
             </Animated.View>
@@ -162,14 +162,15 @@ export default function LoginScreen() {
             className="space-y-8"
           >
             <View className="space-y-3">
-              <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Nom d&apos;utilisateur</Text>
+              <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Email</Text>
               <TextInput
                 className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30`}
-                placeholder="Entrez votre nom"
+                placeholder="exemple@email.com"
                 placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
                 autoCapitalize="none"
+                keyboardType="email-address"
                 returnKeyType="next"
                 blurOnSubmit={false}
               />
@@ -189,9 +190,8 @@ export default function LoginScreen() {
                   onSubmitEditing={handleLogin}
                 />
                 <TouchableOpacity
-                  onPress={toggleShowPassword}
+                  onPress={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                  activeOpacity={0.7}
                 >
                   {showPassword ? (
                     <EyeOff size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
@@ -202,25 +202,26 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            <Animated.View entering={FadeInUp.delay(400)} className="pt-8">
+            <TouchableOpacity onPress={handleForgotPassword} className="self-end">
+              <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-sm underline`}>
+                Mot de passe oublié ?
+              </Text>
+            </TouchableOpacity>
+
+            <Animated.View entering={FadeInUp.delay(400)} className="pt-4">
               <TouchableOpacity
                 className={`${isPressed ? (theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100') : (theme === 'dark' ? 'bg-black' : 'bg-white')} ${theme === 'dark' ? 'border-cyan-500/60 shadow-cyan-500/30' : 'border-cyan-400/50 shadow-cyan-400/20'} border-2 rounded-xl py-5 ${isLoading ? 'opacity-80' : ''} shadow-2xl active:scale-[0.98] flex-row justify-center items-center`}
                 onPress={handleLogin}
                 onPressIn={() => setIsPressed(true)}
                 onPressOut={() => setIsPressed(false)}
                 disabled={isLoading}
-                activeOpacity={0.9}
               >
                 {isLoading ? (
-                  <View className="flex-row justify-center items-center">
-                    <ActivityIndicator size="large" color={theme === 'dark' ? '#22d3ee' : '#0891b2'} />
-                  </View>
+                  <ActivityIndicator size="large" color={theme === 'dark' ? '#22d3ee' : '#0891b2'} />
                 ) : (
-                  <View className="flex-row justify-center items-center w-full">
-                    <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} text-center text-lg font-bold tracking-wide`}>
-                      Connexion
-                    </Text>
-                  </View>
+                  <Text className={`${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} text-center text-lg font-bold tracking-wide`}>
+                    Connexion
+                  </Text>
                 )}
               </TouchableOpacity>
             </Animated.View>
@@ -239,14 +240,17 @@ export default function LoginScreen() {
               </TouchableOpacity>
             )}
 
-            <Animated.View
-              entering={SlideInRight.delay(600)}
-              className="pt-10"
-            >
+            <Animated.View entering={SlideInRight.delay(600)} className="pt-10">
               <View className="flex-row justify-center items-center space-x-2">
-                <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-base`}>Nouveau ici ? </Text>
+                <Text
+                  className={`${theme === "dark" ? "text-cyan-300/70" : "text-cyan-600/70"} text-base`}
+                >
+                  Nouveau ici ?{" "}
+                </Text>
                 <TouchableOpacity onPress={goToRegister}>
-                  <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-bold text-base underline underline-offset-3`}>
+                  <Text
+                    className={`${theme === "dark" ? "text-purple-400" : "text-purple-600"} font-bold text-base underline underline-offset-3`}
+                  >
                     Créer un compte
                   </Text>
                 </TouchableOpacity>
@@ -259,14 +263,17 @@ export default function LoginScreen() {
               entering={FadeInUp.delay(800)}
               className="mt-16 items-center"
             >
-              <Text className={`${theme === 'dark' ? 'text-cyan-400/50' : 'text-cyan-600/50'} text-lg tracking-wider`}>
+              <Text
+                className={`${theme === "dark" ? "text-cyan-400/50" : "text-cyan-600/50"} text-lg tracking-wider`}
+              >
                 © {new Date().getFullYear()} Tantano - CodeV
               </Text>
               <View className="flex-row space-x-2 mt-3">
                 {[...Array(3)].map((_, i) => (
                   <View
                     key={i}
-                    className={`w-3 h-3 ${theme === 'dark' ? 'bg-cyan-500' : 'bg-cyan-400'} rounded-full animate-pulse`}
+                    className={`w-3 h-3 ${theme === "dark" ? "bg-cyan-500" : "bg-cyan-400"} rounded-full animate-pulse`}
+                    style={{ animationDelay: `${i * 0.3}s` }}
                   />
                 ))}
               </View>

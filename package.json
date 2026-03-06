@@ -26,6 +26,7 @@
     "@shopify/react-native-skia": "2.2.12",
     "axios": "^1.13.2",
     "expo": "~54.0.32",
+    "expo-application": "~7.0.8",
     "expo-auth-session": "~7.0.10",
     "expo-constants": "~18.0.13",
     "expo-crypto": "~15.0.8",
@@ -38,7 +39,12 @@
     "expo-linking": "~8.0.11",
     "expo-local-authentication": "~17.0.8",
     "expo-notifications": "~0.32.16",
+<<<<<<< HEAD
+=======
+    "expo-random": "^14.0.1",
+>>>>>>> 320f576 (style: restructuring transaction code and add new dependencies)
     "expo-router": "~6.0.23",
+    "expo-random": "^14.0.1",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
