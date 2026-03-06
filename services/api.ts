@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   CreationLabel,
   CreationProject,
@@ -21,6 +22,25 @@ import {
   Wallet,
   WalletAutomaticIncome,
   WalletType
+=======
+import { GoalApi } from '@/clients';
+import {
+    CreationLabel,
+    CreationTransaction,
+    CreationWallet,
+    Label,
+    LoginRequest,
+    PaginatedLabels,
+    PaginatedWallets,
+    RegisterRequest,
+    Transaction,
+    UpdateWallet,
+    User,
+    UserWithToken,
+    Wallet,
+    WalletAutomaticIncome,
+    WalletType
+>>>>>>> goal
 } from '@/types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -308,5 +328,7 @@ export const getCurrencies = async (
     throw error;
   }
 };
+
+export const goalAPI = new GoalApi()
 
 export default api;
