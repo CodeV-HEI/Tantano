@@ -1,9 +1,11 @@
 import {
+  CreationGoal,
   CreationLabel,
   CreationProject,
   CreationProjectTransaction,
   CreationTransaction,
   CreationWallet,
+  Goal,
   Label,
   LoginRequest,
   PaginatedLabels,
@@ -25,8 +27,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-// const API_URL = process.env.API_BASE_URL || "https://tantano-api.onrender.com";
-const API_URL = "http://192.168.0.29:8080";
+const API_URL = process.env.API_BASE_URL || "https://tantano-api.onrender.com";
+// const API_URL = "http://192.168.0.29:8080";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -368,6 +370,23 @@ export const getCurrencies = async (
     console.error(error);
     throw error;
   }
+};
+
+export const goalAPI = {
+    getAll: (accountId: string, params?: {
+        page?: number;
+        pageSize?: number;
+        name?: string;
+    }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/goal`, { params })),
+
+    getOne: (accountId: string, goalId: string) =>
+        apiWithRetry(() => api.get<Goal>(`/account/${accountId}/goal/${goalId}`)),
+
+    create: (accountId: string, data: CreationGoal) =>
+        apiWithRetry(() => api.post<Goal>(`/account/${accountId}/goal`, data)),
+
+    update: (accountId: string, goalId: string, data: Goal) =>
+        apiWithRetry(() => api.put<Goal>(`/account/${accountId}/label/${goalId}`, data)),
 };
 
 export default api;

@@ -1,4 +1,4 @@
-import { labelAPI, transactionAPI, walletAPI } from "@/services/api";
+import { goalAPI, labelAPI, transactionAPI, walletAPI } from "@/services/api";
 import {
   Label,
   Transaction,
@@ -202,10 +202,10 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   },
   getGoals: async (accountId: string) => {
     try {
-      // const data = await goalAPI
-      //   .getAll(accountId)
-      //   .then((res) => res.data.values);
-      // set({ goals: data });
+      const data = await goalAPI
+        .getAll(accountId)
+        .then((res) => res.data.values);
+      set({ goals: data });
       console.log("Gaols fetched successfully");
       Toast.show({
         type: "success",
