@@ -1,11 +1,11 @@
 import {
-  CreationGoal,
+  //CreationGoal,
   CreationLabel,
   CreationProject,
   CreationProjectTransaction,
   CreationTransaction,
   CreationWallet,
-  Goal,
+  //Goal,
   Label,
   LoginRequest,
   PaginatedLabels,
@@ -23,6 +23,7 @@ import {
   Wallet,
   WalletAutomaticIncome,
   WalletType
+} from '@/types/api';
 import { GoalApi } from '@/clients';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -374,21 +375,21 @@ export const getCurrencies = async (
 
 export const goalAPI = new GoalApi()
 
-export const goalAPI = {
-    getAll: (accountId: string, params?: {
-        page?: number;
-        pageSize?: number;
-        name?: string;
-    }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/goal`, { params })),
+/*export const goalAPI = {
+  getAll: (accountId: string, params?: {
+    page?: number;
+    pageSize?: number;
+    name?: string;
+  }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/goal`, { params })),
 
-    getOne: (accountId: string, goalId: string) =>
-        apiWithRetry(() => api.get<Goal>(`/account/${accountId}/goal/${goalId}`)),
+  getOne: (accountId: string, goalId: string) =>
+    apiWithRetry(() => api.get<Goal>(`/account/${accountId}/goal/${goalId}`)),
 
-    create: (accountId: string, data: CreationGoal) =>
-        apiWithRetry(() => api.post<Goal>(`/account/${accountId}/goal`, data)),
+  create: (accountId: string, data: CreationGoal) =>
+    apiWithRetry(() => api.post<Goal>(`/account/${accountId}/goal`, data)),
 
-    update: (accountId: string, goalId: string, data: Goal) =>
-        apiWithRetry(() => api.put<Goal>(`/account/${accountId}/label/${goalId}`, data)),
-};
+  update: (accountId: string, goalId: string, data: Goal) =>
+    apiWithRetry(() => api.put<Goal>(`/account/${accountId}/label/${goalId}`, data)),
+};*/
 
 export default api;
