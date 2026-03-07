@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView,
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { COLOR_PALETTE } from '@/types/label';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Animated, { FadeInUp, FadeInDown, SlideInDown } from 'react-native-reanimated';
 import { IconPicker, AVAILABLE_ICONS } from './IconPicker';
 import { ColorPicker } from './ColorPicker';  

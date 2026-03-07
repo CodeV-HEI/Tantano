@@ -74,7 +74,7 @@ export function useNotificationListener(goal: Goal) {
       (response) => {
         const goalId = response.notification.request.content.data?.goalId;
         if (goalId) {
-          router.push(`/(tabs)/goals/${goalId}/${goal.walletId}` );
+          router.push(`/goals/${goalId}/${goal.walletId}` );
         }
       }
     );

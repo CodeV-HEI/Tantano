@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
 
 interface Props {

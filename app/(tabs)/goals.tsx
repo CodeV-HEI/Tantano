@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { goalAPI } from "@/services/api";
 import {
   scheduleGoalNotification,
-  useNotificationListener,
+  //useNotificationListener,
 } from "@/services/notifications";
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ export default function GoalsScreen() {
   const [debouncedName, setDebouncedName] = useState('');
 
   // 1. Activer l'écouteur de notifications pour la redirection (Deep Linking)
-  useNotificationListener();
+  //useNotificationListener();
 
   // Debounce pour la recherche
   useEffect(() => {

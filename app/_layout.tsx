@@ -4,15 +4,15 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
 
-
+const queryClient = new QueryClient();
 
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
-  
 
   if (isLoading) {
     return (
@@ -48,22 +48,23 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-
     <AuthProvider>
-      <CurrencyProvider>
-        <NotificationProvider>
-          <ThemeProvider>
-            <ThemeWrapper>
-              <ActionSheetProvider>
-                <>
-                  <RootLayoutContent />
-                  <Toast />
-                </>
-              </ActionSheetProvider>
-            </ThemeWrapper>
-          </ThemeProvider>
-        </NotificationProvider>
-      </CurrencyProvider>
+      <QueryClientProvider client={queryClient}>
+        <CurrencyProvider>
+          <NotificationProvider>
+            <ThemeProvider>
+              <ThemeWrapper>
+                <ActionSheetProvider>
+                  <>
+                    <RootLayoutContent />
+                    <Toast />
+                  </>
+                </ActionSheetProvider>
+              </ThemeWrapper>
+            </ThemeProvider>
+          </NotificationProvider>
+        </CurrencyProvider>
+      </QueryClientProvider>
     </AuthProvider>
   );
 }

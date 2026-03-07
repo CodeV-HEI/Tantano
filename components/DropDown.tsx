@@ -78,7 +78,7 @@ const GoalDropdown = ({ goals }: { goals: Goal }) => {
             onPress={() => setVisible(true) }
           >
             <Text style={{ color: activeColor }} className="font-bold text-xs uppercase tracking-tighter">
-              Modifier l'objectif
+              Modifier l&apos;objectif
             </Text>
           </TouchableOpacity>
         </View>

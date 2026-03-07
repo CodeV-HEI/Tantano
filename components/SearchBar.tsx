@@ -26,7 +26,7 @@ export default function SearchBar({
       duration: 200,
       useNativeDriver: false,
     }).start();
-  }, [isFocused]);
+  }, [borderAnim, isFocused]);
 
   const borderColor = borderAnim.interpolate({
     inputRange: [0, 1],

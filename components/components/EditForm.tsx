@@ -161,7 +161,7 @@ export const EditForm = ({
                                     Modifier le label
                                 </Text>
                                 <Text className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    Modifiez le nom, la couleur ou l'icône
+                                    Modifiez le nom, la couleur ou l&apos;icône
                                 </Text>
                             </View>
                             <TouchableOpacity

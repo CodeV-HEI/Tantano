@@ -1,4 +1,4 @@
-import { useTheme } from "@/contexts/ThemeContext"; // récupère le thème
+import { useTheme } from "@/contexts/ThemeContext";
 import { useTransactionStore } from "@/stores/useTransactionStore";
 import { TransactionType } from "@/types";
 import { AntDesign } from "@expo/vector-icons";

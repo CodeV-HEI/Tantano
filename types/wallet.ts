@@ -33,13 +33,13 @@ export interface PaginationInfo {
 
 export const WALLET_COLOR_PALETTE = [
     '#FF6B6B', // Rouge
-'#4ECDC4', // Turquoise
-'#FFD93D', // Jaune
-'#6BCB77', // Vert
-'#9D65C9', // Violet
-'#FF8C42', // Orange
-'#4A90E2', // Bleu
-'#F38181', // Rose
-'#A8E6CF', // Menthe
-'#FFB347', // Pêche
+    '#4ECDC4', // Turquoise
+    '#FFD93D', // Jaune
+    '#6BCB77', // Vert
+    '#9D65C9', // Violet
+    '#FF8C42', // Orange
+    '#4A90E2', // Bleu
+    '#F38181', // Rose
+    '#A8E6CF', // Menthe
+    '#FFB347', // Pêche
 ];

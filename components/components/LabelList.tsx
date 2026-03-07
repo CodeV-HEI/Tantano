@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { View, Text } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { LabelCard } from './LabelCard';
@@ -21,6 +22,7 @@ interface Props {
 const DEFAULT_LABELS = ['NOURRITURE', 'TRANSPORT', 'LOISIRS'];
 
 export const LabelList = ({ labels, isUpdating, onEdit, onDelete, searchQuery }: Props) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { theme } = useTheme();
 
     const filteredLabels = labels.filter(label =>

@@ -25,9 +25,9 @@ export interface User {
   createdAt?: string;
 }
 
-export interface AsyncStorageUser{
-    id: string;
-    username: string;
+export interface AsyncStorageUser {
+  id: string;
+  username: string;
 }
 
 export interface UserWithToken {
@@ -239,18 +239,18 @@ export interface CreationGoal {
   name: string;
   amount: number;
   walletId: string;
-  startingDate: string; 
+  startingDate: string;
   endingDate: string;
   color: string;
   iconRef: string;
 }
 
-export interface Goal{
-    id: string;
-      name: string;
+export interface Goal {
+  id: string;
+  name: string;
   amount: number;
   walletId: string;
-  startingDate: string; 
+  startingDate: string;
   endingDate: string;
   color: string;
   iconRef: string;

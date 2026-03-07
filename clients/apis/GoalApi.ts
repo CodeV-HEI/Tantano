@@ -57,6 +57,9 @@ export interface UpdateOneGoalRequest {
  *
  */
 export class GoalApi extends runtime.BaseAPI {
+  getAll(accountId: string) {
+    throw new Error("Method not implemented.");
+  }
   /**
    * Archive one label by id
    */

@@ -82,7 +82,7 @@ export default function TransactionDetails() {
     getAllLables(user.id);
     getWallets(user.id);
     getGoals(user.id);
-  }, [id, walletId, user?.id, getAllLables, getWallets]);
+  }, [id, walletId, user?.id, getAllLables, getWallets, getGoals]);
 
   return (
     <>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { View, TextInput, TouchableOpacity, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';

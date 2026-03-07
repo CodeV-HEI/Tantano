@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRouter, Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import Foundation from '@expo/vector-icons/Foundation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TouchableOpacity, View, StatusBar } from 'react-native';
@@ -125,6 +126,21 @@ export default function TabLayout() {
                     title: 'PROJETS',
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="folder" size={size} color={color} />
+                    ),
+                    headerTitleStyle: {
+                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                        textShadowOffset: { width: 0, height: 0 },
+                        textShadowRadius: 10,
+                    },
+                }}
+            />
+            <Tabs.Screen
+                name="goals"
+                options={{
+                    title: 'OBJECTIFS',
+                    tabBarIcon: ({ color, size }) => (
+                        <Foundation name="target-two" size={size} color={color} />
                     ),
                     headerTitleStyle: {
                         color: theme === 'dark' ? '#06b6d4' : '#0891b2',
