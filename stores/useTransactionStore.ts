@@ -1,5 +1,6 @@
-import { labelAPI, transactionAPI, walletAPI } from "@/services/api";
+import { goalAPI, labelAPI, transactionAPI, walletAPI } from "@/services/api";
 import {
+  Goal,
   Label,
   Transaction,
   TransactionFilter,
@@ -41,6 +42,9 @@ interface TransactionStore {
   labels: Label[];
   setLabels: (labels: Label[]) => void;
   getAllLables: (accountId: string) => Promise<void>;
+  goals: Goal[],
+  setGoals: (goals: Goal[]) => void;
+  getGoals: (accountID: string) => Promise<void>;
 }
 
 export const useTransactionStore = create<TransactionStore>((set) => ({
@@ -157,7 +161,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   },
   labels: [],
   setLabels(labels) {
-    set(() => ({ labels }));
+    set(() => ({ labels: labels }));
   },
   getAllLables: async (accountId: string) => {
     try {
@@ -178,6 +182,32 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         text1: "Erreur de chargement",
         text2:
           "Impossible de récupérer les étiquettes. Veuillez réessayer plus tard.",
+      });
+    }
+  },
+  goals: [],
+  setGoals(goals) {
+    set(() => ({ goals: goals }));
+  },
+  getGoals: async (accountId: string) => {
+    try {
+      const data = await goalAPI
+        .getAll(accountId)
+        .then((res) => res.data.values);
+      set({ goals: data });
+      console.log("Gaols fetched successfully");
+      Toast.show({
+        type: "success",
+        text1: "Obectifs chargées",
+        text2: "Les objecitfs ont été chargées avec succès.",
+      });
+    } catch (error) {
+      console.error("Failed to fetch labels:", error);
+      Toast.show({
+        type: "error",
+        text1: "Erreur de chargement",
+        text2:
+          "Impossible de récupérer les objectifs. Veuillez réessayer plus tard.",
       });
     }
   },
