@@ -17,7 +17,7 @@ export default function Create() {
       getAllLables(user.id);
       getGoals(user.id)
     }
-  }, [getAllLables, getWallets, user?.id]);
+  }, [getAllLables, getGoals, getWallets, user?.id]);
 
   if (!user?.id) {
     Toast.show({
