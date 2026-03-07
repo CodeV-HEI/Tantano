@@ -172,6 +172,8 @@ app/
 ├── login.tsx                 # Authentication screen
 ├── register.tsx              # Registration screen
 
+clients/                      # The clients
+
 components/                   # All components
 
 context/                      # All contexts  
