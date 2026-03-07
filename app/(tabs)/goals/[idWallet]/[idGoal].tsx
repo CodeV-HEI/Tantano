@@ -1,6 +1,6 @@
 import { Goal } from "@/clients";
 import GoalDropdown from "@/components/DropDown";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { goalAPI } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
