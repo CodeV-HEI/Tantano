@@ -25,6 +25,11 @@ export interface User {
   createdAt?: string;
 }
 
+export interface AsyncStorageUser{
+    id: string;
+    username: string;
+}
+
 export interface UserWithToken {
   account: User;
   token: string;

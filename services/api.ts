@@ -22,8 +22,8 @@ import {
   UserWithToken,
   Wallet,
   WalletAutomaticIncome,
-  WalletType,
-} from "@/types/api";
+  WalletType
+import { GoalApi } from '@/clients';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -371,6 +371,8 @@ export const getCurrencies = async (
     throw error;
   }
 };
+
+export const goalAPI = new GoalApi()
 
 export const goalAPI = {
     getAll: (accountId: string, params?: {

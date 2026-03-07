@@ -8,8 +8,11 @@ import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
 
+
+
 function RootLayoutContent() {
   const { isLoading, user } = useAuth();
+  
 
   if (isLoading) {
     return (
