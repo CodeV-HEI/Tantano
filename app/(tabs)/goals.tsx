@@ -6,8 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { goalAPI } from "@/services/api";
 import {
   scheduleGoalNotification,
-  useNotificationListener
-} from "@/services/notifications"; // Assure-toi du chemin
+  useNotificationListener,
+} from "@/services/notifications";
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from 'expo-notifications';

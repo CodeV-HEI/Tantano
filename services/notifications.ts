@@ -83,5 +83,5 @@ export function useNotificationListener(goal: Goal) {
       receivedListener.remove();
       responseListener.remove();
     };
-  }, []);
+  }, [goal.walletId]);
 }
