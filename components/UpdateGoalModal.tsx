@@ -1,5 +1,5 @@
 import { Goal, Wallet } from '@/clients';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { goalAPI, walletAPI } from '@/services/api'; // Assure-toi que goalAPI pointe vers une instance de GoalApi
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
