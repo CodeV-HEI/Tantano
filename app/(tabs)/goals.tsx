@@ -2,7 +2,7 @@ import { CreationGoal } from "@/clients";
 import CreationGoalModal from "@/components/CreationModal";
 import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { goalAPI } from "@/services/api";
 import {
   scheduleGoalNotification,
