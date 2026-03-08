@@ -149,8 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (result.success) {
                 const creds = await SecureStore.getItemAsync('credentials');
                 if (creds) {
-                    const { username, password } = JSON.parse(creds);
-                    await login(username, password);
+                    const { email, password } = JSON.parse(creds);
+                    await login(email, password);
                     return true;
                 }
             }

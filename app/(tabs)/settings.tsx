@@ -19,6 +19,7 @@ import {
     View
 } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useSettings } from '@/hooks/useSettings';
 
 const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
     { value: "daily", label: "Quotidien" },
@@ -32,6 +33,7 @@ export default function SettingsScreen() {
     const router = useRouter();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { currency, isLoading, updateCurrency, currencies } = useCurrency();
+    const { settings, updateSettings } = useSettings();
     const {
         recurrence,
         calculePeriod,
@@ -69,9 +71,6 @@ export default function SettingsScreen() {
     const [isRecurrenceModalVisible, setIsRecurrenceModalVisible] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [daysCount, setDaysCount] = useState('30');
-
-    // States for Biometrics
-    const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
 
     useEffect(() => {
         StatusBar.setBarStyle(theme === 'dark' ? 'light-content' : 'dark-content');
@@ -169,8 +168,8 @@ export default function SettingsScreen() {
                             description="Activer l'empreinte ou FaceID"
                             rightComponent={
                                 <Switch
-                                    value={isBiometricEnabled}
-                                    onValueChange={setIsBiometricEnabled}
+                                    value={settings.biometricsEnabled}
+                                    onValueChange={(value) => updateSettings({ biometricsEnabled: value })}
                                     trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
                                     thumbColor="#ffffff"
                                 />
