@@ -9,7 +9,7 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     login: (username: string, password: string) => Promise<void>;
-    register: (username: string, password: string) => Promise<void>;
+    register: (username: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     updateToken: (token: string) => Promise<void>;
     loginWithBiometrics: () => Promise<boolean>;
@@ -84,11 +84,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const register = async (email: string, password: string) => {
+    const register = async (username: string, email: string, password: string) => {
         try {
             console.log('Tentative d\'inscription...');
 
-            await authAPI.register({ email, password });
+            await authAPI.register({ username, email, password });
 
             console.log('Inscription réussie, connexion automatique...');
 

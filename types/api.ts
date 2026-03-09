@@ -4,6 +4,12 @@ export interface Credentials {
   password: string;
 }
 
+export interface Credential {
+  username: string;
+  email: string;
+  password: string;
+}
+
 export type Recurrence = "daily" | "weekly" | "monthly";
 export interface Pagination {
   totalPage: number;
@@ -36,7 +42,7 @@ export interface UserWithToken {
 }
 
 export type LoginRequest = Credentials;
-export type RegisterRequest = Credentials;
+export type RegisterRequest = Credential;
 
 export interface PaginationResult {
   totalPage: number;

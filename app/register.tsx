@@ -67,9 +67,21 @@ export default function RegisterScreen() {
             return;
         }
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            Alert.alert('Erreur', 'Format d\'email invalide');
+            return;
+        }
+
+        if (password.length < 6) {
+            Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+            return;
+        }
+
         setIsLoading(true);
         try {
-            await register(email, password);
+            await register(username, email, password);
             Toast.show({
                 type: 'success',
                 text1: 'Inscription réussie',
@@ -79,8 +91,9 @@ export default function RegisterScreen() {
             });
             router.replace('/(tabs)');
         } catch (error: any) {
-            const message =
-                error.response?.data?.message || "Une erreur est survenue";
+            console.log('Erreur complète :', error);
+            console.log('Réponse serveur :', error.response?.data);
+            const message = error.response?.data?.message || "Une erreur est survenue";
             Toast.show({
                 type: "error",
                 text1: "Échec de l'inscription",
