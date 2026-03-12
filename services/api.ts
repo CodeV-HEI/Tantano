@@ -1,15 +1,16 @@
 import {
-  //CreationGoal,
+  CreationGoal,
   CreationLabel,
   CreationProject,
   CreationProjectTransaction,
   CreationTransaction,
   CreationWallet,
-  //Goal,
+  Goal,
   Label,
   LoginRequest,
   PaginatedLabels,
   PaginatedWallets,
+  PaginationResult,
   Project,
   ProjectStatistics,
   ProjectTransaction,
@@ -24,12 +25,12 @@ import {
   WalletAutomaticIncome,
   WalletType
 } from '@/types/api';
-import { GoalApi } from '@/clients';
+//import { Configuration, GoalApi } from '@/clients';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const API_URL = process.env.API_BASE_URL || "https://tantano-api.onrender.com";
-// const API_URL = "http://192.168.0.29:8080";
+// const API_URL = "http://localhost:8080";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -373,23 +374,62 @@ export const getCurrencies = async (
   }
 };
 
-export const goalAPI = new GoalApi()
+/*const createFetchWithToken = (): typeof fetch => {
+  return async (input, init) => {
+    const token = await AsyncStorage.getItem('token');
+    const headers = new Headers(init?.headers);
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    return fetch(input, { ...init, headers });
+  };
+};
 
-/*export const goalAPI = {
-  getAll: (accountId: string, params?: {
-    page?: number;
-    pageSize?: number;
+const apiConfig = new Configuration({
+  basePath: API_URL,
+  fetchApi: createFetchWithToken(),
+});
+
+export const goalAPI = new GoalApi(apiConfig);*/
+
+export const goalAPI = {
+  getAllGoals: (accountId: string, params?: {
+    walletId?: string;
     name?: string;
-  }) => apiWithRetry(() => api.get<PaginatedLabels>(`/account/${accountId}/goal`, { params })),
+    minAmount?: number;
+    maxAmount?: number;
+    startingDateBeginning?: string;
+    startingDateEnding?: string;
+    endingDateBeginning?: string;
+    endingDateEnding?: string;
+    sort?: 'asc' | 'desc';
+  }) =>
+    apiWithRetry(() =>
+      api.get<{ pagination: PaginationResult; values: Goal[] }>(`/account/${accountId}/goal`, { params })
+    ),
 
-  getOne: (accountId: string, goalId: string) =>
-    apiWithRetry(() => api.get<Goal>(`/account/${accountId}/goal/${goalId}`)),
+  getOneGoal: (accountId: string, walletId: string, goalId: string) =>
+    apiWithRetry(() =>
+      api.get<Goal>(`/account/${accountId}/wallet/${walletId}/goal/${goalId}`)
+    ),
 
-  create: (accountId: string, data: CreationGoal) =>
-    apiWithRetry(() => api.post<Goal>(`/account/${accountId}/goal`, data)),
+  createOneGoal: (accountId: string, walletId: string, data: CreationGoal) =>
+    apiWithRetry(() =>
+      api.post<Goal>(`/account/${accountId}/wallet/${walletId}/goal`, data)
+    ),
 
-  update: (accountId: string, goalId: string, data: Goal) =>
-    apiWithRetry(() => api.put<Goal>(`/account/${accountId}/label/${goalId}`, data)),
-};*/
+  updateOneGoal: (accountId: string, walletId: string, goalId: string, data: Goal) =>
+    apiWithRetry(() =>
+      api.put<Goal>(`/account/${accountId}/wallet/${walletId}/goal/${goalId}`, data)
+    ),
+
+  archiveOneGoal: (accountId: string, walletId: string, goalId: string) =>
+    apiWithRetry(() =>
+      api.post<Goal>(`/account/${accountId}/wallet/${walletId}/goal/${goalId}/archive`)
+    ),
+};
 
 export default api;

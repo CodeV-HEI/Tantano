@@ -1,8 +1,9 @@
-import { CreationGoal } from "@/clients";
+import { CreationGoal } from "@/types/api";
 import CreationGoalModal from "@/components/CreationModal";
 import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { goalAPI } from "@/services/api";
 import {
   scheduleGoalNotification,
@@ -16,54 +17,50 @@ import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "rea
 
 export default function GoalsScreen() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [isVisible, setVisible] = useState(false);
-  
+
   // États pour la recherche et pagination
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [searchInput, setSearchInput] = useState('');
   const [debouncedName, setDebouncedName] = useState('');
 
-  // 1. Activer l'écouteur de notifications pour la redirection (Deep Linking)
-  //useNotificationListener();
+  // Activer l'écouteur de notifications (optionnel)
+  // useNotificationListener();
 
   // Debounce pour la recherche
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedName(searchInput);
-      setPage(1); 
+      setPage(1);
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // 2. Requête API
+  // Requête API
   const { data: allGoals, isLoading } = useQuery({
     queryKey: ["goals", debouncedName],
     queryFn: async () => {
       if (!user?.id) return [];
-      const response = await goalAPI.getAllGoals({
-        accountId: user.id,
+      const response = await goalAPI.getAllGoals(user.id, {
         name: debouncedName || undefined,
       });
-      return response?.values || [];
+      return response?.data?.values || [];
     },
     enabled: !!user?.id
   });
 
-  // 3. Synchronisation des notifications quand les goals sont chargés
+  // Synchronisation des notifications
   useEffect(() => {
     const syncNotifs = async () => {
       if (allGoals && allGoals.length > 0) {
-        // Optionnel : Nettoyer les anciennes pour éviter les doublons
         await Notifications.cancelAllScheduledNotificationsAsync();
-        
         for (const goal of allGoals) {
           if (goal.endingDate) {
             const end = new Date(goal.endingDate).getTime();
             const now = Date.now();
             const secondsUntilEnd = (end - now) / 1000;
-
-            // On planifie si c'est dans le futur (ex: max 1 mois d'intervalle pour iOS)
             if (secondsUntilEnd > 0 && secondsUntilEnd < 2592000) {
               await scheduleGoalNotification(goal, secondsUntilEnd);
             }
@@ -74,14 +71,14 @@ export default function GoalsScreen() {
     syncNotifs();
   }, [allGoals]);
 
-  // 4. Pagination locale
+  // Pagination locale
   const { paginatedData, totalPages } = useMemo(() => {
     const data = allGoals || [];
     const total = Math.max(1, Math.ceil(data.length / pageSize));
     const start = (page - 1) * pageSize;
-    return { 
-      paginatedData: data.slice(start, start + pageSize), 
-      totalPages: total 
+    return {
+      paginatedData: data.slice(start, start + pageSize),
+      totalPages: total
     };
   }, [allGoals, page]);
 
@@ -89,8 +86,8 @@ export default function GoalsScreen() {
     name: "",
     amount: 0,
     walletId: "",
-    startingDate: new Date(),
-    endingDate: new Date(),
+    startingDate: new Date().toISOString(),
+    endingDate: new Date().toISOString(),
     color: "#06b6d4",
     iconRef: "flag",
   };
@@ -104,13 +101,15 @@ export default function GoalsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+    <View className={`flex-1 ${theme === 'dark' ? 'bg-slate-950' : 'bg-gray-50'}`}>
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
         <View className="mt-8 mb-4">
-          <Text className="text-3xl font-extrabold text-slate-900 dark:text-white">
+          <Text className={`text-3xl font-extrabold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
             Objectifs
           </Text>
-          <Text className="text-slate-500 text-sm">Gérez vos projets et votre épargne</Text>
+          <Text className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+            Gérez vos projets et votre épargne
+          </Text>
         </View>
 
         <View className="mb-6">
@@ -120,8 +119,15 @@ export default function GoalsScreen() {
         {paginatedData.length > 0 ? (
           <>
             <View className="gap-y-4">
-              {paginatedData.map((item) => (
-                <GoalItem key={item.id} goals={item} />
+              {paginatedData.map((item: CreationGoal & { id: string; accountId: string }, index: number) => (
+                <GoalItem
+                  key={index}
+                  goals={{
+                    ...item,
+                    id: item.id,
+                    accountId: item.accountId,
+                  }}
+                />
               ))}
             </View>
 
@@ -130,15 +136,16 @@ export default function GoalsScreen() {
                 <TouchableOpacity
                   onPress={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className={`w-10 h-10 rounded-full items-center justify-center border ${
-                    page === 1 ? 'opacity-30 border-slate-200' : 'bg-cyan-500 border-transparent'
-                  }`}
+                  className={`w-10 h-10 rounded-full items-center justify-center border ${page === 1
+                    ? theme === 'dark' ? 'border-slate-700 opacity-30' : 'border-slate-200 opacity-30'
+                    : 'bg-cyan-500 border-transparent'
+                    }`}
                 >
-                  <Ionicons name="chevron-back" size={18} color={page === 1 ? '#94a3b8' : 'white'} />
+                  <Ionicons name="chevron-back" size={18} color={page === 1 ? (theme === 'dark' ? '#334155' : '#94a3b8') : 'white'} />
                 </TouchableOpacity>
 
-                <View className="bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
-                  <Text className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                <View className={`px-4 py-2 rounded-full border ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+                  <Text className={`text-sm font-bold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>
                     {page} / {totalPages}
                   </Text>
                 </View>
@@ -146,19 +153,20 @@ export default function GoalsScreen() {
                 <TouchableOpacity
                   onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className={`w-10 h-10 rounded-full items-center justify-center border ${
-                    page === totalPages ? 'opacity-30 border-slate-200' : 'bg-cyan-500 border-transparent'
-                  }`}
+                  className={`w-10 h-10 rounded-full items-center justify-center border ${page === totalPages
+                    ? theme === 'dark' ? 'border-slate-700 opacity-30' : 'border-slate-200 opacity-30'
+                    : 'bg-cyan-500 border-transparent'
+                    }`}
                 >
-                  <Ionicons name="chevron-forward" size={18} color={page === totalPages ? '#94a3b8' : 'white'} />
+                  <Ionicons name="chevron-forward" size={18} color={page === totalPages ? (theme === 'dark' ? '#334155' : '#94a3b8') : 'white'} />
                 </TouchableOpacity>
               </View>
             )}
           </>
         ) : (
           <View className="mt-32 items-center justify-center">
-            <Ionicons name="sparkles-outline" size={48} color="#cbd5e1" />
-            <Text className="text-slate-400 text-lg mt-4 text-center">
+            <Ionicons name="sparkles-outline" size={48} color={theme === 'dark' ? '#334155' : '#cbd5e1'} />
+            <Text className={`text-lg mt-4 text-center ${theme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>
               {searchInput ? `Aucun résultat pour "${searchInput}"` : 'Rien ici pour le moment'}
             </Text>
             {!searchInput && (

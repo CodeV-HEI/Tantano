@@ -251,7 +251,7 @@ export interface CreationGoal {
   iconRef: string;
 }
 
-export interface Goal {
+/*export interface Goal {
   id: string;
   name: string;
   amount: number;
@@ -260,4 +260,9 @@ export interface Goal {
   endingDate: string;
   color: string;
   iconRef: string;
+}*/
+
+export interface Goal extends CreationGoal {
+  id: string;
+  accountId: string;
 }
