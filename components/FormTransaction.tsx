@@ -27,7 +27,7 @@ const transactionTypeSelected = [
   { id: TransactionType.OUT, name: "Retirer" },
 ];
 
-export default function FormTrasansction() {
+export default function FormTransaction() {
   const [valueWallet, setValueWallet] = useState<Wallet | null>(null);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const { user } = useAuth();
@@ -125,6 +125,10 @@ export default function FormTrasansction() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    router.back(); // Retourne à l'écran précédent (liste des transactions)
   };
 
   if (isLoading) {
@@ -265,7 +269,7 @@ export default function FormTrasansction() {
             )}
           />
 
-          {/* Gaol */}
+          {/* Goal */}
           <Text className={`text-lg mb-2 ${textSecondary}`}>Objectif</Text>
           <Dropdown
             style={[
@@ -568,15 +572,30 @@ export default function FormTrasansction() {
           </Text>
         </View>
 
-        {/* ===== CTA BUTTON ===== */}
-        <Pressable
-          onPress={handleSubmit}
-          className="bg-root-purple p-5 rounded-2xl mt-6 shadow-sm active:scale-[0.98]"
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            Créer la transaction
-          </Text>
-        </Pressable>
+        {/* ===== BUTTONS ===== */}
+        <View className="flex-row gap-4 mt-6">
+          {/* Cancel Button */}
+          <Pressable
+            onPress={handleCancel}
+            className={`flex-1 p-5 rounded-2xl border ${isDark ? 'border-gray-700' : 'border-gray-300'
+              }`}
+          >
+            <Text className={`text-center font-bold text-lg ${isDark ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+              Annuler
+            </Text>
+          </Pressable>
+
+          {/* Submit Button */}
+          <Pressable
+            onPress={handleSubmit}
+            className="flex-1 bg-root-purple p-5 rounded-2xl shadow-sm active:scale-[0.98]"
+          >
+            <Text className="text-white text-center font-bold text-lg">
+              Créer
+            </Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

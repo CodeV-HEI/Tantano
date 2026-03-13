@@ -170,7 +170,7 @@ const CreationGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean
                                     onChange={(i: string) => updateForm('iconRef', i)}
                                 />
 
-                                {/* PORTEFEUILLE */}
+                                {/* PORTEFEUILLE – Sélecteur adapté au thème */}
                                 <View className={`rounded-2xl border overflow-hidden ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-gray-50 border-gray-100'
                                     }`}>
                                     <Picker

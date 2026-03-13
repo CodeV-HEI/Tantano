@@ -1,5 +1,5 @@
 import { CreationGoal } from "@/types/api";
-import CreationGoalModal from "@/components/CreationModal";
+import CreationGoalModal from "@/components/CreationGoalModal";
 import GoalItem from "@/components/DropDown";
 import SearchBar from "@/components/SearchBar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from "@tanstack/react-query";
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function GoalsScreen() {
   const { user } = useAuth();
@@ -55,14 +55,18 @@ export default function GoalsScreen() {
   useEffect(() => {
     const syncNotifs = async () => {
       if (allGoals && allGoals.length > 0) {
-        await Notifications.cancelAllScheduledNotificationsAsync();
+        if (Platform.OS !== 'web') {
+          await Notifications.cancelAllScheduledNotificationsAsync();
+        }
         for (const goal of allGoals) {
           if (goal.endingDate) {
             const end = new Date(goal.endingDate).getTime();
             const now = Date.now();
             const secondsUntilEnd = (end - now) / 1000;
             if (secondsUntilEnd > 0 && secondsUntilEnd < 2592000) {
-              await scheduleGoalNotification(goal, secondsUntilEnd);
+              if (Platform.OS !== 'web') {
+                await scheduleGoalNotification(goal, secondsUntilEnd);
+              }
             }
           }
         }

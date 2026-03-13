@@ -1,7 +1,7 @@
 import FilterOptionsTransaction from "@/components/FilterOptionsTransaction";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { FontAwesome6, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome6, /*Ionicons,*/ MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -69,7 +69,7 @@ export default function Layout() {
             backgroundColor: theme === "dark" ? "#000000" : "#ffffff",
           },
           headerShown: true,
-          headerLeft: () => (
+          /*headerLeft: () => (
             <Ionicons
               name="chevron-back"
               size={24}
@@ -77,7 +77,7 @@ export default function Layout() {
               className="mr-6"
               color={"#A74BCA"}
             />
-          ),
+          ),*/
           headerTitle: () => (
             <View className="flex-row items-center gap-3">
               <FontAwesome6
@@ -126,6 +126,7 @@ export default function Layout() {
               backgroundColor: theme === "dark" ? "#111111" : "#ffffff",
               borderTopLeftRadius: 16,
               borderTopRightRadius: 16,
+              zIndex: 1000,
             },
             animatedStyle,
           ]}

@@ -1,5 +1,5 @@
 import Background from "@/components/Background";
-import FormTrasansction from "@/components/FormTrasansction";
+import FormTrasansction from "@/components/FormTransaction";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTransactionStore } from "@/stores/useTransactionStore";
 import { router } from "expo-router";

@@ -109,7 +109,6 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean; 
                             </View>
 
                             <View className="gap-y-6">
-                                {/* NOM */}
                                 <TextInput
                                     className={`text-xl font-bold p-4 rounded-2xl border ${theme === 'dark'
                                         ? 'bg-slate-800 border-slate-700 text-white'
@@ -121,7 +120,6 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean; 
                                     onChangeText={(val) => updateForm('name', val)}
                                 />
 
-                                {/* MONTANT */}
                                 <View className={`flex-row items-center p-4 rounded-2xl border ${theme === 'dark'
                                     ? 'bg-slate-800 border-slate-700'
                                     : 'bg-gray-50 border-gray-100'
@@ -139,7 +137,6 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean; 
                                     />
                                 </View>
 
-                                {/* COULEUR & ICÔNE */}
                                 <CustomColorPicker
                                     value={form.color || "#06b6d4"}
                                     onChange={(c) => updateForm('color', c)}
@@ -150,7 +147,6 @@ const UpdateGoalModal = ({ isVisible, onclose, newGoal }: { isVisible: boolean; 
                                     onChange={(i: string) => updateForm('iconRef', i)}
                                 />
 
-                                {/* WALLET SELECTION */}
                                 <View className={`rounded-2xl border overflow-hidden ${theme === 'dark'
                                     ? 'bg-slate-800 border-slate-700'
                                     : 'bg-gray-50 border-gray-100'

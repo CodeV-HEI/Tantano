@@ -13,8 +13,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Modal,
+  TextInput,
+  Button,
 } from "react-native";
-import Dialog from "react-native-dialog";
 
 const transactionTypeSelected = [
   { id: "IN", name: "Ajouter" },
@@ -64,9 +66,15 @@ export default function FilterOptionsTransaction({
     filter.minAmount,
   );
   const [amountMinShow, setAmountMinShow] = useState(false);
-  const [dateStart, setDateStart] = useState<Date | undefined>(undefined);
+  const [tempMinAmount, setTempMinAmount] = useState<string>("");
+  const [tempMaxAmount, setTempMaxAmount] = useState<string>("");
+  const [dateStart, setDateStart] = useState<Date | undefined>(
+    filter.startingDate ? new Date(filter.startingDate) : undefined,
+  );
   const [showDateStart, setShowDateStart] = useState(false);
-  const [dateEnd, setDateEnd] = useState<Date | undefined>(undefined);
+  const [dateEnd, setDateEnd] = useState<Date | undefined>(
+    filter.endingDate ? new Date(filter.endingDate) : undefined,
+  );
   const [showDateEnd, setShowDateEnd] = useState(false);
 
   const colors = {
@@ -81,11 +89,6 @@ export default function FilterOptionsTransaction({
     selectedWallet: theme === "dark" ? "#7c3aed" : "#a855f7",
     selectedType: theme === "dark" ? "#22c55e" : "#16a34a",
   };
-
-  const handleChangeNumberMax = (text: string) =>
-    setAmountMax(Number(text.replace(/[^0-9]/g, "")));
-  const handleChangeNumberMin = (text: string) =>
-    setAmountMin(Number(text.replace(/[^0-9]/g, "")));
 
   const handleChangeDateStart = (event: any, selectedDate?: Date) => {
     setDateStart(selectedDate || dateStart);
@@ -105,19 +108,31 @@ export default function FilterOptionsTransaction({
 
   const filterOptionsSelected = () => {
     setFilter({
-      walletId: walletFilter,
+      walletId: walletFilter || undefined,
       type: typeFilter,
-      label: labelFilter,
+      label: labelFilter.length > 0 ? labelFilter : undefined,
       minAmount: amountMin,
       maxAmount: amountMax,
-      startingDate: dateStart ? dateStart.toISOString().split("T")[0] : "",
-      endingDate: dateEnd ? dateEnd.toISOString().split("T")[0] : "",
+      startingDate: dateStart ? dateStart.toISOString().split("T")[0] : undefined,
+      endingDate: dateEnd ? dateEnd.toISOString().split("T")[0] : undefined,
       sortBy,
       sort,
     });
+    onClose(); // Ferme le panneau après application
   };
 
   const clearFilters = () => {
+    setWalletFilter("");
+    setWalletSelected("");
+    setTypeFilter(undefined);
+    setTypeSelected(undefined);
+    setLabelFilter([]);
+    setAmountMin(undefined);
+    setAmountMax(undefined);
+    setDateStart(undefined);
+    setDateEnd(undefined);
+    setSortBy("date");
+    setSort("asc");
     setFilter({
       walletId: undefined,
       startingDate: undefined,
@@ -131,8 +146,39 @@ export default function FilterOptionsTransaction({
     });
   };
 
+  // Ouverture des modaux de saisie
+  const openMinModal = () => {
+    setTempMinAmount(amountMin?.toString() || "");
+    setAmountMinShow(true);
+  };
+  const openMaxModal = () => {
+    setTempMaxAmount(amountMax?.toString() || "");
+    setAmountMaxShow(true);
+  };
+
+  const validateMin = () => {
+    const val = parseFloat(tempMinAmount);
+    if (!isNaN(val)) {
+      setAmountMin(val);
+    } else {
+      setAmountMin(undefined);
+    }
+    setAmountMinShow(false);
+  };
+
+  const validateMax = () => {
+    const val = parseFloat(tempMaxAmount);
+    if (!isNaN(val)) {
+      setAmountMax(val);
+    } else {
+      setAmountMax(undefined);
+    }
+    setAmountMaxShow(false);
+  };
+
   return (
     <>
+      {/* Barre d'actions en haut */}
       <View
         style={{
           position: "absolute",
@@ -191,7 +237,7 @@ export default function FilterOptionsTransaction({
             marginBottom: 12,
           }}
         >
-          Selectionner :
+          Sélectionner :
         </Text>
 
         {/* Wallets */}
@@ -236,13 +282,13 @@ export default function FilterOptionsTransaction({
             ListEmptyComponent={
               <View className="items-center">
                 <Text className="text-gray-400 text-base">
-                  Aucune Portefeille trouvée
+                  Aucun portefeuille trouvé
                 </Text>
                 <Link
                   href="/(tabs)/wallets"
                   className="text-blue-500 mt-1"
                 >
-                  Ajouter une Portefeuille
+                  Ajouter un portefeuille
                 </Link>
               </View>
             }
@@ -292,7 +338,7 @@ export default function FilterOptionsTransaction({
         {/* Labels */}
         <View style={{ marginBottom: 12 }}>
           <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>
-            - Par Etiquette :
+            - Par Étiquette :
           </Text>
           <FlatList
             horizontal
@@ -326,13 +372,13 @@ export default function FilterOptionsTransaction({
             ListEmptyComponent={
               <View className="items-center">
                 <Text className="text-gray-400 text-base">
-                  Aucune Etiquette trouvée
+                  Aucune étiquette trouvée
                 </Text>
                 <Link
                   href="/(tabs)/labels"
                   className="text-blue-500 mt-1"
                 >
-                  Ajouter une Etiquette
+                  Ajouter une étiquette
                 </Link>
               </View>
             }
@@ -352,36 +398,12 @@ export default function FilterOptionsTransaction({
                 borderRadius: 12,
                 padding: 12,
               }}
-              onPress={() => setAmountMinShow(true)}
+              onPress={openMinModal}
             >
               <Text style={{ color: colors.text }}>
-                {amountMin || "Minimum"}
+                {amountMin !== undefined ? amountMin : "Minimum"}
               </Text>
             </TouchableOpacity>
-            <Dialog.Container
-              contentStyle={{ backgroundColor: colors.card, borderRadius: 12 }}
-              visible={amountMinShow}
-            >
-              <Dialog.Title>Saisir le nombre</Dialog.Title>
-              <Dialog.Input
-                keyboardType="numeric"
-                onChangeText={handleChangeNumberMin}
-                value={amountMin?.toString() || ""}
-              />
-              <Dialog.Button
-                label="Annuler"
-                onPress={() => setAmountMinShow(false)}
-                color={"red"}
-              />
-              <Dialog.Button
-                label="OK"
-                onPress={() => {
-                  setAmountMinShow(false);
-                }}
-                color={"white"}
-                style={{ backgroundColor: "#A74BCA", borderRadius: 5 }}
-              />
-            </Dialog.Container>
             <TouchableOpacity
               style={{
                 flex: 1,
@@ -389,38 +411,55 @@ export default function FilterOptionsTransaction({
                 borderRadius: 12,
                 padding: 12,
               }}
-              onPress={() => setAmountMaxShow(true)}
+              onPress={openMaxModal}
             >
               <Text style={{ color: colors.text }}>
-                {amountMax || "Maximum"}
+                {amountMax !== undefined ? amountMax : "Maximum"}
               </Text>
             </TouchableOpacity>
-            <Dialog.Container
-              contentStyle={{ backgroundColor: colors.card, borderRadius: 12 }}
-              visible={amountMaxShow}
-            >
-              <Dialog.Title>Saisir le nombre</Dialog.Title>
-              <Dialog.Input
-                keyboardType="numeric"
-                onChangeText={handleChangeNumberMax}
-                value={amountMax?.toString() || ""}
-              />
-              <Dialog.Button
-                label="Annuler"
-                onPress={() => setAmountMaxShow(false)}
-                color={"red"}
-              />
-              <Dialog.Button
-                label="OK"
-                onPress={() => {
-                  setAmountMaxShow(false);
-                }}
-                color={"white"}
-                style={{ backgroundColor: "#A74BCA", borderRadius: 5 }}
-              />
-            </Dialog.Container>
           </View>
         </View>
+
+        {/* Modals pour saisie des montants */}
+        <Modal visible={amountMinShow} transparent animationType="fade">
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <View style={{ width: '80%', backgroundColor: colors.card, borderRadius: 12, padding: 20 }}>
+              <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Saisir le montant minimum</Text>
+              <TextInput
+                keyboardType="numeric"
+                value={tempMinAmount}
+                onChangeText={setTempMinAmount}
+                style={{ borderWidth: 1, borderColor: colors.textSecondary, borderRadius: 8, padding: 10, color: colors.text, marginBottom: 20 }}
+                placeholderTextColor={colors.textSecondary}
+                placeholder="0"
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+                <Button title="Annuler" onPress={() => setAmountMinShow(false)} color="#ef4444" />
+                <Button title="OK" onPress={validateMin} color="#A74BCA" />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={amountMaxShow} transparent animationType="fade">
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <View style={{ width: '80%', backgroundColor: colors.card, borderRadius: 12, padding: 20 }}>
+              <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Saisir le montant maximum</Text>
+              <TextInput
+                keyboardType="numeric"
+                value={tempMaxAmount}
+                onChangeText={setTempMaxAmount}
+                style={{ borderWidth: 1, borderColor: colors.textSecondary, borderRadius: 8, padding: 10, color: colors.text, marginBottom: 20 }}
+                placeholderTextColor={colors.textSecondary}
+                placeholder="0"
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+                <Button title="Annuler" onPress={() => setAmountMaxShow(false)} color="#ef4444" />
+                <Button title="OK" onPress={validateMax} color="#A74BCA" />
+              </View>
+            </View>
+          </View>
+        </Modal>
 
         {/* Date */}
         <View style={{ marginBottom: 12 }}>

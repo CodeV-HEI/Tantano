@@ -49,7 +49,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   const [valueWallet, setValueWallet] = useState<Wallet | undefined>(
     walletForThis,
   );
-  const goalForThis = goals.find((goal) => goal.id === data.goalId)
+  const goalForThis = goals.find((goal) => goal.id === data.goalId);
   const [valueGoal, setValueGoal] = useState<Goal | undefined>(goalForThis);
 
   const { theme } = useTheme();
@@ -102,7 +102,6 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
       .filter((l) => l !== null);
 
     const dateToday = new Date(data.date).toISOString();
-    // const dateToday = new Date().toISOString();
     const acountId = user?.id || "";
 
     const dataSend: CreationTransaction = {
@@ -125,19 +124,22 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
         text1: "Transaction mise à jour",
         text2: "La transaction a été mise à jour avec succès.",
       });
+      router.push("/transactions");
     } catch (error) {
-      console.error("Erreur lors de la création de la transaction :", error);
+      console.error("Erreur lors de la mise à jour de la transaction :", error);
       Toast.show({
         type: "error",
         text1: "Erreur de mise à jour",
         text2:
           "Une erreur est survenue lors de la mise à jour de la transaction.",
       });
-      return;
     } finally {
       setIsLoading(false);
-      router.push("/transactions");
     }
+  };
+
+  const handleCancel = () => {
+    router.back();
   };
 
   if (isLoading) {
@@ -151,11 +153,13 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      // style={{ flex: 1 }}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Ajustez selon votre layout
     >
       <ScrollView
-        contentContainerStyle={{ padding: 10, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: 10, paddingBottom: 120 }} // Augmenté pour laisser de l'espace
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* ===== HEADER ===== */}
         <View className="mb-6">
@@ -207,7 +211,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                 style={{
                   backgroundColor: isDark ? "#171717" : "#FFFFFF",
                 }}
-                className={`flex flex-row py-4 px-2`}
+                className="flex flex-row py-4 px-2"
               >
                 <View
                   style={{
@@ -256,7 +260,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
             )}
           />
 
-          {/* Gaol */}
+          {/* Goal */}
           <Text className={`text-lg mb-2 ${textSecondary}`}>Objectif</Text>
           <Dropdown
             style={[
@@ -292,7 +296,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                 style={{
                   backgroundColor: isDark ? "#171717" : "#FFFFFF",
                 }}
-                className={`flex flex-row py-4 px-2`}
+                className="flex flex-row py-4 px-2"
               >
                 <View
                   style={{
@@ -307,7 +311,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                       style={{ width: 22, height: 22, marginRight: 14 }}
                     />
                   ) : (
-                   <Octicons
+                    <Octicons
                       name="goal"
                       size={22}
                       color={
@@ -398,7 +402,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
 
               return (
                 <View
-                  className={`flex flex-row py-4 px-2 rounded-lg`}
+                  className="flex flex-row py-4 px-2 rounded-lg"
                   style={[isSelected && styles.selectedItem]}
                 >
                   <View
@@ -472,7 +476,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                 style={{
                   backgroundColor: isDark ? "#171717" : "#FFFFFF",
                 }}
-                className={`flex flex-row py-4 px-2`}
+                className="flex flex-row py-4 px-2"
               >
                 <View
                   style={{
@@ -493,7 +497,7 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
                       styles.itemTextStyle,
                       {
                         color: item.id === TransactionType.IN ? "green" : "red",
-                        fontWeight: item?.id === item.id ? "600" : "500",
+                        fontWeight: "600",
                       },
                     ]}
                   >
@@ -547,15 +551,32 @@ export default function UpdateTransaction({ data }: { data: Transaction }) {
           <Text className="text-right text-xs text-gray-400">Ariary (Ar)</Text>
         </View>
 
-        {/* ===== CTA BUTTON ===== */}
-        <Pressable
-          onPress={handleSubmit}
-          className="bg-root-purple p-5 rounded-2xl mt-6 shadow-sm active:scale-[0.98]"
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            Mettre à jour la transaction
-          </Text>
-        </Pressable>
+        {/* ===== BUTTONS ===== */}
+        <View className="flex-row gap-4 mt-6 mb-10"> {/* Ajout de margin bottom */}
+          {/* Cancel Button */}
+          <Pressable
+            onPress={handleCancel}
+            className={`flex-1 p-5 rounded-2xl border ${isDark ? "border-gray-700" : "border-gray-300"
+              }`}
+          >
+            <Text
+              className={`text-center font-bold text-lg ${isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+            >
+              Annuler
+            </Text>
+          </Pressable>
+
+          {/* Submit Button */}
+          <Pressable
+            onPress={handleSubmit}
+            className="flex-1 bg-root-purple p-5 rounded-2xl shadow-sm active:scale-[0.98]"
+          >
+            <Text className="text-white text-center font-bold text-lg">
+              Mettre à jour
+            </Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

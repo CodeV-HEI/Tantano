@@ -9,11 +9,12 @@ import { Transaction } from "@/types";
 import {
   AntDesign,
   FontAwesome,
+  Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 export default function TransactionDetails() {
@@ -88,19 +89,28 @@ export default function TransactionDetails() {
     <>
       <Background />
       <View className="flex-1 px-5 pt-6">
-        {/* Edit Button */}
-        <View className="w-full items-end mb-6">
+        <View className="flex-row justify-between items-center mb-6">
+          <Pressable
+            onPress={() => router.back()}
+            className={`p-3 rounded-full ${isDark ? "bg-gray-900" : "bg-gray-100"}`}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={isDark ? "#fff" : "#000"}
+            />
+          </Pressable>
+
           <Pressable
             onPress={() => setEdited(!edited)}
-            className={`p-3 rounded-full ${
-              edited
-                ? isDark
-                  ? "bg-red-900/40"
-                  : "bg-red-100"
-                : isDark
-                  ? "bg-blue-900/40"
-                  : "bg-blue-100"
-            } ${shadow}`}
+            className={`p-3 rounded-full ${edited
+              ? isDark
+                ? "bg-red-900/40"
+                : "bg-red-100"
+              : isDark
+                ? "bg-blue-900/40"
+                : "bg-blue-100"
+              } ${shadow}`}
           >
             {edited ? (
               <AntDesign name="close" size={20} color="#ef4444" />
@@ -113,14 +123,16 @@ export default function TransactionDetails() {
         {edited ? (
           transactionOne && <UpdateTransaction data={transactionOne} />
         ) : transactionOne ? (
-          <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
             {/* Amount Card */}
             <View className={`${cardBg} rounded-3xl p-7 mb-6 ${shadow}`}>
               <View className="items-center">
                 <View
-                  className={`p-4 rounded-2xl mb-4 ${
-                    isDark ? "bg-blue-900/30" : "bg-blue-100"
-                  }`}
+                  className={`p-4 rounded-2xl mb-4 ${isDark ? "bg-blue-900/30" : "bg-blue-100"
+                    }`}
                 >
                   <FontAwesome name="exchange" size={28} color="#3b82f6" />
                 </View>
@@ -130,15 +142,14 @@ export default function TransactionDetails() {
                 </Text>
 
                 <Text
-                  className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${
-                    transactionOne.type === "IN"
-                      ? isDark
-                        ? "bg-emerald-900/30 text-emerald-400"
-                        : "bg-emerald-100 text-emerald-700"
-                      : isDark
-                        ? "bg-rose-900/30 text-rose-400"
-                        : "bg-rose-100 text-rose-700"
-                  }`}
+                  className={`mt-3 px-4 py-1 rounded-full text-xs font-bold tracking-wider ${transactionOne.type === "IN"
+                    ? isDark
+                      ? "bg-emerald-900/30 text-emerald-400"
+                      : "bg-emerald-100 text-emerald-700"
+                    : isDark
+                      ? "bg-rose-900/30 text-rose-400"
+                      : "bg-rose-100 text-rose-700"
+                    }`}
                 >
                   {transactionOne.type === "IN" ? "ENTRÉE" : "SORTIE"}
                 </Text>
@@ -152,9 +163,7 @@ export default function TransactionDetails() {
               </Text>
 
               <View className="mb-4">
-                <Text
-                  className={`text-xs uppercase tracking-wide ${textMuted}`}
-                >
+                <Text className={`text-xs uppercase tracking-wide ${textMuted}`}>
                   Date
                 </Text>
                 <Text
@@ -165,9 +174,7 @@ export default function TransactionDetails() {
               </View>
 
               <View className="mb-4">
-                <Text
-                  className={`text-xs uppercase tracking-wide ${textMuted}`}
-                >
+                <Text className={`text-xs uppercase tracking-wide ${textMuted}`}>
                   Description
                 </Text>
                 <Text
@@ -178,9 +185,7 @@ export default function TransactionDetails() {
               </View>
 
               <View>
-                <Text
-                  className={`text-xs uppercase tracking-wide mb-3 ${textMuted}`}
-                >
+                <Text className={`text-xs uppercase tracking-wide mb-3 ${textMuted}`}>
                   Labels
                 </Text>
 
@@ -204,7 +209,7 @@ export default function TransactionDetails() {
             </View>
 
             {/* Wallet Card */}
-            <View className={`${cardBg} rounded-3xl p-6 ${shadow}`}>
+            <View className={`${cardBg} rounded-3xl p-6 mb-6 ${shadow}`}>
               <Text className={`text-lg font-bold mb-5 ${textPrimary}`}>
                 Portefeuille
               </Text>
@@ -251,7 +256,6 @@ export default function TransactionDetails() {
                 </Text>
 
                 <View className="flex-row items-center gap-4">
-                  {/* Icon */}
                   <View
                     className="p-3 rounded-2xl"
                     style={{ backgroundColor: goal.color + "22" }}
@@ -271,12 +275,10 @@ export default function TransactionDetails() {
                     )}
                   </View>
 
-                  {/* Name + Amount */}
                   <View className="flex-1">
                     <Text className={`text-base font-bold ${textPrimary}`}>
                       {goal.name}
                     </Text>
-
                     <Text className={`text-sm mt-1 ${textSecondary}`}>
                       {Number(goal.amount).toLocaleString()} Ar
                     </Text>
@@ -284,7 +286,7 @@ export default function TransactionDetails() {
                 </View>
               </View>
             )}
-          </>
+          </ScrollView>
         ) : (
           <Loader />
         )}
