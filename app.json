@@ -4,7 +4,7 @@
     "slug": "tantano",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/tantano.png",
+    "icon": "./assets/images/favicon.png",
     "scheme": "tantano",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -29,7 +29,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/tantano.png",
+      "favicon": "./assets/images/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -37,7 +37,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/tantano.png",
+          "image": "./assets/images/favicon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
