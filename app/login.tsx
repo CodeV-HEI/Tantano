@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   Keyboard,
   StatusBar
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import Animated, {
   FadeInUp,
   FadeInDown,
@@ -37,7 +37,13 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login, biometricsAvailable, loginWithBiometrics } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { settings } = useSettings();
+  const { settings, loading: settingsLoading, refreshSettings } = useSettings();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshSettings();
+    }, [refreshSettings])
+  );
 
   React.useEffect(() => {
     StatusBar.setBarStyle(theme === "dark" ? "light-content" : "dark-content");
@@ -228,7 +234,8 @@ export default function LoginScreen() {
 
             <GoogleButton mode="login" />
 
-            {biometricsAvailable && settings.biometricsEnabled && (
+            {/* Bouton biométrique – affiché seulement après chargement des settings */}
+            {!settingsLoading && biometricsAvailable && settings.biometricsEnabled && (
               <TouchableOpacity
                 onPress={handleBiometricLogin}
                 className="flex-row justify-center items-center py-3"

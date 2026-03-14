@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type NotificationRecurrence = 'daily' | 'weekly' | 'monthly';
@@ -26,11 +26,7 @@ export function useSettings() {
     const [settings, setSettings] = useState<Settings>(defaultSettings);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadSettings();
-    }, []);
-
-    const loadSettings = async () => {
+    const loadSettings = useCallback(async () => {
         try {
             const stored = await AsyncStorage.getItem(SETTINGS_KEY);
             if (stored) {
@@ -43,7 +39,11 @@ export function useSettings() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        loadSettings();
+    }, [loadSettings]);
 
     const updateSettings = async (newSettings: Partial<Settings>) => {
         const updated = { ...settings, ...newSettings };
@@ -55,5 +55,10 @@ export function useSettings() {
         }
     };
 
-    return { settings, loading, updateSettings };
+    const refreshSettings = async () => {
+        setLoading(true);
+        await loadSettings();
+    };
+
+    return { settings, loading, updateSettings, refreshSettings };
 }
