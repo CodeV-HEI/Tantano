@@ -21,6 +21,7 @@ export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { forgotPassword } = useAuth();
     const { theme } = useTheme();
 
@@ -31,11 +32,11 @@ export default function ForgotPasswordScreen() {
         }
         setIsLoading(true);
         try {
-            await forgotPassword(email);
+            await new Promise(resolve => setTimeout(resolve, 1500));
             Toast.show({
-                type: 'success',
-                text1: 'Email envoyé',
-                text2: 'Consultez votre boîte de réception',
+                type: 'info',
+                text1: 'Fonctionnalité en cours',
+                text2: 'La réinitialisation de mot de passe sera bientôt disponible',
                 position: 'top',
                 visibilityTime: 3000,
             });
