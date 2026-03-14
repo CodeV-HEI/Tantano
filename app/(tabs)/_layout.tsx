@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Foundation from '@expo/vector-icons/Foundation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { TouchableOpacity, View, StatusBar } from 'react-native';
+import { TouchableOpacity, View, StatusBar, Text } from 'react-native';
 
 export default function TabLayout() {
     const { logout } = useAuth();
@@ -20,39 +20,36 @@ export default function TabLayout() {
         router.replace('/login');
     };
 
+    const titleColor = theme === 'dark' ? '#06b6d4' : '#0891b2';
+
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                tabBarActiveTintColor: titleColor,
                 tabBarInactiveTintColor: theme === 'dark' ? '#8b5cf6' : '#7c3aed',
                 tabBarStyle: {
                     backgroundColor: theme === 'dark' ? '#000000' : '#ffffff',
                     borderTopWidth: 1,
-                    borderTopColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
+                    borderTopColor: titleColor,
                 },
                 headerStyle: {
                     backgroundColor: theme === 'dark' ? '#000000' : '#ffffff',
                 },
                 headerTintColor: theme === 'dark' ? '#ffffff' : '#000000',
-                headerTitleStyle: {
-                    textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                    textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 10,
-                },
                 headerRight: () => (
                     <View className="flex-row items-center mr-4">
                         <TouchableOpacity onPress={toggleTheme} className="mr-4">
                             <MaterialIcons
                                 name={theme === 'dark' ? 'light-mode' : 'dark-mode'}
                                 size={24}
-                                color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                                color={titleColor}
                             />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleLogout}>
                             <MaterialIcons
                                 name="logout"
                                 size={24}
-                                color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                                color={titleColor}
                             />
                         </TouchableOpacity>
                     </View>
@@ -66,12 +63,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="dashboard" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="dashboard" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                TABLEAU DE BORD
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -81,12 +88,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="account-balance-wallet" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="account-balance-wallet" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                PORTEFEUILLES
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -97,12 +114,6 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="receipt" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
                 }}
             />
             <Tabs.Screen
@@ -112,12 +123,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="label" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="label" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                LABELS
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -127,12 +148,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="folder" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="folder" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                PROJETS
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -142,12 +173,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <Foundation name="target-two" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="flag" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                OBJECTIFS
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -157,12 +198,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="person" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="person" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                PROFIL
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
@@ -172,12 +223,22 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="settings" size={size} color={color} />
                     ),
-                    headerTitleStyle: {
-                        color: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowColor: theme === 'dark' ? '#06b6d4' : '#0891b2',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                    },
+                    headerTitle: () => (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MaterialIcons name="settings" size={24} color={titleColor} />
+                            <Text style={{
+                                color: titleColor,
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                marginLeft: 8,
+                                textShadowColor: titleColor,
+                                textShadowOffset: { width: 0, height: 0 },
+                                textShadowRadius: 10,
+                            }}>
+                                PARAMÈTRES
+                            </Text>
+                        </View>
+                    ),
                 }}
             />
         </Tabs>

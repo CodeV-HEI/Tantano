@@ -1,7 +1,7 @@
 import FilterOptionsTransaction from "@/components/FilterOptionsTransaction";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { FontAwesome6, /*Ionicons,*/ MaterialIcons } from "@expo/vector-icons";
+import { /*Ionicons,*/ FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -28,7 +28,6 @@ export default function Layout() {
   const { height } = useWindowDimensions();
   const FILTER_HEIGHT = height * 0.9;
 
-  // valeur partagée pour l'animation
   const translateY = useSharedValue(height);
 
   const openFilter = () => {
@@ -61,6 +60,8 @@ export default function Layout() {
     router.replace("/login");
   };
 
+  const titleColor = theme === 'dark' ? '#06b6d4' : '#0891b2';
+
   return (
     <Provider>
       <Stack
@@ -82,10 +83,15 @@ export default function Layout() {
             <View className="flex-row items-center gap-3">
               <FontAwesome6
                 name="money-bill-transfer"
-                size={22}
-                color="#A74BCA"
+                size={24}
+                color={titleColor}
               />
-              <Text className="font-bold text-2xl text-[#A74BCA]">
+              <Text style={{
+                color: titleColor,
+                fontSize: 18,
+                fontWeight: 'bold',
+                marginLeft: 8,
+              }}>
                 Transactions
               </Text>
             </View>
@@ -106,7 +112,7 @@ export default function Layout() {
                 <MaterialIcons
                   name="logout"
                   size={24}
-                  color={theme === "dark" ? "#06b6d4" : "#0891b2"}
+                  color={titleColor}
                 />
               </TouchableOpacity>
             </View>
