@@ -297,12 +297,12 @@ The application integrates with a RESTful API at `https://vendredi-soir-posu.onr
 ### Endpoints
 - **`POST /login`**: User authentication
 - **`POST /register`**: User registration
-- **`GET /wallet`**: Retrieve all wallets
-- **`POST /wallet`**: Create new wallet
-- **`GET /transaction`**: Retrieve all transactions
-- **`POST /transaction`**: Create new transaction
-- **`GET /label`**: Retrieve all labels
-- **`POST /label`**: Create new label
+- **`GET /wallets`**: Retrieve all wallets
+- **`POST /wallets`**: Create new wallet
+- **`GET /transactions`**: Retrieve all transactions
+- **`POST /transactions`**: Create new transaction
+- **`GET /labels`**: Retrieve all labels
+- **`POST /labels`**: Create new label
 
 ## 📱 Platform Support
 
