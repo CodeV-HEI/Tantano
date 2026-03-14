@@ -62,13 +62,6 @@
       },
       "googleClientIdAndroid": "958515738736-lb263rpmibvd5gilare7am5h0vhmjle4.apps.googleusercontent.com",
       "googleWebClientId": "958515738736-d0c1qspl2u38a566s6vogbve9oor11h3.apps.googleusercontent.com"
-    },
-    "build": {
-      "preview": {
-        "android": {
-          "buildType": "apk"
-        }
-      }
     }
   }
 }
