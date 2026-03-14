@@ -1,4 +1,4 @@
-import { authAPI } from '@/services/api';
+import { API_URL, authAPI } from '@/services/api';
 import { User } from '@/types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -172,8 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const googleSignIn = async (idToken: string) => {
         try {
-            // On simule une réponse
-            const response = await fetch(`${process.env.API_BASE_URL}/auth/google`, {
+            const response = await fetch(`${API_URL}/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken }),
