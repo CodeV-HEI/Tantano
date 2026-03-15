@@ -191,23 +191,21 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   },
   getGoals: async (accountId: string) => {
     try {
-      const data = await goalAPI
-        .getAll(accountId)
-        .then((res) => res.data.values);
+      const response = await goalAPI.getAllGoals(accountId);
+      const data = response.data.values;
       set({ goals: data });
-      console.log("Gaols fetched successfully");
+      console.log("Goals fetched successfully");
       Toast.show({
         type: "success",
-        text1: "Obectifs chargées",
-        text2: "Les objecitfs ont été chargées avec succès.",
+        text1: "Objectifs chargés",
+        text2: "Les objectifs ont été chargés avec succès.",
       });
     } catch (error) {
-      console.error("Failed to fetch labels:", error);
+      console.error("Failed to fetch goals:", error);
       Toast.show({
         type: "error",
         text1: "Erreur de chargement",
-        text2:
-          "Impossible de récupérer les objectifs. Veuillez réessayer plus tard.",
+        text2: "Impossible de récupérer les objectifs. Veuillez réessayer plus tard.",
       });
     }
   },
