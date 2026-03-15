@@ -21,7 +21,6 @@ export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { forgotPassword } = useAuth();
     const { theme } = useTheme();
 
@@ -32,21 +31,21 @@ export default function ForgotPasswordScreen() {
         }
         setIsLoading(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const token = await forgotPassword(email);
             Toast.show({
-                type: 'info',
-                text1: 'Fonctionnalité en cours',
-                text2: 'La réinitialisation de mot de passe sera bientôt disponible',
+                type: 'success',
+                text1: 'Code reçu',
+                text2: 'Vérifiez la console ou redirigez',
                 position: 'top',
                 visibilityTime: 3000,
             });
-            router.back();
-        } catch (error) {
+            router.push(`/reset-password?token=${token}`);
+        } catch (error: any) {
             console.error('Forgot password error:', error);
             Toast.show({
                 type: 'error',
                 text1: 'Erreur',
-                text2: 'Impossible d\'envoyer l\'email',
+                text2: error.message || 'Impossible de générer le code',
                 position: 'top',
                 visibilityTime: 3000,
             });
@@ -68,7 +67,7 @@ export default function ForgotPasswordScreen() {
                             RÉINITIALISATION
                         </Text>
                         <Text className={`${theme === 'dark' ? 'text-cyan-300/70' : 'text-cyan-600/70'} text-center`}>
-                            Entrez votre email pour recevoir un lien de réinitialisation
+                            Entrez votre email pour recevoir un code de réinitialisation
                         </Text>
                     </Animated.View>
 
@@ -92,7 +91,7 @@ export default function ForgotPasswordScreen() {
                                 <ActivityIndicator size="large" color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
                             ) : (
                                 <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-lg font-bold`}>
-                                    ENVOYER
+                                    ENVOYER LE CODE
                                 </Text>
                             )}
                         </TouchableOpacity>
