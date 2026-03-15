@@ -20,6 +20,8 @@ import {
 } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSettings } from '@/hooks/useSettings';
+import { useAuth } from '@/contexts/AuthContext';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
     { value: "daily", label: "Quotidien" },
@@ -41,6 +43,8 @@ export default function SettingsScreen() {
         setCalculePeriod,
         setFreshAmount
     } = useNotification();
+    const { biometricsAvailable } = useAuth();
+    const [isBiometricActivating, setIsBiometricActivating] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -51,8 +55,28 @@ export default function SettingsScreen() {
         }, [setFreshAmount])
     );
 
-
-
+    const handleBiometricToggle = async (value: boolean) => {
+        if (value) {
+            setIsBiometricActivating(true);
+            try {
+                const result = await LocalAuthentication.authenticateAsync({
+                    promptMessage: 'Authentifiez-vous pour activer la connexion biométrique',
+                    cancelLabel: 'Annuler',
+                    disableDeviceFallback: false,
+                });
+                if (result.success) {
+                    await updateSettings({ biometricsEnabled: true });
+                }
+            } catch (error) {
+                console.error('Erreur lors de l’activation biométrique', error);
+            } finally {
+                setIsBiometricActivating(false);
+            }
+        } else {
+            // Désactivation simple
+            await updateSettings({ biometricsEnabled: false });
+        }
+    };
 
     const handleCurrencyChange = async (currency: Currency) => {
         try {
@@ -158,24 +182,28 @@ export default function SettingsScreen() {
                         />
                     </View>
 
-                    {/* Section: Biométrie */}
-                    <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
-                        <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>SÉCURITÉ</Text>
-
-                        <SettingItem
-                            icon="fingerprint"
-                            title="Biométrie"
-                            description="Activer l'empreinte ou FaceID"
-                            rightComponent={
-                                <Switch
-                                    value={settings.biometricsEnabled}
-                                    onValueChange={(value) => updateSettings({ biometricsEnabled: value })}
-                                    trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
-                                    thumbColor="#ffffff"
-                                />
-                            }
-                        />
-                    </View>
+                    {/* Section Sécurité */}
+                    {biometricsAvailable && (
+                        <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
+                            <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>
+                                SÉCURITÉ
+                            </Text>
+                            <SettingItem
+                                icon="fingerprint"
+                                title="Biométrie"
+                                description="Activer l'empreinte ou FaceID"
+                                rightComponent={
+                                    <Switch
+                                        value={settings.biometricsEnabled}
+                                        onValueChange={handleBiometricToggle}
+                                        disabled={isBiometricActivating}
+                                        trackColor={{ false: '#d1d5db', true: theme === 'dark' ? '#06b6d4' : '#0891b2' }}
+                                        thumbColor="#ffffff"
+                                    />
+                                }
+                            />
+                        </View>
+                    )}
 
                 </Animated.View>
             </ScrollView>

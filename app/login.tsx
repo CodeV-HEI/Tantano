@@ -234,8 +234,7 @@ export default function LoginScreen() {
 
             <GoogleButton mode="login" />
 
-            {/* Bouton biométrique – affiché seulement après chargement des settings */}
-            {!settingsLoading && biometricsAvailable && settings.biometricsEnabled && (
+            { biometricsAvailable && settings.biometricsEnabled && !settingsLoading && (
               <TouchableOpacity
                 onPress={handleBiometricLogin}
                 className="flex-row justify-center items-center py-3"
