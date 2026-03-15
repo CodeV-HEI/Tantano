@@ -234,21 +234,22 @@ export default function LoginScreen() {
 
             <GoogleButton mode="login" />
 
-            {!settingsLoading && biometricsAvailable && settings.biometricsEnabled && (
-              <Animated.View entering={FadeInUp.delay(500)}>
+            {biometricsAvailable && settings.biometricsEnabled && !settingsLoading && (
+              <Animated.View entering={FadeInUp.delay(500)} className="mt-4">
                 <TouchableOpacity
                   onPress={handleBiometricLogin}
-                  className="flex-row justify-center items-center py-3"
+                  className={`flex-row justify-center items-center py-3 px-4 rounded-xl border ${theme === 'dark'
+                    ? 'border-cyan-500/30 bg-black/20'
+                    : 'border-cyan-300/50 bg-white/20'
+                    }`}
+                  activeOpacity={0.7}
                 >
                   <MaterialIcons
                     name="fingerprint"
                     size={24}
                     color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
                   />
-                  <Text
-                    className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'
-                      } font-medium`}
-                  >
+                  <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
                     Se connecter avec biométrie
                   </Text>
                 </TouchableOpacity>
