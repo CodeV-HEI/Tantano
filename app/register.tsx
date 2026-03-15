@@ -311,7 +311,10 @@ export default function RegisterScreen() {
                             </TouchableOpacity>
                         </Animated.View>
 
-                        <GoogleButton mode="register" />
+                        {/* Espacement ajouté ici */}
+                        <View className="mt-4">
+                            <GoogleButton mode="register" />
+                        </View>
 
                         <Animated.View entering={FadeInUp.delay(700)} className="pt-12">
                             <TouchableOpacity onPress={() => router.back()} className="py-3">
