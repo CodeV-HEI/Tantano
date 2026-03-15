@@ -53,3 +53,6 @@ app-example
 .env.test.local
 
 # "projectId": "b187a9d1-05aa-4138-8f0c-a333bdbda4c3"
+# "backgroundImage": "./assets/images/android-icon-background.png",
+# "monochromeImage": "./assets/images/android-icon-monochrome.png",
+#"backgroundColor": "#E6F4FE",

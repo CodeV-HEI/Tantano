@@ -145,32 +145,32 @@ export default function ProfileScreen() {
                     <View className={`${theme === 'dark' ? 'bg-gray-900/50' : 'bg-cyan-50/50'} rounded-2xl p-4 mb-6`}>
                         <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-cyan-800'} mb-4`}>AIDE ET SUPPORT</Text>
 
-                        <SettingItem
-                            icon="help"
-                            title="Centre d'aide"
-                            description="FAQ et support"
-                            rightComponent={
-                                <MaterialIcons name="chevron-right" size={24} color="#9ca3af" />
-                            }
-                        />
+                        <TouchableOpacity onPress={() => router.push('/help')}>
+                            <SettingItem
+                                icon="help"
+                                title="Centre d'aide"
+                                description="FAQ et support"
+                                rightComponent={<MaterialIcons name="chevron-right" size={24} color="#9ca3af" />}
+                            />
+                        </TouchableOpacity>
 
-                        <SettingItem
-                            icon="info"
-                            title="À propos"
-                            description="Version 1.0.0"
-                            rightComponent={
-                                <MaterialIcons name="chevron-right" size={24} color="#9ca3af" />
-                            }
-                        />
+                        <TouchableOpacity onPress={() => router.push('/about')}>
+                            <SettingItem
+                                icon="info"
+                                title="À propos"
+                                description="Version 1.0.0"
+                                rightComponent={<MaterialIcons name="chevron-right" size={24} color="#9ca3af" />}
+                            />
+                        </TouchableOpacity>
 
-                        <SettingItem
-                            icon="star"
-                            title="Évaluer l'application"
-                            description="Donnez votre avis"
-                            rightComponent={
-                                <MaterialIcons name="chevron-right" size={24} color="#9ca3af" />
-                            }
-                        />
+                        <TouchableOpacity onPress={() => router.push('/rate')}>
+                            <SettingItem
+                                icon="star"
+                                title="Évaluer l'application"
+                                description="Donnez votre avis"
+                                rightComponent={<MaterialIcons name="chevron-right" size={24} color="#9ca3af" />}
+                            />
+                        </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity

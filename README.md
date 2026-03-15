@@ -167,9 +167,12 @@ app/
 │   └── wallets.tsx           # Wallet management
 ├── project/                  # Project component
 ├── _layout.tsx               # Root layout configuration
+├── about.tsx                 # About screen
 ├── forgot-password.tsx       # Forgot password screen
+├── rate.tsx                  # Rate screen
 ├── index.tsx                 # Entry point
 ├── login.tsx                 # Authentication screen
+├── rate.tsx                  # Rate screen
 ├── register.tsx              # Registration screen
 
 clients/                      # The clients
