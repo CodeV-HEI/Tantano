@@ -51,3 +51,5 @@ app-example
 .env.production.local
 .env.staging.local
 .env.test.local
+
+# "projectId": "b187a9d1-05aa-4138-8f0c-a333bdbda4c3"
