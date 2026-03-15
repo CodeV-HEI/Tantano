@@ -239,7 +239,7 @@ export default function LoginScreen() {
             </Animated.View>
 
             <View className="mt-4">
-              <GoogleButton mode="login" />
+              <GoogleButton mode="login" onSuccess={() => router.replace('/(tabs)')} />
             </View>
 
             <View className="mt-4" style={{ minHeight: 44 }}>

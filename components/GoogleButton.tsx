@@ -4,12 +4,14 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+//import { jwtDecode } from 'jwt-decode';
 
 interface GoogleButtonProps {
     mode: 'login' | 'register';
+    onSuccess?: () => void;
 }
 
-export default function GoogleButton({ mode }: GoogleButtonProps) {
+export default function GoogleButton({ mode, onSuccess }: GoogleButtonProps) {
     const { request, promptAsync } = useGoogleAuth();
     const { googleSignIn } = useAuth();
     const { theme } = useTheme();
@@ -21,7 +23,10 @@ export default function GoogleButton({ mode }: GoogleButtonProps) {
             const result = await promptAsync();
             if (result?.type === 'success') {
                 const { id_token } = result.params;
+                /**const decoded = jwtDecode(id_token);
+                console.log('🔑 Token décodé:', decoded);*/
                 await googleSignIn(id_token);
+                onSuccess?.();
             }
         } catch (error) {
             console.error('Google auth error:', error);

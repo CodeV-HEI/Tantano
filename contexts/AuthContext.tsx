@@ -15,6 +15,7 @@ interface AuthContextType {
     loginWithBiometrics: () => Promise<boolean>;
     biometricsAvailable: boolean;
     forgotPassword: (email: string) => Promise<void>;
+    resetPassword: (token: string, newPassword: string) => Promise<void>;
     googleSignIn: (idToken: string) => Promise<void>;
 }
 
@@ -162,15 +163,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const forgotPassword = async (email: string) => {
-        /*try {
-            await authAPI.forgotPassword({ email });
-        } catch (error) {
-            console.error('Forgot password failed:', error);
-            throw new Error('Impossible d\'envoyer l\'email de réinitialisation');
-        }*/
+        const response = await fetch(`${API_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+        return data.token;
+    };
+
+    const resetPassword = async (token: string, newPassword: string) => {
+        const response = await fetch(`${API_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+        return data;
     };
 
     const googleSignIn = async (idToken: string) => {
+        const response = await fetch(`${API_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+        });
+        const data = await response.json();
+        //console.log('📦 Réponse backend:', data);
+        if (response.ok) {
+            const { account, token } = data;
+            await AsyncStorage.setItem('user', JSON.stringify(account));
+            await AsyncStorage.setItem('token', token);
+            setUser(account);
+        } else {
+            throw new Error(data.message || 'Erreur Google Sign-In');
+        }
+    };
+
+    /*const googleSignIn = async (idToken: string) => {
         try {
             const response = await fetch(`${API_URL}/auth/google`, {
                 method: 'POST',
@@ -190,7 +222,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error('Google sign-in failed:', error);
             throw error;
         }
-    };
+    };*/
 
     return (
         <AuthContext.Provider
@@ -204,6 +236,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 loginWithBiometrics,
                 biometricsAvailable,
                 forgotPassword,
+                resetPassword,
                 googleSignIn,
             }}
         >

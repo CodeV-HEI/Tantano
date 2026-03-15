@@ -7,6 +7,7 @@ WebBrowser.maybeCompleteAuthSession();
 export const useGoogleAuth = () => {
     const androidClientId = Constants.expoConfig?.extra?.googleClientIdAndroid;
     const webClientId = Constants.expoConfig?.extra?.googleWebClientId;
+    const iosClientId = Constants.expoConfig?.extra?.googleClientIdIos;
 
     if (!androidClientId) {
         console.warn('googleClientIdAndroid is missing in app.json extra');
@@ -14,10 +15,16 @@ export const useGoogleAuth = () => {
     if (!webClientId) {
         console.warn('googleWebClientId is missing in app.json extra');
     }
+    if (!iosClientId) {
+        console.warn('googleClientIdIos is missing in app.json extra');
+    }
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         androidClientId,
         webClientId,
+        iosClientId,
+        scopes: ['openid', 'profile', 'email'],
+        responseType: 'id_token',
     });
 
     return { request, response, promptAsync };

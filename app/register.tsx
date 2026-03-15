@@ -311,9 +311,8 @@ export default function RegisterScreen() {
                             </TouchableOpacity>
                         </Animated.View>
 
-                        {/* Espacement ajouté ici */}
                         <View className="mt-4">
-                            <GoogleButton mode="register" />
+                            <GoogleButton mode="register" onSuccess={() => router.replace('/(tabs)')} />
                         </View>
 
                         <Animated.View entering={FadeInUp.delay(700)} className="pt-12">
