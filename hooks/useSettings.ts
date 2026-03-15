@@ -45,20 +45,18 @@ export function useSettings() {
         loadSettings();
     }, [loadSettings]);
 
-    const updateSettings = async (newSettings: Partial<Settings>) => {
-        const updated = { ...settings, ...newSettings };
-        setSettings(updated);
-        try {
-            await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
-        } catch (error) {
-            console.error('Failed to save settings', error);
-        }
-    };
+    const updateSettings = useCallback(async (newSettings: Partial<Settings>) => {
+        setSettings(prev => {
+            const updated = { ...prev, ...newSettings };
+            AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(updated)).catch(console.error);
+            return updated;
+        });
+    }, []);
 
-    const refreshSettings = async () => {
+    const refreshSettings = useCallback(async () => {
         setLoading(true);
         await loadSettings();
-    };
+    }, [loadSettings]);
 
     return { settings, loading, updateSettings, refreshSettings };
 }

@@ -117,6 +117,8 @@ export default function LoginScreen() {
     router.push('/register');
   };
 
+  const showBiometric = biometricsAvailable && settings.biometricsEnabled && !settingsLoading;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -144,76 +146,80 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 px-6 pt-16 pb-8 justify-center">
-          {!keyboardVisible && (
-            <Animated.View
-              entering={FadeInDown.duration(1000).springify()}
-              className="items-center mb-12"
-            >
-              <Text
-                className={`text-7xl font-bold text-transparent bg-clip-text ${theme === "dark" ? "bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" : "bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300"} ${theme === "dark" ? "neon-text" : "neon-text-light"} mb-3`}
+        <View className="flex-1 px-6 pt-16 pb-8 justify-between">
+          <View>
+            {!keyboardVisible && (
+              <Animated.View
+                entering={FadeInDown.duration(1000).springify()}
+                className="items-center mb-12"
               >
-                Tantano
-              </Text>
-              <Text
-                className={`text-lg ${theme === "dark" ? "text-cyan-300/80" : "text-cyan-600/80"} font-light tracking-widest`}
-              >
-                Financial event recording
-              </Text>
-            </Animated.View>
-          )}
-
-          <Animated.View
-            entering={FadeInUp.duration(800).delay(200)}
-            className="space-y-8"
-          >
-            <View className="space-y-3">
-              <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Email</Text>
-              <TextInput
-                className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30`}
-                placeholder="jack.sparrow@gmail.com"
-                placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                returnKeyType="next"
-                blurOnSubmit={false}
-              />
-            </View>
-
-            <View className="space-y-3 mt-4">
-              <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Mot de passe</Text>
-              <View className="relative">
-                <TextInput
-                  className={`${theme === 'dark' ? 'bg-black/60 border-purple-500/40 text-white' : 'bg-purple-50/50 border-purple-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-purple-400 focus:shadow-lg focus:shadow-purple-400/30 pr-12`}
-                  placeholder="••••••••"
-                  placeholderTextColor={theme === 'dark' ? '#a855f770' : '#9333ea70'}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  returnKeyType="done"
-                  onSubmitEditing={handleLogin}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                <Text
+                  className={`text-7xl font-bold text-transparent bg-clip-text ${theme === "dark" ? "bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" : "bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300"} ${theme === "dark" ? "neon-text" : "neon-text-light"} mb-3`}
                 >
-                  {showPassword ? (
-                    <EyeOff size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
-                  ) : (
-                    <Eye size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
-                  )}
-                </TouchableOpacity>
+                  Tantano
+                </Text>
+                <Text
+                  className={`text-lg ${theme === "dark" ? "text-cyan-300/80" : "text-cyan-600/80"} font-light tracking-widest`}
+                >
+                  Financial event recording
+                </Text>
+              </Animated.View>
+            )}
+
+            <Animated.View
+              entering={FadeInUp.duration(800).delay(200)}
+              className="space-y-8"
+            >
+              <View className="space-y-3">
+                <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Email</Text>
+                <TextInput
+                  className={`${theme === 'dark' ? 'bg-black/60 border-cyan-500/40 text-white' : 'bg-cyan-50/50 border-cyan-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-400/30`}
+                  placeholder="jack.sparrow@gmail.com"
+                  placeholderTextColor={theme === 'dark' ? '#06b6d470' : '#0891b270'}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                />
               </View>
-            </View>
 
-            <TouchableOpacity onPress={handleForgotPassword} className="self-end">
-              <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-sm underline`}>
-                Mot de passe oublié ?
-              </Text>
-            </TouchableOpacity>
+              <View className="space-y-3 mt-4">
+                <Text className={`${theme === 'dark' ? 'text-cyan-300' : 'text-cyan-600'} font-medium tracking-wide text-base`}>Mot de passe</Text>
+                <View className="relative">
+                  <TextInput
+                    className={`${theme === 'dark' ? 'bg-black/60 border-purple-500/40 text-white' : 'bg-purple-50/50 border-purple-300 text-gray-900'} border-2 rounded-xl px-5 py-4 text-lg focus:border-purple-400 focus:shadow-lg focus:shadow-purple-400/30 pr-12`}
+                    placeholder="••••••••"
+                    placeholderTextColor={theme === 'dark' ? '#a855f770' : '#9333ea70'}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    returnKeyType="done"
+                    onSubmitEditing={handleLogin}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
+                    ) : (
+                      <Eye size={24} color={theme === 'dark' ? '#a855f7' : '#9333ea'} />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
 
+              <TouchableOpacity onPress={handleForgotPassword} className="self-end">
+                <Text className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-sm underline`}>
+                  Mot de passe oublié ?
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+
+          <View>
             <Animated.View entering={FadeInUp.delay(400)} className="pt-4">
               <TouchableOpacity
                 className={`${isPressed ? (theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100') : (theme === 'dark' ? 'bg-black' : 'bg-white')} ${theme === 'dark' ? 'border-cyan-500/60 shadow-cyan-500/30' : 'border-cyan-400/50 shadow-cyan-400/20'} border-2 rounded-xl py-5 ${isLoading ? 'opacity-80' : ''} shadow-2xl active:scale-[0.98] flex-row justify-center items-center`}
@@ -232,29 +238,33 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </Animated.View>
 
-            <GoogleButton mode="login" />
+            <View className="mt-4">
+              <GoogleButton mode="login" />
+            </View>
 
-            {biometricsAvailable && settings.biometricsEnabled && !settingsLoading && (
-              <Animated.View entering={FadeInUp.delay(500)} className="mt-4">
-                <TouchableOpacity
-                  onPress={handleBiometricLogin}
-                  className={`flex-row justify-center items-center py-3 px-4 rounded-xl border ${theme === 'dark'
-                    ? 'border-cyan-500/30 bg-black/20'
-                    : 'border-cyan-300/50 bg-white/20'
-                    }`}
-                  activeOpacity={0.7}
-                >
-                  <MaterialIcons
-                    name="fingerprint"
-                    size={24}
-                    color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
-                  />
-                  <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} font-medium`}>
-                    Se connecter avec biométrie
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            )}
+            <View className="mt-4" style={{ minHeight: 44 }}>
+              {showBiometric && (
+                <Animated.View entering={FadeInUp.delay(500)}>
+                  <TouchableOpacity
+                    onPress={handleBiometricLogin}
+                    className={`flex-row justify-center items-center py-2 px-3 rounded-xl border ${theme === 'dark'
+                      ? 'border-cyan-500/30 bg-black/20'
+                      : 'border-cyan-300/50 bg-white/20'
+                      }`}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons
+                      name="fingerprint"
+                      size={20}
+                      color={theme === 'dark' ? '#06b6d4' : '#0891b2'}
+                    />
+                    <Text className={`ml-2 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'} text-sm font-medium`}>
+                      Se connecter avec biométrie
+                    </Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+            </View>
 
             <Animated.View entering={SlideInRight.delay(600)} className="pt-10">
               <View className="flex-row justify-center items-center space-x-2">
@@ -272,29 +282,29 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
             </Animated.View>
-          </Animated.View>
 
-          {!keyboardVisible && (
-            <Animated.View
-              entering={FadeInUp.delay(800)}
-              className="mt-16 items-center"
-            >
-              <Text
-                className={`${theme === "dark" ? "text-cyan-400/50" : "text-cyan-600/50"} text-lg tracking-wider`}
+            {!keyboardVisible && (
+              <Animated.View
+                entering={FadeInUp.delay(800)}
+                className="mt-16 items-center"
               >
-                © {new Date().getFullYear()} Tantano - CodeV
-              </Text>
-              <View className="flex-row space-x-2 mt-3">
-                {[...Array(3)].map((_, i) => (
-                  <View
-                    key={i}
-                    className={`w-3 h-3 ${theme === "dark" ? "bg-cyan-500" : "bg-cyan-400"} rounded-full animate-pulse`}
-                    style={{ animationDelay: `${i * 0.3}s` }}
-                  />
-                ))}
-              </View>
-            </Animated.View>
-          )}
+                <Text
+                  className={`${theme === "dark" ? "text-cyan-400/50" : "text-cyan-600/50"} text-lg tracking-wider`}
+                >
+                  © {new Date().getFullYear()} Tantano - CodeV
+                </Text>
+                <View className="flex-row space-x-2 mt-3">
+                  {[...Array(3)].map((_, i) => (
+                    <View
+                      key={i}
+                      className={`w-3 h-3 ${theme === "dark" ? "bg-cyan-500" : "bg-cyan-400"} rounded-full animate-pulse`}
+                      style={{ animationDelay: `${i * 0.3}s` }}
+                    />
+                  ))}
+                </View>
+              </Animated.View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
